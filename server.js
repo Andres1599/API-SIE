@@ -39,6 +39,8 @@ app.set('banco', db.Banco);
 app.set('gasto', db.CatalogoGastos);
 app.set('subgasto', db.CatalogoSubgasto);
 app.set('factura', db.Factura);
+app.set('planilla', db.Planilla);
+app.set('planilla_recibo', db.PlanillaRecibo);
 
 app.use(bodyParser.urlencoded({
     extended: true
