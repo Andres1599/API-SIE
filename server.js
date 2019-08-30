@@ -36,6 +36,9 @@ app.set('pais', db.Pais);
 app.set('tipo_documento', db.TipoDocumento);
 app.set('tipo_cuenta', db.TipoCuenta);
 app.set('banco', db.Banco);
+app.set('gasto', db.CatalogoGastos);
+app.set('subgasto', db.CatalogoSubgasto);
+app.set('factura', db.Factura);
 
 app.use(bodyParser.urlencoded({
     extended: true
