@@ -29,6 +29,13 @@ db.Sequelize.sync({
 app.set('tipo_usuario', db.TipoUsuario);
 app.set('usuario', db.Usuario);
 app.set('sequelize', db.Sequelize);
+app.set('carta', db.Carta);
+app.set('moneda', db.Moneda);
+app.set('empresa', db.Empresa);
+app.set('pais', db.Pais);
+app.set('tipo_documento', db.TipoDocumento);
+app.set('tipo_cuenta', db.TipoCuenta);
+app.set('banco', db.Banco);
 
 app.use(bodyParser.urlencoded({
     extended: true
@@ -42,7 +49,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     next();
 });
-app.use('/api/sie/', require('./routes')(app));
+app.use('/api/sie', require('./routes')(app));
 app.use(cors());
 
 app.listen(port, () => {

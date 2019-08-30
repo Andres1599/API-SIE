@@ -1,25 +1,9 @@
 module.exports = {
     develop: {
-        user: process.env.USER_DB,
-        password: process.env.PASS_DB,
-        port: process.env.PORT,
-        db: process.env.DB_DV,
-        db_: {
-            host: 'localhost',
-            dialect: 'mysql',
-            pool: {
-                max: 20,
-                min: 0,
-                idle: 10000
-            }
-        },
-        status: false
-    },
-    production: {
-        user: process.env.USER_DB,
-        password: process.env.PASS_DB,
-        port: process.env.PORT,
-        db: process.env.DB_PR,
+        user: process.env.USER_DB || 'adminsie',
+        password: process.env.PASS_DB || 'adminpass',
+        port: process.env.PORT || 4000,
+        db: process.env.DB_DV || 'sie_dev',
         db_: {
             host: 'localhost',
             dialect: 'mysql',
@@ -30,5 +14,21 @@ module.exports = {
             }
         },
         status: true
+    },
+    production: {
+        user: process.env.USER_DB || 'adminsie',
+        password: process.env.PASS_DB || 'adminpass',
+        port: process.env.PORT || 4001,
+        db: process.env.DB_PR || 'sie_produc',
+        db_: {
+            host: 'localhost',
+            dialect: 'mysql',
+            pool: {
+                max: 20,
+                min: 0,
+                idle: 10000
+            }
+        },
+        status: false
     }
 };

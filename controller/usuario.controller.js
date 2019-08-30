@@ -1,11 +1,10 @@
-module.exports = (app, strings) => {
+module.exports = (app) => {
 
     let usuario = app.get('usuario');
+    const strings = require('../utils/strings.res');
 
     return {
-        create: (req, res) => {
-            createUsuario(usuario, req, res, strings);
-        },
+        create: (req, res) => { createUsuario(usuario, req, res, strings); },
         update: (req, res) => {},
         delete: (req, res) => {},
         getById: (req, res) => {},
