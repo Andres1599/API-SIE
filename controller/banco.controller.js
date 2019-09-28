@@ -58,36 +58,27 @@ function deleteBanco(bancos, req, res) {
 }
 
 function updateBanco(bancos, req, res) {
-    bancos.findOne({
+    bancos.update({
+        nombre_banco: req.body.nombre_banco,
+        region_banco: req.body.region_banco
+    }, {
         where: {
             id_banco: req.body.id_banco
         }
-    }).then(function(response) {
-        if (response) {
-            response.updateAttributes({
-                nombre_banco: req.body.nombre_banco,
-                region_banco: req.body.region_banco
-            }).then(function(update) {
-                if (update) {
-                    res.json(update);
-                } else {
-                    res.json({
-                        message: "Error al actualizar el banco"
-                    });
-                }
-            });
-        } else {
-            res.json({
-                message: "No hemos podido encontrar al banco"
-            });
-        }
-    });
+    }).then(function(update) {
+        res.json(update);
+    }).catch(function(err) {
+        res.json({
+            message: 'Error al procesar la petición',
+            error: err
+        });
+    })
 }
 
 function getBancosById(bancos, req, res) {
     bancos.findOne({
         where: {
-            id_banco: req.body.id_banco
+            id_banco: req.params.id_banco
         }
     }).then(function(response) {
         if (response) {
@@ -97,6 +88,11 @@ function getBancosById(bancos, req, res) {
                 message: "No hemos podido encontrar al banco"
             });
         }
+    }).catch(function(err) {
+        res.json({
+            message: "No hemos podido encontrar al banco",
+            error: err
+        });
     });
 }
 

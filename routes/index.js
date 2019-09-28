@@ -23,7 +23,7 @@ module.exports = (app) => {
 
     //routes from bancos
     routes.post('/bancos/', BancosController.create);
-    routes.get('/bancos/id', BancosController.getById);
+    routes.get('/bancos/:id_banco', BancosController.getById);
     routes.delete('/bancos/delete', BancosController.delete);
     routes.put('/bancos/update', BancosController.update);
 
