@@ -53,7 +53,7 @@ app.set('orden_usuario', db.OrdenUsuario);
 app.set('orden_liquidacion', db.OrdenLiquidacion);
 app.set('orden_deposito', db.OrdenDeposito);
 app.set('orden_presupuesto', db.OrdenPresupuesto);
-
+app.set('empresa_moneda', db.EmpresaMoneda);
 app.use(bodyParser.urlencoded({
     extended: true
 }));

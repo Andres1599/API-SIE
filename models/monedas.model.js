@@ -1,5 +1,5 @@
 module.exports = (sequelize, type) => {
-    var Moneda = Sequelize.define('monedas', {
+    var Moneda = sequelize.define('monedas', {
         id_moneda: {
             type: type.INTEGER,
             primaryKey: true,

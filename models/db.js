@@ -29,7 +29,7 @@ const OrdenPresupuestoModel = require('./orden.presupuesto.model');
 const OrdenLiquidacionModel = require('./orden.liquidacion.model');
 const OrdenDepostioModel = require('./orden.deposito.model');
 const OrdenUsuarioModel = require('./orden.usuario.model');
-
+const EmpresaMonedaModel = require('./empresa.moneda');
 //CONTROL DEL ENTORNO DE DESARROLLO DE LA BASE DE DATOS
 if (Config.develop.status) {
     Sequelize = new sequelize(Config.develop.db, Config.develop.user, Config.develop.password, Config.develop.db_);
@@ -62,9 +62,9 @@ const Deposito = DepositoModel(Sequelize, sequelize, Subcuenta);
 const OrdenViaticos = OrdenViaticosModel(Sequelize, sequelize, Empresa, Pais, Moneda);
 const OrdenPresupuesto = OrdenPresupuestoModel(Sequelize, sequelize, OrdenViaticos);
 const OrdenLiquidacion = OrdenLiquidacionModel(Sequelize, sequelize, OrdenViaticos, Liquidacion);
-const OrdenUsuario = OrdenUsuarioModel(Sequelize, sequelize, OrdenViaticos, Liquidacion);
+const OrdenUsuario = OrdenUsuarioModel(Sequelize, sequelize, OrdenViaticos, Usuario);
 const OrdenDeposito = OrdenDepostioModel(Sequelize, sequelize, OrdenViaticos, Deposito);
-
+const EmpresaMoneda = EmpresaMonedaModel(Sequelize, sequelize, Empresa, Moneda);
 //EXPORTACION DE LOS MODELOS PARA SETEO EN LA APLICACION EXPRESS
 module.exports = {
     Sequelize,
@@ -93,5 +93,6 @@ module.exports = {
     OrdenPresupuesto,
     OrdenLiquidacion,
     OrdenUsuario,
-    OrdenDeposito
+    OrdenDeposito,
+    EmpresaMoneda
 };
