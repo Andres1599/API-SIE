@@ -7,6 +7,7 @@ module.exports = (app) => {
     const BancosController = require('../controller/banco.controller')(app);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     const EmpresaController = require('../controller/empresa.controller')(app);
+    const MonedaController = require('../controller/moneda.controller')(app);
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
@@ -37,5 +38,15 @@ module.exports = (app) => {
     routes.post('/empresa/', EmpresaController.create);
     routes.delete('/empresa/', EmpresaController.delete);
     routes.put('/empresa/', EmpresaController.update);
+
+    //routes from moneda
+    routes.post('/moneda/', MonedaController.create);
+    routes.delete('/moneda/', MonedaController.delete);
+    routes.put('/moneda/', MonedaController.update);
+    routes.get('/moneda/iso/:simbolo', MonedaController.getByIso);
+    routes.post('/moneda/impuesto/', MonedaController.updateImpuesto);
+    routes.get('/moneda/iso/', MonedaController.getIso);
+
+
     return routes;
 };
