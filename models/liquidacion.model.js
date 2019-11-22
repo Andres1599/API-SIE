@@ -1,47 +1,45 @@
-module.exports = (sequelize, type, assosiation_user, assosiation_coin) => {
-    var Liquidacion = sequelize.define('liquidaciones', {
-        id_liquidacion: {
+module.exports = (sequelize, type) => {
+    var Liquidacion = sequelize.define('liquidacion', {
+        id: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        fecha_creacion: {
-            type: type.DATE,
-            dafault: new Date()
+        id_liquidacion: {
+            type: type.INTEGER,
+            allowNull: false
         },
-        fecha_cierre: {
-            type: type.DATE,
-            default: null
+        id_usuario: {
+            type: type.INTEGER,
+            allowNull: true
         },
-        correlativo_liquidacion: {
+        id_empresa: {
+            type: type.INTEGER,
+            allowNull: true
+        },
+        id_moneda: {
+            type: type.INTEGER,
+            allowNull: true
+        },
+        id_tipo_liquidacion: {
+            type: type.INTEGER,
+            allowNull: true
+        },
+        fecha: {
+            type: type.DATE,
+            allowNull: true
+        },
+        fecha_cierra: {
+            type: type.DATE,
+            allowNull: true
+        },
+        estado: {
             type: type.INTEGER,
             allowNull: true
         }
     }, {
         freezeTableName: true,
         timestamps: false
-    });
-
-    Liquidacion.belongsTo(assosiation_user, {
-        foreignKey: 'fk_id_usuario',
-        onDelete: 'SET NULL',
-        onUpdate: 'SET NULL'
-    });
-    assosiation_user.hasMany(Liquidacion, {
-        foreignKey: 'fk_id_usuario',
-        onDelete: 'SET NULL',
-        onUpdate: 'SET NULL'
-    });
-
-    Liquidacion.belongsTo(assosiation_coin, {
-        foreignKey: 'fk_id_moneda',
-        onDelete: 'SET NULL',
-        onUpdate: 'SET NULL'
-    });
-    assosiation_coin.hasMany(Liquidacion, {
-        foreignKey: 'fk_id_moneda',
-        onDelete: 'SET NULL',
-        onUpdate: 'SET NULL'
     });
 
     return Liquidacion;

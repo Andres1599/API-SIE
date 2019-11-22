@@ -1,121 +1,95 @@
-module.exports = (app) => {
+module.exports = (app, str) => {
 
     let usuario = app.get('usuario');
     let datosUsuario = app.get('usuario_datos');
-    let tipoUsuario = app.get('tipo_usuario');
-    let liquidaciones = app.get('tipo_usuario');
-    let cuentas = app.get('cuenta');
-    let subcuentas = app.get('subcuenta');
-    let facturas = app.get('factura');
-    let ordenViaticos = app.get('liquidacion');
-    let ordeUsuario = app.get('orden_usuario');
-    const strings = require('../utils/strings.res');
 
     return {
-        create: (req, res) => { createUsuario(usuario, req, res, strings); },
-        update: (req, res) => {},
-        delete: (req, res) => {},
-        getById: (req, res) => {},
-        getAll: (req, res) => {},
-        login: (req, res) => {
-            logIn(usuario, datosUsuario, tipoUsuario, req, res, strings);
-        },
-        get: (req, res) => {
-            getAllInfo(usuario, datosUsuario, req, res);
-        },
-        getLiquidation: (req, res) => {
-            getLiquidationUser(usuario, liquidaciones, req, res);
-        }
+        create: (req, res) => { createUsuario(usuario, req, res, str) },
+        updatePassword: (req, res) => { changePassword(usuario, req, res, str) },
     };
 }
 
-function createUsuario(usuario, req, res, strings) {
+/** 
+ *@description
+ *Verify the user for access to system
+ *@params `email`,`password`, `tipo_usuario`
+ *@publicApi 
+ **/
+function createUsuario(usuario, req, res, str) {
+
+    const bcrypt = require('bcryptjs');
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+    if (!hash) {
+        res.json({
+            message: str.createErr
+        });
+    }
+
     usuario.create({
         email: req.body.email,
-        password: req.body.password,
-        status: true,
-        fk_id_tipo_usuario: req.body.tipo_usuario
+        password: hash,
+        status: false,
+        fk_id_tipo: req.body.tipo_usuario
     }).then(response => {
         if (response)
             res.json({
-                message: strings.create
+                message: str.create,
+                created: true
             });
         else
             res.json({
-                message: strings.createErr,
-                error: response
+                message: str.createErr,
+                error: response,
+                created: false
             });
     }).catch(err => {
         if (err)
             res.json({
-                message: strings.createErr,
-                error: err
+                message: str.createErr,
+                error: err,
+                created: false
             });
     });
 }
 
-function logIn(usuario, datosUsuario, tipoUsuario, req, res, strings) {
-    usuario.findOne({
-        where: {
-            email: req.body.correo,
-            password: req.body.password,
-            status: true
-        },
-        include: [{ model: datosUsuario, attributes: ['nombre', 'apellido', 'dpi'] }, { model: tipoUsuario }],
-        attributes: ['id_usuario']
-    }).then(response => {
-        if (response) {
-            res.json({
-                message: strings.getAll,
-                usuario: response,
-                logged: true
-            });
-        } else {
-            res.json({
-                message: strings.getErr,
-                canActive: false
-            });
-        }
-    }).catch(err => {
-        if (err) {
-            res.json({
-                message: strings.getErr,
-                error: err
-            });
-        }
-    });
-}
+/** 
+ * @description
+ * Update de password to the users on the system
+ * @params `email`,`password`
+ * @publicApi
+ * **/
+function changePassword(usuario, req, res, str) {
 
-function getAllInfo(usuario, datosUsuario, req, res) {
-    usuario.findAll({
+    const bcrypt = require('bcryptjs');
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+    if (!hash) {
+        res.json({
+            message: str.updateErr
+        });
+    }
+
+    usuario.update({
+        password: hash
+    }, {
         where: {
-            id_usuario: req.params.id_usuario
-        },
-        include: [{ model: datosUsuario, attributes: ['nombre', 'apellido', 'dpi'] }],
-        attributes: ['id_usuario']
-    }).then(response => {
-        if (response) {
-            res.json(response[0]);
-        } else {
-            res.json({
-                message: 'Error al realizar la peticion',
-                res: response
-            });
+            email: req.body.email
         }
+    }).then(update => {
+        if (update)
+            res.json({
+                message: str.update,
+                updated: true
+            });
     }).catch(err => {
         if (err)
             res.json({
-                message: 'Error al realizar la petición',
-                error: err
+                message: str.updateErr,
+                error: err,
+                updated: false
             });
     });
-}
-
-function getLiquidationUser(usuario, liquidaciones, req, res) {
-    usuario.findAll({
-        where: {
-            id_usuario: req.body.id_usuario
-        },
-        include: [{ model: liquidaciones, attributes: [''] }]
-    })
 }

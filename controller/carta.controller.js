@@ -1,7 +1,7 @@
 module.exports = (app) => {
 
     let carta = app.get('carta');
-    const strings = require('../utils/strings.res');
+    const strings = require('../utils/strings');
 
     return {
         create: (req, res) => { createCarta(carta, req, res, strings); },

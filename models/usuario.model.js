@@ -24,11 +24,11 @@ module.exports = (sequelize, type, assosiation) => {
     });
 
     Usuarios.belongsTo(assosiation, {
-        foreignKey: 'fk_id_tipo_usuario'
+        foreignKey: 'fk_id_tipo'
     });
 
     assosiation.hasMany(Usuarios, {
-        foreignKey: 'fk_id_tipo_usuario'
+        foreignKey: 'fk_id_tipo'
     });
 
     return Usuarios;

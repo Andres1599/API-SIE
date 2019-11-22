@@ -1,4 +1,4 @@
-const strings = require('../utils/strings.res');
+const strings = require('../utils/strings');
 
 module.exports = (app) => {
 

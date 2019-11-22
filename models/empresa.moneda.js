@@ -1,8 +1,6 @@
 module.exports = (sequelize, type, empresa, moneda) => {
     var EmpresaMoneda = sequelize.define('empresa_moneda', {
-        id_empresa_moneda: { type: type.INTEGER, primaryKey: true, autoIncrement: true },
-        fk_id_empresa: { type: type.STRING, allowNull: false },
-        fk_id_moneda: { type: type.STRING, allowNull: false }
+        id_empresa_moneda: { type: type.INTEGER, primaryKey: true, autoIncrement: true }
     }, {
         freezeTableName: true,
         timestamps: false

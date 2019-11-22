@@ -1,21 +1,23 @@
 const routes = require('express').Router();
+const str = require('../utils/strings');
 module.exports = (app) => {
     //import models
     const CartaController = require('../controller/carta.controller')(app);
-    const UsuarioController = require('../controller/usuario.controller')(app);
+    const UsuarioController = require('../controller/usuario.controller')(app, str);
     const AdminGetController = require('../controller/admin.controller')(app);
     const BancosController = require('../controller/banco.controller')(app);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     const EmpresaController = require('../controller/empresa.controller')(app);
     const MonedaController = require('../controller/moneda.controller')(app);
+    const LiquidacionController = require('../controller/liquidacion.controller')(app);
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
     routes.delete('/carta/delete/', CartaController.delete);
 
     //routes usuario
-    routes.post('/usuario/login/', UsuarioController.login);
-    routes.get('/usuario/:id_usuario', UsuarioController.get);
+    routes.post('/usuario/new', UsuarioController.create);
+    routes.put('/usuario/pass', UsuarioController.updatePassword);
 
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
@@ -47,6 +49,9 @@ module.exports = (app) => {
     routes.post('/moneda/impuesto/', MonedaController.updateImpuesto);
     routes.get('/moneda/iso/', MonedaController.getIso);
 
+    //routes from liquidacion
+    routes.get('/liquidaciones/', LiquidacionController.getAll);
+    routes.get('/liquidaciones/usuario/', LiquidacionController.getByUsuario);
 
     return routes;
 };
