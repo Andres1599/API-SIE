@@ -18,6 +18,7 @@ module.exports = (app) => {
     //routes usuario
     routes.post('/usuario/new', UsuarioController.create);
     routes.put('/usuario/pass', UsuarioController.updatePassword);
+    routes.post('/usuario/login', UsuarioController.login);
 
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
