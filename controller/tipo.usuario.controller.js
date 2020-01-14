@@ -37,14 +37,9 @@ function createTipoUsuario(tipoUsuario, req, res) {
 
 function getAll(tipoUsuario, res) {
     tipoUsuario.findAll().then(response => {
-        if (response)
-            res.json({
-                tipoUsuarios: res
-            });
-        else
-            res.json({
-                tipoUsuarios: res
-            });
+        res.json({
+            tipoUsuarios: response
+        });
     }).catch(err => {
         if (err)
             res.status(500).send({
