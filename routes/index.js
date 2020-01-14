@@ -19,6 +19,7 @@ module.exports = (app) => {
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
+
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
@@ -48,7 +49,7 @@ module.exports = (app) => {
 
     //routes from empresas
     routes.post('/empresa/', EmpresaController.create);
-    routes.delete('/empresa/', EmpresaController.delete);
+    routes.post('/empresa/:id', EmpresaController.delete);
     routes.put('/empresa/', EmpresaController.update);
 
     //routes from moneda
@@ -56,7 +57,7 @@ module.exports = (app) => {
     routes.delete('/moneda/', MonedaController.delete);
     routes.put('/moneda/', MonedaController.update);
     routes.get('/moneda/iso/:simbolo', MonedaController.getByIso);
-    routes.post('/moneda/impuesto/', MonedaController.updateImpuesto);
+    routes.put('/moneda/impuesto/', MonedaController.updateImpuesto);
     routes.get('/moneda/iso/', MonedaController.getIso);
 
     //routes from liquidacion

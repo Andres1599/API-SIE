@@ -35,10 +35,10 @@ function CreateEmpresa(empresa, req, res) {
 
 function UpdateEmpresa(empresa, req, res) {
     empresa.update({
-        nombre_empresa: req.body.nombre,
-        nit_empresa: req.body.nit,
-        serie_empresa: req.body.serie,
-        alias_empresa: req.body.alias
+        nombre_empresa: req.body.nombre_empresa,
+        nit_empresa: req.body.nit_empresa,
+        serie_empresa: req.body.serie_empresa,
+        alias_empresa: req.body.alias_empresa
     }, {
         where: {
             id_empresa: req.body.id_empresa
@@ -56,7 +56,7 @@ function UpdateEmpresa(empresa, req, res) {
 function DeleteEmpresa(empresa, req, res) {
     empresa.destroy({
         where: {
-            id_empresa: req.body.id_empresa
+            id_empresa: req.params.id
         }
     }).then(function(response) {
         if (response === 1) {

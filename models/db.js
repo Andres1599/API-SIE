@@ -30,12 +30,17 @@ const OrdenLiquidacionModel = require('./orden.liquidacion.model');
 const OrdenDepostioModel = require('./orden.deposito.model');
 const OrdenUsuarioModel = require('./orden.usuario.model');
 const EmpresaMonedaModel = require('./empresa.moneda');
+
 //CONTROL DEL ENTORNO DE DESARROLLO DE LA BASE DE DATOS
+let config;
+
 if (Config.develop.status) {
-    Sequelize = new sequelize(Config.develop.db, Config.develop.user, Config.develop.password, Config.develop.db_);
+    config = Config.develop;
 } else {
-    Sequelize = new sequelize(Config.production.db, Config.production.user, Config.production.password, Config.production.db_);
+    config = Config.production;
 }
+
+Sequelize = new sequelize(config.db, config.user, config.password, config.db_);
 
 //INSTANCIA DE LOS MODELOS PARA LA SYNC CON LA BASE DE DATOS
 const TipoUsuario = TipoUsuarioModel(Sequelize, sequelize);
