@@ -1,7 +1,7 @@
 module.exports = {
     develop: {
-        user: process.env.USER_DB || 'adminsie',
-        password: process.env.PASS_DB || 'adminpass',
+        user: process.env.USER_DB || 'root',
+        password: process.env.PASS_DB || '',
         port: process.env.PORT || 4000,
         db: process.env.DB_DV || 'test',
         db_: {
