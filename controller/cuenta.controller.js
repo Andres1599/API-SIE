@@ -1,18 +1,30 @@
-module.exports = function(app) {
+module.exports = function (app) {
     let cuentas = app.get('cuenta');
+    let usuario = app.get('usuario');
+    let datos_usuario = app.get('usuario_datos');
     return {
-        create: (req, res) => { newCuenta(cuentas, req, res); },
-        update: (req, res) => { updateCuenta(cuentas, req, res); },
-        delete: (req, res) => { deleteCuenta(cuentas, req, res); },
-        getById: (req, res) => { getCuentasById(cuentas, req, res); },
-        getAll: (req, res) => { getAllCuentas(cuentas, req, res); }
+        create: (req, res) => {
+            newCuenta(cuentas, req, res);
+        },
+        update: (req, res) => {
+            updateCuenta(cuentas, req, res);
+        },
+        delete: (req, res) => {
+            deleteCuenta(cuentas, req, res);
+        },
+        getById: (req, res) => {
+            getCuentasById(cuentas, req, res);
+        },
+        getAll: (req, res) => {
+            getAllCuentas(cuentas, usuario, datos_usuario, req, res);
+        }
     }
 }
 
 function newCuenta(cuentas, req, res) {
     cuentas.create({
         fk_id_usuario: req.body.id_usuario,
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -29,13 +41,13 @@ function deleteCuenta(cuentas, req, res) {
         where: {
             id_cuenta: req.body.id_cuenta
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             cuentas.destroy({
                 where: {
                     id_cuenta: req.body.id_cuenta
                 }
-            }).then(function(deleted) {
+            }).then(function (deleted) {
                 if (deleted) {
                     res.json({
                         message: "Se ha eliminado con exito la cuenta",
@@ -63,9 +75,9 @@ function updateCuenta(cuentas, req, res) {
         where: {
             id_cuenta: req.body.id_cuenta
         }
-    }).then(function(update) {
+    }).then(function (update) {
         res.json(update);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: 'Error al procesar la petición',
             error: err
@@ -78,7 +90,7 @@ function getCuentasById(cuentas, req, res) {
         where: {
             id_cuenta: req.params.id_cuenta
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -86,7 +98,7 @@ function getCuentasById(cuentas, req, res) {
                 message: "No hemos podido encontrar al cuenta"
             });
         }
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: "No hemos podido encontrar al cuenta",
             error: err
@@ -94,8 +106,13 @@ function getCuentasById(cuentas, req, res) {
     });
 }
 
-function getAllCuentas(cuentas, req, res) {
-    cuentas.findAll().then(function(response) {
+function getAllCuentas(cuentas, usuario, datos_usuario, req, res) {
+    cuentas.findAll({
+        include: [{
+            model: usuario,
+            include: [datos_usuario]
+        }]
+    }).then(function (response) {
         res.json(response);
     });
 }
