@@ -54,7 +54,7 @@ module.exports = (app) => {
 
     //routes from moneda
     routes.post('/moneda/', MonedaController.create);
-    routes.delete('/moneda/', MonedaController.delete);
+    routes.post('/moneda/:id_moneda', MonedaController.delete);
     routes.put('/moneda/', MonedaController.update);
     routes.get('/moneda/iso/:simbolo', MonedaController.getByIso);
     routes.put('/moneda/impuesto/', MonedaController.updateImpuesto);
