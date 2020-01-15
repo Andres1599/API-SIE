@@ -17,10 +17,10 @@ module.exports = function(app) {
 
 function CreateEmpresa(empresa, req, res) {
     empresa.create({
-        nombre_empresa: req.body.nombre,
-        nit_empresa: req.body.nit,
-        serie_empresa: req.body.serie,
-        alias_empresa: req.body.alias
+        nombre_empresa: req.body.nombre_empresa,
+        nit_empresa: req.body.nit_empresa,
+        serie_empresa: req.body.serie_empresa,
+        alias_empresa: req.body.alias_empresa
     }).then(function(response) {
         if (response) {
             res.json(response);
