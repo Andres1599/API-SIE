@@ -40,8 +40,8 @@ module.exports = (app) => {
     //routes from bancos
     routes.post('/bancos/', BancosController.create);
     routes.get('/bancos/:id_banco', BancosController.getById);
-    routes.delete('/bancos/delete', BancosController.delete);
-    routes.put('/bancos/update', BancosController.update);
+    routes.post('/bancos/:id_banco', BancosController.delete);
+    routes.put('/bancos/', BancosController.update);
 
     //routes from tipo usuario
     routes.post('/tipo/usuario/', TipoUsuarioController.create);
