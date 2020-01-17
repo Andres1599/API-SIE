@@ -1,7 +1,8 @@
 module.exports = function (app) {
-    let cuentas = app.get('cuenta');
-    let usuario = app.get('usuario');
-    let datos_usuario = app.get('usuario_datos');
+    const cuentas = app.get('cuenta');
+    const usuario = app.get('usuario');
+    const datos_usuario = app.get('usuario_datos');
+    const sub_cuenta = app.get('subcuenta');
     return {
         create: (req, res) => {
             newCuenta(cuentas, req, res);
@@ -16,7 +17,7 @@ module.exports = function (app) {
             getCuentasById(cuentas, req, res);
         },
         getAll: (req, res) => {
-            getAllCuentas(cuentas, usuario, datos_usuario, req, res);
+            getAllCuentas(cuentas, usuario, datos_usuario, sub_cuenta, req, res);
         }
     }
 }
@@ -106,12 +107,17 @@ function getCuentasById(cuentas, req, res) {
     });
 }
 
-function getAllCuentas(cuentas, usuario, datos_usuario, req, res) {
+function getAllCuentas(cuentas, usuario, datos_usuario, sub_cuenta, req, res) {
     cuentas.findAll({
-        include: [{
-            model: usuario,
-            include: [datos_usuario]
-        }]
+        include: [
+            {
+                model: usuario,
+                include: [datos_usuario]
+            },
+            {
+                model: sub_cuenta
+            }
+        ]
     }).then(function (response) {
         res.json(response);
     });
