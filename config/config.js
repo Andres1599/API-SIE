@@ -13,7 +13,7 @@ module.exports = {
                 idle: 10000
             }
         },
-        status: false
+        status: true
     },
     production: {
         user: process.env.USER_DB || 'adminsie',
@@ -29,6 +29,6 @@ module.exports = {
                 idle: 10000
             }
         },
-        status: true
+        status: false
     }
 };

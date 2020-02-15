@@ -29,7 +29,7 @@ module.exports = (sequelize, type, assosiation) => {
         onUpdate: 'RESTRICT' 
     });
 
-    assosiation.hasMany(Usuarios, {
+    assosiation.hasOne(Usuarios, {
         foreignKey: 'fk_id_tipo',
         onDelete: 'RESTRICT',
         onUpdate: 'RESTRICT'

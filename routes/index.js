@@ -27,8 +27,9 @@ module.exports = (app) => {
 
     //routes usuario
     routes.post('/usuario/new', UsuarioController.create);
-    routes.put('/usuario/pass', UsuarioController.updatePassword);
+    routes.post('/usuario/pass', UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.login);
+    routes.post('/usuario/forget', UsuarioController.forgetPass);
 
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
@@ -51,6 +52,7 @@ module.exports = (app) => {
     routes.post('/empresa/', EmpresaController.create);
     routes.post('/empresa/:id', EmpresaController.delete);
     routes.put('/empresa/', EmpresaController.update);
+    routes.get('/empresa/moneda', EmpresaController.getEM);
 
     //routes from moneda
     routes.post('/moneda/', MonedaController.create);
