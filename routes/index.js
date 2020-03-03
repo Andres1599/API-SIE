@@ -19,6 +19,8 @@ module.exports = (app) => {
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
+    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
+
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
@@ -26,8 +28,9 @@ module.exports = (app) => {
 
     //routes usuario
     routes.post('/usuario/new', UsuarioController.create);
-    routes.put('/usuario/pass', UsuarioController.updatePassword);
+    routes.post('/usuario/pass', UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.login);
+    routes.post('/usuario/forget', UsuarioController.forgetPass);
 
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
@@ -39,8 +42,8 @@ module.exports = (app) => {
     //routes from bancos
     routes.post('/bancos/', BancosController.create);
     routes.get('/bancos/:id_banco', BancosController.getById);
-    routes.delete('/bancos/delete', BancosController.delete);
-    routes.put('/bancos/update', BancosController.update);
+    routes.post('/bancos/:id_banco', BancosController.delete);
+    routes.put('/bancos/', BancosController.update);
 
     //routes from tipo usuario
     routes.post('/tipo/usuario/', TipoUsuarioController.create);
@@ -48,20 +51,22 @@ module.exports = (app) => {
 
     //routes from empresas
     routes.post('/empresa/', EmpresaController.create);
-    routes.delete('/empresa/', EmpresaController.delete);
+    routes.post('/empresa/:id', EmpresaController.delete);
     routes.put('/empresa/', EmpresaController.update);
+    routes.get('/empresa/moneda', EmpresaController.getEM);
 
     //routes from moneda
     routes.post('/moneda/', MonedaController.create);
-    routes.delete('/moneda/', MonedaController.delete);
+    routes.post('/moneda/:id_moneda', MonedaController.delete);
     routes.put('/moneda/', MonedaController.update);
     routes.get('/moneda/iso/:simbolo', MonedaController.getByIso);
-    routes.post('/moneda/impuesto/', MonedaController.updateImpuesto);
+    routes.put('/moneda/impuesto/', MonedaController.updateImpuesto);
     routes.get('/moneda/iso/', MonedaController.getIso);
 
     //routes from liquidacion
     routes.get('/liquidaciones/', LiquidacionController.getAll);
     routes.get('/liquidaciones/usuario/', LiquidacionController.getByUsuario);
+    routes.post('/liquidacion/', LiquidacionController.create);
 
     //routes from cuenta
     routes.get('/cuentas/', CuentaController.getAll);
@@ -107,7 +112,7 @@ module.exports = (app) => {
 
     //routes from gastostipousuario
     routes.get('/gastostipousuario/', GastosTipoUsuarioController.getAll);
-    routes.get('/gastostipousuario/id', GastosTipoUsuarioController.getById);
+    routes.get('/gastostipousuario/:id', GastosTipoUsuarioController.getById);
     routes.delete('/gastostipousuario/id', GastosTipoUsuarioController.delete);
     routes.put('/gastostipousuario/id', GastosTipoUsuarioController.update);
     routes.post('/gastostipousuario', GastosTipoUsuarioController.create);
@@ -132,5 +137,9 @@ module.exports = (app) => {
     routes.delete('/ordenpresupuesto/id', OrdenPresupuestoController.delete);
     routes.put('/ordenpresupuesto/id', OrdenPresupuestoController.update);
     routes.post('/ordenpresupuesto', OrdenPresupuestoController.create);
+
+    //routes from tipo documento
+    routes.get('/tipo/documento/', TipoDocumentosController.getAll);
+
     return routes;
 };

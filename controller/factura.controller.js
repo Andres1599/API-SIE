@@ -1,5 +1,5 @@
 module.exports = function(app) {
-    let facturas = app.get('facturas');
+    let facturas = app.get('factura');
     return {
         create: (req, res) => { newFactura(facturas, req, res); },
         update: (req, res) => { updateFactura(facturas, req, res); },
@@ -14,15 +14,21 @@ function newFactura(facturas, req, res) {
         fecha_compra: req.body.fecha_compra,
         correlativo_factura: req.body.correlativo_factura,
         proveedor_factura: req.body.proveedor_factura,
+        ordenes_trabajo: req.body.ordenes_trabajo,
         total_factura: req.body.total_factura,
         total_idp_factura: req.body.total_idp_factura,
         total_sidp_factura: req.body.total_sidp_factura,
-        total_inguat_factura: req.body.total_inguat_factura,
+        iva_factura: req.body.iva_factura,
+        total_siva: req.body.total_siva,
+        total_inguat_factura: 0,
         galones_factura: req.body.galones_factura,
         exceso_factura: req.body.exceso_factura,
-        status: req.body.status,
+        status: true,
         fk_id_usuario: req.body.fk_id_usuario,
         fk_id_tipo_documento: req.body.fk_id_tipo_documento,
+        fecha_registro_factura: new Date(),
+        fk_id_moneda: req.body.fk_id_moneda,
+        fk_id_subgasto: req.body.fk_id_subgasto
     }).then(function(response) {
         if (response) {
             res.json(response);

@@ -11,21 +11,30 @@ module.exports = (app, str) => {
          *@params `email`,`password`, `tipo_usuario`
          *@publicApi 
          **/
-        create: (req, res) => { createUsuario(usuario, req, res, str) },
+        create: (req, res) => {
+            createUsuario(usuario, req, res, str)
+        },
         /** 
          * @description
          * Update de password to the users on the system
          * @params `email`,`password`
          * @publicApi
          * **/
-        updatePassword: (req, res) => { changePassword(usuario, req, res, str) },
+        updatePassword: (req, res) => {
+            changePassword(usuario, req, res, str)
+        },
         /**
          * @description
          * Log in to access on the system
          * @params `email`, `password`
          * @publicApi
          */
-        login: (req, res) => { login(usuario, datosUsuario, req, res, str) }
+        login: (req, res) => {
+            login(usuario, datosUsuario, req, res, str)
+        },
+        forgetPass: (req, res) => {
+            forgetPass(usuario, datosUsuario, req, res);
+        }
     }
 }
 
@@ -70,7 +79,7 @@ function createUsuario(usuario, req, res, str) {
 function changePassword(usuario, req, res, str) {
 
     const salt = bcrypt.genSaltSync(10)
-    const hash = bcrypt.hashSync(req.body.password, salt)
+    const hash = bcrypt.hashSync(req.body.new_pass, salt)
 
     if (!hash) {
         res.json({
@@ -78,26 +87,46 @@ function changePassword(usuario, req, res, str) {
         })
     }
 
-    usuario.update({
-        password: hash
-    }, {
-        where: {
-            email: req.body.email
-        }
-    }).then(update => {
-        if (update)
-            res.json({
-                message: str.update,
-                updated: true
-            })
-    }).catch(err => {
-        if (err)
-            res.json({
-                message: str.updateErr,
-                error: err,
-                updated: false
-            })
-    })
+    usuario.findOne({
+            where: {
+                email: req.body.email
+            }
+        }).then(user => {
+            if (user) {
+                console.log(user.password)
+                let pass = bcrypt.compareSync(req.body.old_pass, user.password)
+                if (pass) {
+                    return usuario.update({
+                        password: hash
+                    }, {
+                        where: {
+                            id_usuario: user.id_usuario
+                        }
+                    })
+                } else {
+                    res.json({
+                        message: 'El password antiguo no es correcto',
+                        update: false
+                    })
+                }
+            }
+        })
+        .then(update => {
+            if (update) {
+                res.json({
+                    message: str.update,
+                    update: true
+                })
+            }
+        })
+        .catch(err => {
+            if (err)
+                res.json({
+                    message: str.updateErr,
+                    error: err,
+                    updated: false
+                })
+        })
 }
 
 function login(usuario, datosUsuario, req, res, str) {
@@ -105,11 +134,12 @@ function login(usuario, datosUsuario, req, res, str) {
         where: {
             email: req.body.email
         },
-        include: [
-            { model: datosUsuario, attributes: ['nombre', 'apellido', 'dpi', 'TEL'] }
-        ]
+        include: [{
+            model: datosUsuario,
+            attributes: ['nombre', 'apellido', 'dpi', 'TEL']
+        }]
     }).then(rest => {
-        let passworUser = rest.password
+        const passworUser = rest.password
         let pass = bcrypt.compareSync(req.body.password, passworUser)
 
         if (pass) {
@@ -133,4 +163,69 @@ function login(usuario, datosUsuario, req, res, str) {
                 logged: false
             })
     })
+}
+
+async function updateWithOutOldPass(usuario, id_usuario, newPassRandom) {
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(newPassRandom, salt);
+
+    usuario.update({
+        password: hash
+    }, {
+        where: {
+            id_usuario: id_usuario
+        }
+    }).then(updated => {
+        if (updated) {
+            return true;
+        }
+    }).catch(err => {
+        if (err) {
+            return false;
+        }
+    });
+}
+
+function RANDOM_PASS() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+function forgetPass(usuario, datosUsuario, req, res) {
+    usuario.findOne({
+        where: {
+            email: req.body.email,
+            status: true
+        },
+        attributes: ['id_usuario', 'email', 'status'],
+        include: [{
+            model: datosUsuario,
+            attributes: ['id', 'nombre', 'apellido', 'tel', 'dpi'],
+            where: {
+                nombre: req.body.nombre,
+                apellido: req.body.apellido,
+                dpi: req.body.dpi
+            }
+        }]
+    }).then(async (response) => {
+        if (response) {
+            const newPass = RANDOM_PASS();
+            await updateWithOutOldPass(usuario, response.id_usuario, newPass);
+
+            res.status(200).send({
+                password: newPass
+            });
+        } else {
+            res.status(200).send({
+                message: 'Usuario no encontrado.'
+            })
+        }
+    }).catch(err => {
+        if (err) {
+            res.status(400).send({
+                message: 'Error al encontrar al usuario.',
+                err
+            });
+        }
+    });
 }

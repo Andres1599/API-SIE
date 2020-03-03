@@ -28,7 +28,7 @@ function newBanco(bancos, req, res) {
 function deleteBanco(bancos, req, res) {
     bancos.findOne({
         where: {
-            id_banco: req.body.id_banco
+            id_banco: req.params.id_banco
         }
     }).then(function(response) {
         if (response) {
