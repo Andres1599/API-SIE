@@ -64,3 +64,27 @@ function getLiquidacionByUsuario(liquidacion, liquidacionFactura, req, res) {
             }
         });
 }
+
+function newLiquidacion(liquidacion, req, res) {
+    try {
+        liquidacion.create({
+            id_usuario: req.body.id_usuario,
+            id_empresa: req.body.id_empresa,
+            id_moneda: req.body.id_moneda,
+            id_tipo_liquidacion: 0,
+            id_liquidacion: 0,
+            fecha: new Date(),
+            estado: false
+        }).then( response => {
+            if (response) {
+                res.json(response);
+            } else {
+                res.json({
+                    create: false
+                });
+            }
+        });
+    } catch (error) {
+        res.json(error);
+    }
+}

@@ -10,18 +10,29 @@ module.exports = (sequelize, type, gasto, usuario) => {
         timestamps: false
     });
 
-    gasto.belongsToMany(usuario, {
+    GastoUsuario.belongsTo(gasto, {
         foreignKey: 'fk_id_gasto',
         onDelete: 'SET NULL',
-        onUpdate: 'SET NULL',
-        through: GastoUsuario
+        onUpdate: 'SET NULL'
     });
-    usuario.belongsToMany(gasto, {
+
+    gasto.hasMany(GastoUsuario, {
+        foreignKey: 'fk_id_gasto',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    GastoUsuario.belongsTo(usuario, {
         foreignKey: 'fk_id_tipo_usuario',
         onDelete: 'SET NULL',
-        onUpdate: 'SET NULL',
-        through: GastoUsuario
+        onUpdate: 'SET NULL'
     });
+
+    usuario.hasMany(GastoUsuario, {
+        foreignKey: 'fk_id_tipo_usuario',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    })
 
     return GastoUsuario;
 }

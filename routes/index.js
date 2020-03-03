@@ -19,6 +19,7 @@ module.exports = (app) => {
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
+    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
@@ -65,6 +66,7 @@ module.exports = (app) => {
     //routes from liquidacion
     routes.get('/liquidaciones/', LiquidacionController.getAll);
     routes.get('/liquidaciones/usuario/', LiquidacionController.getByUsuario);
+    routes.post('/liquidacion/', LiquidacionController.create);
 
     //routes from cuenta
     routes.get('/cuentas/', CuentaController.getAll);
@@ -110,7 +112,7 @@ module.exports = (app) => {
 
     //routes from gastostipousuario
     routes.get('/gastostipousuario/', GastosTipoUsuarioController.getAll);
-    routes.get('/gastostipousuario/id', GastosTipoUsuarioController.getById);
+    routes.get('/gastostipousuario/:id', GastosTipoUsuarioController.getById);
     routes.delete('/gastostipousuario/id', GastosTipoUsuarioController.delete);
     routes.put('/gastostipousuario/id', GastosTipoUsuarioController.update);
     routes.post('/gastostipousuario', GastosTipoUsuarioController.create);
@@ -135,5 +137,9 @@ module.exports = (app) => {
     routes.delete('/ordenpresupuesto/id', OrdenPresupuestoController.delete);
     routes.put('/ordenpresupuesto/id', OrdenPresupuestoController.update);
     routes.post('/ordenpresupuesto', OrdenPresupuestoController.create);
+
+    //routes from tipo documento
+    routes.get('/tipo/documento/', TipoDocumentosController.getAll);
+
     return routes;
 };
