@@ -1,5 +1,5 @@
 module.exports = function(app) {
-    let liquidacionFactura = app.get('item_liquidacion');
+    let liquidacionFactura = app.get('liquidacion_factura');
     return {
         create: (req, res) => { newLiquidacionFactura(liquidacionFactura, req, res); },
         update: (req, res) => { updateLiquidacionFactura(liquidacionFactura, req, res); },

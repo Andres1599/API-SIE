@@ -30,7 +30,7 @@ module.exports = function(app) {
 function CreateMoneda(moneda, req, res) {
     moneda.create({
         tipo_moneda: req.body.tipo_moneda,
-        cmb_dolar: req.body.impuesto,
+        cmb_dolar: req.body.cmb_dolar,
         simbolo: req.body.simbolo
     }).then(function(response) {
         if (response) {
@@ -59,7 +59,7 @@ function GetMonedas(moneda, req, res) {
 function UpdateMoneda(moneda, req, res) {
     moneda.update({
         tipo_moneda: req.body.tipo_moneda,
-        cmb_dolar: req.body.impuesto,
+        cmb_dolar: req.body.cmb_dolar,
         simbolo: req.body.simbolo
     }, {
         where: {
@@ -78,7 +78,7 @@ function UpdateMoneda(moneda, req, res) {
 function DeleteMoneda(moneda, req, res) {
     moneda.destroy({
         where: {
-            id_moneda: req.body.id_moneda
+            id_moneda: req.params.id_moneda
         }
     }).then(function(deleted) {
         if (deleted === 1) {

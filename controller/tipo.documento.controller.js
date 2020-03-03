@@ -1,18 +1,28 @@
-module.exports = function(app) {
-    let tipoDocumentos = app.get('tipo_documentos');
+module.exports = function (app) {
+    let tipoDocumentos = app.get('tipo_documento');
     return {
-        create: (req, res) => { newTipoDocumentos(tipoDocumentos, req, res); },
-        update: (req, res) => { updateTipoDocumentos(tipoDocumentos, req, res); },
-        delete: (req, res) => { deleteTipoDocumentos(tipoDocumentos, req, res); },
-        getById: (req, res) => { getTipoDocumentosById(tipoDocumentos, req, res); },
-        getAll: (req, res) => { getAllTipoDocumentos(tipoDocumentos, req, res); }
+        create: (req, res) => {
+            newTipoDocumentos(tipoDocumentos, req, res);
+        },
+        update: (req, res) => {
+            updateTipoDocumentos(tipoDocumentos, req, res);
+        },
+        delete: (req, res) => {
+            deleteTipoDocumentos(tipoDocumentos, req, res);
+        },
+        getById: (req, res) => {
+            getTipoDocumentosById(tipoDocumentos, req, res);
+        },
+        getAll: (req, res) => {
+            getAllTipoDocumentos(tipoDocumentos, req, res);
+        }
     }
 }
 
 function newTipoDocumentos(tipoDocumentos, req, res) {
     tipoDocumentos.create({
         nombre_documento: req.body.nombre_documento,
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -29,13 +39,13 @@ function deleteTipoDocumentos(tipoDocumentos, req, res) {
         where: {
             id_tipo_documento: req.body.id_tipo_documento
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             tipoDocumentos.destroy({
                 where: {
                     id_tipo_documento: req.body.id_tipo_documento
                 }
-            }).then(function(deleted) {
+            }).then(function (deleted) {
                 if (deleted) {
                     res.json({
                         message: "Se ha eliminado con exito el tipo de documento",
@@ -63,9 +73,9 @@ function updateTipoDocumentos(tipoDocumentos, req, res) {
         where: {
             id_tipo_documento: req.body.id_tipo_documento
         }
-    }).then(function(update) {
+    }).then(function (update) {
         res.json(update);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: 'Error al procesar la petición',
             error: err
@@ -78,7 +88,7 @@ function getTipoDocumentosById(tipoDocumentos, req, res) {
         where: {
             id_tipo_documento: req.params.id_tipo_documento
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -86,7 +96,7 @@ function getTipoDocumentosById(tipoDocumentos, req, res) {
                 message: "No hemos podido encontrar el tipo de documento"
             });
         }
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: "No hemos podido encontrar el tipo de documento",
             error: err
@@ -95,7 +105,9 @@ function getTipoDocumentosById(tipoDocumentos, req, res) {
 }
 
 function getAllTipoDocumentos(tipoDocumentos, req, res) {
-    tipoDocumentos.findAll().then(function(response) {
-        res.json(response);
+    tipoDocumentos.findAll().then((response) => {
+        if (response) {
+            res.json(response);
+        }
     });
 }
