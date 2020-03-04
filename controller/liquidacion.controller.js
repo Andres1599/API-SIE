@@ -1,22 +1,38 @@
-module.exports = function(app) {
+module.exports = function (app) {
     let liquidacion = app.get('liquidacion');
     let liquidacionFactura = app.get('liquidacion_factura');
     let moneda = app.get('moneda');
     let tipoCuenta = app.get('tipo_cuenta');
+    let empresa = app.get('empresa');
+    let user = app.get('usuario');
+    let userData = app.get('usuario_datos');
+    let factura = app.get('factura');
+    let subgasto = app.get('subgasto');
+    let tipoDocumento = app.get('tipo_documento');
     return {
-        create: (req, res) => { newLiquidacion(liquidacion, req, res); },
-        update: (req, res) => { updateLiquidacion(liquidacion, req, res); },
-        delete: (req, res) => { deleteLiquidacion(liquidacion, req, res); },
-        getByUsuario: (req, res) => { getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, req, res); },
-        getAll: (req, res) => { getAllLiquidacion(liquidacion, liquidacionFactura, req, res); }
+        create: (req, res) => {
+            newLiquidacion(liquidacion, req, res);
+        },
+        update: (req, res) => {
+            updateLiquidacion(liquidacion, req, res);
+        },
+        delete: (req, res) => {
+            deleteLiquidacion(liquidacion, req, res);
+        },
+        getByUsuario: (req, res) => {
+            getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, user, userData, factura, subgasto, tipoDocumento, req, res);
+        },
+        getAll: (req, res) => {
+            getAllLiquidacion(liquidacion, liquidacionFactura, req, res);
+        }
     }
 }
 
 function getAllLiquidacion(liquidacion, liquidacionFactura, req, res) {
     liquidacion.findAll({
-            include: [
-                { model: liquidacionFactura }
-            ]
+            include: [{
+                model: liquidacionFactura
+            }]
         })
         .then(response => {
             if (response) {
@@ -38,15 +54,35 @@ function getAllLiquidacion(liquidacion, liquidacionFactura, req, res) {
         });
 }
 
-function getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, req, res) {
+function getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, user, userData, factura, subgasto, tipoDocumento, req, res) {
     liquidacion.findAll({
             where: {
                 id_usuario: req.body.id_usuario
             },
-            include: [
-                { model: liquidacionFactura },
-                { model: moneda },
-                { model: tipoCuenta}
+            include: [{
+                    model: liquidacionFactura,
+                    include: [{
+                        model: factura,
+                        include: [subgasto, tipoDocumento]
+                    }]
+                },
+                {
+                    model: moneda
+                },
+                {
+                    model: tipoCuenta
+                },
+                {
+                    model: empresa
+                },
+                {
+                    model: user,
+                    attributes: ['email'],
+                    include: {
+                        model: userData,
+                        attributes: ['nombre', 'apellido', 'dpi']
+                    }
+                }
             ]
         })
         .then(response => {
@@ -79,7 +115,7 @@ function newLiquidacion(liquidacion, req, res) {
             id_liquidacion: 0,
             fecha: new Date(),
             estado: false
-        }).then( response => {
+        }).then(response => {
             if (response) {
                 res.json(response);
             } else {
