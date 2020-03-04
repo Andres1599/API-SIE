@@ -20,6 +20,7 @@ module.exports = (app) => {
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
+    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
@@ -65,7 +66,7 @@ module.exports = (app) => {
 
     //routes from liquidacion
     routes.get('/liquidaciones/', LiquidacionController.getAll);
-    routes.get('/liquidaciones/usuario/', LiquidacionController.getByUsuario);
+    routes.post('/liquidaciones/usuario', LiquidacionController.getByUsuario);
     routes.post('/liquidacion/', LiquidacionController.create);
 
     //routes from cuenta
@@ -102,6 +103,7 @@ module.exports = (app) => {
     routes.delete('/facturas/id', FacturaController.delete);
     routes.put('/facturas/id', FacturaController.update);
     routes.post('/facturas', FacturaController.create);
+    routes.post('/facturas/usuario', FacturaController.getByIdUser);
 
     //routes from gastos
     routes.get('/gastos/', GastosController.getAll);
@@ -140,6 +142,9 @@ module.exports = (app) => {
 
     //routes from tipo documento
     routes.get('/tipo/documento/', TipoDocumentosController.getAll);
+
+    //routes from tipo cuentas
+    routes.get('/tipo/cuentas', TipoCuentaController.getAll);
 
     return routes;
 };

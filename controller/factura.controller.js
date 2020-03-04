@@ -1,11 +1,15 @@
 module.exports = function(app) {
     let facturas = app.get('factura');
+    let moneda = app.get('moneda');
+    let tipoDocumento = app.get('tipo_documento');
+    let gasto = app.get('subgasto');
     return {
         create: (req, res) => { newFactura(facturas, req, res); },
         update: (req, res) => { updateFactura(facturas, req, res); },
         delete: (req, res) => { deleteFactura(facturas, req, res); },
         getById: (req, res) => { getFacturasById(facturas, req, res); },
-        getAll: (req, res) => { getAllFacturas(facturas, req, res); }
+        getAll: (req, res) => { getAllFacturas(facturas, req, res); },
+        getByIdUser: (req, res) => { getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res); }
     }
 }
 
@@ -23,7 +27,7 @@ function newFactura(facturas, req, res) {
         total_inguat_factura: 0,
         galones_factura: req.body.galones_factura,
         exceso_factura: req.body.exceso_factura,
-        status: true,
+        status: false,
         fk_id_usuario: req.body.fk_id_usuario,
         fk_id_tipo_documento: req.body.fk_id_tipo_documento,
         fecha_registro_factura: new Date(),
@@ -126,4 +130,31 @@ function getAllFacturas(facturas, req, res) {
     facturas.findAll().then(function(response) {
         res.json(response);
     });
+}
+
+function getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res) {
+    facturas.findAll({
+        where: {
+            fk_id_usuario: req.body.id_usuario
+        },
+        include: [
+            { model: moneda},
+            { model: tipoDocumento},
+            { model: gasto},
+        ]
+    }).then( value => {
+        if (value) {
+            res.json(value)
+        } else {
+            res.json({
+                find: false,
+                message: 'No hay facturas asociadas a ese usuario'
+            })
+        }
+    }).catch( err => {
+        res.json({
+            message: 'Error al buscar las facturas',
+            err
+        })
+    })
 }

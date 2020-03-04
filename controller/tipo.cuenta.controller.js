@@ -1,5 +1,5 @@
 module.exports = function(app) {
-    let tipoCuentas = app.get('tipo_cuentas');
+    let tipoCuentas = app.get('tipo_cuenta');
     return {
         create: (req, res) => { newTipoCuentas(tipoCuentas, req, res); },
         update: (req, res) => { updateTipoCuentas(tipoCuentas, req, res); },
