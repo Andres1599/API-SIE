@@ -1,121 +1,231 @@
-module.exports = (app) => {
+const bcrypt = require('bcryptjs')
+module.exports = (app, str) => {
 
-    let usuario = app.get('usuario');
-    let datosUsuario = app.get('usuario_datos');
-    let tipoUsuario = app.get('tipo_usuario');
-    let liquidaciones = app.get('tipo_usuario');
-    let cuentas = app.get('cuenta');
-    let subcuentas = app.get('subcuenta');
-    let facturas = app.get('factura');
-    let ordenViaticos = app.get('liquidacion');
-    let ordeUsuario = app.get('orden_usuario');
-    const strings = require('../utils/strings.res');
+    let usuario = app.get('usuario')
+    let datosUsuario = app.get('usuario_datos')
 
     return {
-        create: (req, res) => { createUsuario(usuario, req, res, strings); },
-        update: (req, res) => {},
-        delete: (req, res) => {},
-        getById: (req, res) => {},
-        getAll: (req, res) => {},
+        /** 
+         *@description
+         *Verify the user for access to system
+         *@params `email`,`password`, `tipo_usuario`
+         *@publicApi 
+         **/
+        create: (req, res) => {
+            createUsuario(usuario, req, res, str)
+        },
+        /** 
+         * @description
+         * Update de password to the users on the system
+         * @params `email`,`password`
+         * @publicApi
+         * **/
+        updatePassword: (req, res) => {
+            changePassword(usuario, req, res, str)
+        },
+        /**
+         * @description
+         * Log in to access on the system
+         * @params `email`, `password`
+         * @publicApi
+         */
         login: (req, res) => {
-            logIn(usuario, datosUsuario, tipoUsuario, req, res, strings);
+            login(usuario, datosUsuario, req, res, str)
         },
-        get: (req, res) => {
-            getAllInfo(usuario, datosUsuario, req, res);
-        },
-        getLiquidation: (req, res) => {
-            getLiquidationUser(usuario, liquidaciones, req, res);
+        forgetPass: (req, res) => {
+            forgetPass(usuario, datosUsuario, req, res);
         }
-    };
+    }
 }
 
-function createUsuario(usuario, req, res, strings) {
+function createUsuario(usuario, req, res, str) {
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+    if (!hash) {
+        res.json({
+            message: str.createErr
+        })
+    }
+
     usuario.create({
         email: req.body.email,
-        password: req.body.password,
-        status: true,
-        fk_id_tipo_usuario: req.body.tipo_usuario
+        password: hash,
+        status: false,
+        fk_id_tipo: req.body.tipo_usuario
     }).then(response => {
         if (response)
             res.json({
-                message: strings.create
-            });
+                message: str.create,
+                created: true
+            })
         else
             res.json({
-                message: strings.createErr,
-                error: response
-            });
+                message: str.createErr,
+                error: response,
+                created: false
+            })
     }).catch(err => {
         if (err)
             res.json({
-                message: strings.createErr,
-                error: err
-            });
-    });
+                message: str.createErr,
+                error: err,
+                created: false
+            })
+    })
 }
 
-function logIn(usuario, datosUsuario, tipoUsuario, req, res, strings) {
+function changePassword(usuario, req, res, str) {
+
+    const salt = bcrypt.genSaltSync(10)
+    const hash = bcrypt.hashSync(req.body.new_pass, salt)
+
+    if (!hash) {
+        res.json({
+            message: str.updateErr
+        })
+    }
+
+    usuario.findOne({
+            where: {
+                email: req.body.email
+            }
+        }).then(user => {
+            if (user) {
+                console.log(user.password)
+                let pass = bcrypt.compareSync(req.body.old_pass, user.password)
+                if (pass) {
+                    return usuario.update({
+                        password: hash
+                    }, {
+                        where: {
+                            id_usuario: user.id_usuario
+                        }
+                    })
+                } else {
+                    res.json({
+                        message: 'El password antiguo no es correcto',
+                        update: false
+                    })
+                }
+            }
+        })
+        .then(update => {
+            if (update) {
+                res.json({
+                    message: str.update,
+                    update: true
+                })
+            }
+        })
+        .catch(err => {
+            if (err)
+                res.json({
+                    message: str.updateErr,
+                    error: err,
+                    updated: false
+                })
+        })
+}
+
+function login(usuario, datosUsuario, req, res, str) {
     usuario.findOne({
         where: {
-            email: req.body.correo,
-            password: req.body.password,
-            status: true
+            email: req.body.email
         },
-        include: [{ model: datosUsuario, attributes: ['nombre', 'apellido', 'dpi'] }, { model: tipoUsuario }],
-        attributes: ['id_usuario']
-    }).then(response => {
-        if (response) {
+        include: [{
+            model: datosUsuario,
+            attributes: ['nombre', 'apellido', 'dpi', 'TEL']
+        }]
+    }).then(rest => {
+        const passworUser = rest.password
+        let pass = bcrypt.compareSync(req.body.password, passworUser)
+
+        if (pass) {
             res.json({
-                message: strings.getAll,
-                usuario: response,
+                message: str.get,
+                usuario: rest,
                 logged: true
-            });
+            })
         } else {
             res.json({
-                message: strings.getErr,
-                canActive: false
-            });
+                message: str.getErr,
+                usuario: null,
+                logged: false
+            })
+        }
+    }).catch(err => {
+        if (err)
+            res.json({
+                message: str.getErr,
+                error: err,
+                logged: false
+            })
+    })
+}
+
+async function updateWithOutOldPass(usuario, id_usuario, newPassRandom) {
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(newPassRandom, salt);
+
+    usuario.update({
+        password: hash
+    }, {
+        where: {
+            id_usuario: id_usuario
+        }
+    }).then(updated => {
+        if (updated) {
+            return true;
         }
     }).catch(err => {
         if (err) {
-            res.json({
-                message: strings.getErr,
-                error: err
-            });
+            return false;
         }
     });
 }
 
-function getAllInfo(usuario, datosUsuario, req, res) {
-    usuario.findAll({
+function RANDOM_PASS() {
+    return Math.random().toString(36).substr(2, 9);
+}
+
+function forgetPass(usuario, datosUsuario, req, res) {
+    usuario.findOne({
         where: {
-            id_usuario: req.params.id_usuario
+            email: req.body.email,
+            status: true
         },
-        include: [{ model: datosUsuario, attributes: ['nombre', 'apellido', 'dpi'] }],
-        attributes: ['id_usuario']
-    }).then(response => {
+        attributes: ['id_usuario', 'email', 'status'],
+        include: [{
+            model: datosUsuario,
+            attributes: ['id', 'nombre', 'apellido', 'tel', 'dpi'],
+            where: {
+                nombre: req.body.nombre,
+                apellido: req.body.apellido,
+                dpi: req.body.dpi
+            }
+        }]
+    }).then(async (response) => {
         if (response) {
-            res.json(response[0]);
-        } else {
-            res.json({
-                message: 'Error al realizar la peticion',
-                res: response
+            const newPass = RANDOM_PASS();
+            await updateWithOutOldPass(usuario, response.id_usuario, newPass);
+
+            res.status(200).send({
+                password: newPass
             });
+        } else {
+            res.status(200).send({
+                message: 'Usuario no encontrado.'
+            })
         }
     }).catch(err => {
-        if (err)
-            res.json({
-                message: 'Error al realizar la petición',
-                error: err
+        if (err) {
+            res.status(400).send({
+                message: 'Error al encontrar al usuario.',
+                err
             });
+        }
     });
-}
-
-function getLiquidationUser(usuario, liquidaciones, req, res) {
-    usuario.findAll({
-        where: {
-            id_usuario: req.body.id_usuario
-        },
-        include: [{ model: liquidaciones, attributes: [''] }]
-    })
 }

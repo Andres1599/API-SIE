@@ -30,12 +30,17 @@ const OrdenLiquidacionModel = require('./orden.liquidacion.model');
 const OrdenDepostioModel = require('./orden.deposito.model');
 const OrdenUsuarioModel = require('./orden.usuario.model');
 const EmpresaMonedaModel = require('./empresa.moneda');
+
 //CONTROL DEL ENTORNO DE DESARROLLO DE LA BASE DE DATOS
+let config;
+
 if (Config.develop.status) {
-    Sequelize = new sequelize(Config.develop.db, Config.develop.user, Config.develop.password, Config.develop.db_);
+    config = Config.develop;
 } else {
-    Sequelize = new sequelize(Config.production.db, Config.production.user, Config.production.password, Config.production.db_);
+    config = Config.production;
 }
+
+Sequelize = new sequelize(config.db, config.user, config.password, config.db_);
 
 //INSTANCIA DE LOS MODELOS PARA LA SYNC CON LA BASE DE DATOS
 const TipoUsuario = TipoUsuarioModel(Sequelize, sequelize);
@@ -50,14 +55,14 @@ const TipoCuenta = TipoCuentaModel(Sequelize, sequelize);
 const Banco = BancoModel(Sequelize, sequelize);
 const CatalogoGastos = CatalogoGastosModel(Sequelize, sequelize);
 const CatalogoSubgasto = CatalogoSubgastoModel(Sequelize, sequelize, CatalogoGastos);
-const Factura = FacturaModel(Sequelize, sequelize, Usuario, TipoDocumento);
-const Liquidacion = LiquidacionModel(Sequelize, sequelize, Usuario, Moneda);
+const GastoUsuario = GastoUsuarioModel(Sequelize, sequelize, CatalogoGastos, TipoUsuario);
+const Factura = FacturaModel(Sequelize, sequelize, Usuario, TipoDocumento, Moneda, CatalogoSubgasto);
+const Liquidacion = LiquidacionModel(Sequelize, sequelize,Usuario, Empresa, Moneda, TipoCuenta);
 const LiquidacionFactura = LiquidacionFacturaModel(Sequelize, sequelize, Liquidacion, Factura);
 const Planilla = PlanillaModel(Sequelize, sequelize, Pais, Moneda, Empresa);
 const PlanillaRecibo = PlanillaReciboModel(Sequelize, sequelize, Planilla, Usuario);
 const Cuenta = CuentaModel(Sequelize, sequelize, Usuario);
 const Subcuenta = SubcuentaModel(Sequelize, sequelize, Cuenta, Moneda, TipoCuenta, Empresa);
-const GastoUsuario = GastoUsuarioModel(Sequelize, sequelize, CatalogoGastos, TipoUsuario);
 const Deposito = DepositoModel(Sequelize, sequelize, Subcuenta);
 const OrdenViaticos = OrdenViaticosModel(Sequelize, sequelize, Empresa, Pais, Moneda);
 const OrdenPresupuesto = OrdenPresupuestoModel(Sequelize, sequelize, OrdenViaticos);

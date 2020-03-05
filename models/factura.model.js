@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, assosiation_user, assosiation_type) => {
+module.exports = (sequelize, type, assosiation_user, assosiation_type, assosiation_coin, assosiation_spend) => {
     var Factura = sequelize.define('facturas', {
         id_factura: {
             type: type.INTEGER,
@@ -15,6 +15,10 @@ module.exports = (sequelize, type, assosiation_user, assosiation_type) => {
             allowNull: false
         },
         proveedor_factura: {
+            type: type.STRING,
+            allowNull: true
+        },
+        ordenes_trabajo: {
             type: type.STRING,
             allowNull: true
         },
@@ -90,6 +94,30 @@ module.exports = (sequelize, type, assosiation_user, assosiation_type) => {
 
     assosiation_type.hasMany(Factura, {
         foreignKey: 'fk_id_tipo_documento',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    Factura.belongsTo(assosiation_coin, {
+        foreignKey: 'fk_id_moneda',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    assosiation_coin.hasMany(Factura, {
+        foreignKey: 'fk_id_moneda',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    Factura.belongsTo(assosiation_spend, {
+        foreignKey: 'fk_id_subgasto',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    assosiation_spend.hasMany(Factura, {
+        foreignKey: 'fk_id_subgasto',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });

@@ -1,3 +1,5 @@
+let str = require('../utils/strings');
+
 module.exports = (app) => {
 
     let Usuario = app.get('usuario');

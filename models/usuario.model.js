@@ -24,11 +24,15 @@ module.exports = (sequelize, type, assosiation) => {
     });
 
     Usuarios.belongsTo(assosiation, {
-        foreignKey: 'fk_id_tipo_usuario'
+        foreignKey: 'fk_id_tipo',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT' 
     });
 
-    assosiation.hasMany(Usuarios, {
-        foreignKey: 'fk_id_tipo_usuario'
+    assosiation.hasOne(Usuarios, {
+        foreignKey: 'fk_id_tipo',
+        onDelete: 'RESTRICT',
+        onUpdate: 'RESTRICT'
     });
 
     return Usuarios;

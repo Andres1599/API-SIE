@@ -1,19 +1,23 @@
-module.exports = (sequelize, type, assosiation_user, assosiation_coin) => {
-    var Liquidacion = sequelize.define('liquidaciones', {
-        id_liquidacion: {
+module.exports = (sequelize, type, assosiationUser, assosiationCompany, assosiationCoin, assosiationTypeLiquidation) => {
+    var Liquidacion = sequelize.define('liquidacion', {
+        id: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true
         },
-        fecha_creacion: {
-            type: type.DATE,
-            dafault: new Date()
+        id_liquidacion: {
+            type: type.INTEGER,
+            allowNull: false
         },
-        fecha_cierre: {
+        fecha: {
             type: type.DATE,
-            default: null
+            allowNull: true
         },
-        correlativo_liquidacion: {
+        fecha_cierra: {
+            type: type.DATE,
+            allowNull: true
+        },
+        estado: {
             type: type.INTEGER,
             allowNull: true
         }
@@ -22,24 +26,50 @@ module.exports = (sequelize, type, assosiation_user, assosiation_coin) => {
         timestamps: false
     });
 
-    Liquidacion.belongsTo(assosiation_user, {
-        foreignKey: 'fk_id_usuario',
-        onDelete: 'SET NULL',
-        onUpdate: 'SET NULL'
-    });
-    assosiation_user.hasMany(Liquidacion, {
-        foreignKey: 'fk_id_usuario',
+    Liquidacion.belongsTo(assosiationUser, {
+        foreignKey: 'id_usuario',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });
 
-    Liquidacion.belongsTo(assosiation_coin, {
-        foreignKey: 'fk_id_moneda',
+    assosiationUser.hasMany(Liquidacion, {
+        foreignKey: 'id_usuario',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });
-    assosiation_coin.hasMany(Liquidacion, {
-        foreignKey: 'fk_id_moneda',
+
+    Liquidacion.belongsTo(assosiationCompany, {
+        foreignKey: 'id_empresa',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    assosiationCompany.hasMany(Liquidacion, {
+        foreignKey: 'id_usuario',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    Liquidacion.belongsTo(assosiationCoin, {
+        foreignKey: 'id_moneda',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    assosiationCoin.hasMany(Liquidacion, {
+        foreignKey: 'id_moneda',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    Liquidacion.belongsTo(assosiationTypeLiquidation, {
+        foreignKey: 'id_tipo_liquidacion',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    assosiationTypeLiquidation.hasMany(Liquidacion, {
+        foreignKey: 'id_tipo_liquidacion',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });

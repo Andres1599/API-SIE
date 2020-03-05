@@ -1,6 +1,6 @@
-module.exports = (sequelize, type, assosiation_liquidation, assosiation_factura) => {
-    var LiquidacionFactura = sequelize.define('liquidacion_factura', {
-        id_liquidacion_factura: {
+module.exports = (sequelize, type, liquidacion, factura) => {
+    var LiquidacionFactura = sequelize.define('item_liquidacion', {
+        id_item: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true
@@ -10,17 +10,27 @@ module.exports = (sequelize, type, assosiation_liquidation, assosiation_factura)
         timestamps: false
     });
 
-    assosiation_liquidation.belongsToMany(assosiation_factura, {
-        foreignKey: 'fk_id_liquidacion',
+    LiquidacionFactura.belongsTo(liquidacion, {
+        foreignKey: 'id_liquidacion',
         onDelete: 'SET NULL',
-        onUpdate: 'SET NULL',
-        through: LiquidacionFactura
+        onUpdate: 'SET NULL'
     });
-    assosiation_factura.belongsToMany(assosiation_liquidation, {
-        foreignKey: 'fk_id_factura',
+    liquidacion.hasMany(LiquidacionFactura, {
+        foreignKey: 'id_liquidacion',
         onDelete: 'SET NULL',
-        onUpdate: 'SET NULL',
-        through: LiquidacionFactura
+        onUpdate: 'SET NULL'
+    });
+
+    LiquidacionFactura.belongsTo(factura, {
+        foreignKey: 'id_factura',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    factura.hasMany(LiquidacionFactura, {
+        foreignKey: 'id_factura',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
     });
 
     return LiquidacionFactura;
