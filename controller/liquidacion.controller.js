@@ -23,35 +23,61 @@ module.exports = function (app) {
             getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, user, userData, factura, subgasto, tipoDocumento, req, res);
         },
         getAll: (req, res) => {
-            getAllLiquidacion(liquidacion, liquidacionFactura, req, res);
+            getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res);
         }
     }
 }
 
-function getAllLiquidacion(liquidacion, liquidacionFactura, req, res) {
-    liquidacion.findAll({
-            include: [{
-                model: liquidacionFactura
-            }]
-        })
-        .then(response => {
-            if (response) {
-                res.json(response);
-            } else {
-                res.json({
-                    message: 'Error',
-                    error: response
-                });
+function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res) {
+    user.findAll({
+        attributes: ['id_usuario', 'email'],
+        include: [{
+                model: userData,
+                attributes: ['nombre', 'apellido']
+            },
+            {
+                model: liquidacion,
+                attributes: ['id', 'id_liquidacion', 'fecha', 'fecha_cierra', 'estado'],
+                include: [{
+                        model: moneda
+                    },
+                    {
+                        model: empresa
+                    },
+                    {
+                        model: tipoCuenta
+                    },
+                    {
+                        model: user,
+                        include: [
+                            {
+                                model: userData,
+                                attributes: ['nombre', 'apellido', 'dpi']
+                            }
+                        ]
+                    },
+                    {
+                        model: liquidacionFactura,
+                        attributes: ['id_item'],
+                        include: [{
+                            model: factura,
+                            attributes: ["id_factura", "fecha_compra", "correlativo_factura", "proveedor_factura", "ordenes_trabajo", "total_factura", "iva_factura", "total_siva", "total_idp_factura", "total_sidp_factura", "total_inguat_factura", "galones_factura", "exceso_factura", "status", "fecha_registro_factura"],
+                            include: [tipoDocumento, subgasto]
+                        }]
+                    }
+                ]
             }
-        })
-        .catch(error => {
-            if (error) {
-                res.json({
-                    message: 'Error al obtener la liquidacion',
-                    error
-                });
-            }
-        });
+        ]
+    }).then(response => {
+        res.json(response);
+    }).catch(error => {
+        if (error) {
+            res.json({
+                message: 'Error al obtener las liquidaciones.',
+                error
+            })
+        }
+    })
 }
 
 function getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, user, userData, factura, subgasto, tipoDocumento, req, res) {
