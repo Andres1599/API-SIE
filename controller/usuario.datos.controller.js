@@ -92,7 +92,7 @@ function updateUsuarioDatos(usuarioDatos, req, res) {
 function getUsuarioDatosById(usuarioDatos, req, res) {
     usuarioDatos.findOne({
         where: {
-            fk_id_usuario: req.params.fk_id_usuario
+            fk_id_usuario: req.params.id_usuario
         }
     }).then(function(response) {
         if (response) {

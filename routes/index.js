@@ -21,6 +21,7 @@ module.exports = (app) => {
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
+    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
