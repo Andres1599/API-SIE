@@ -1,11 +1,21 @@
-module.exports = function(app) {
-    let usuarioDatos = app.get('usuarios_datos');
+module.exports = function (app) {
+    let usuarioDatos = app.get('usuario_datos');
     return {
-        create: (req, res) => { newUsuarioDatos(usuarioDatos, req, res); },
-        update: (req, res) => { updateUsuarioDatos(usuarioDatos, req, res); },
-        delete: (req, res) => { deleteUsuarioDatos(usuarioDatos, req, res); },
-        getById: (req, res) => { getUsuarioDatosById(usuarioDatos, req, res); },
-        getAll: (req, res) => { getAllUsuarioDatos(usuarioDatos, req, res); }
+        create: (req, res) => {
+            newUsuarioDatos(usuarioDatos, req, res);
+        },
+        update: (req, res) => {
+            updateUsuarioDatos(usuarioDatos, req, res);
+        },
+        delete: (req, res) => {
+            deleteUsuarioDatos(usuarioDatos, req, res);
+        },
+        getById: (req, res) => {
+            getUsuarioDatosById(usuarioDatos, req, res);
+        },
+        getAll: (req, res) => {
+            getAllUsuarioDatos(usuarioDatos, req, res);
+        }
     }
 }
 
@@ -28,7 +38,7 @@ function newUsuarioDatos(usuarioDatos, req, res) {
         tel: req.body.tel,
         movil: req.body.movil,
         fk_id_usuario: req.body.fk_id_usuario
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -45,13 +55,13 @@ function deleteUsuarioDatos(usuarioDatos, req, res) {
         where: {
             fk_id_usuario: req.body.fk_id_usuario
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             usuarioDatos.destroy({
                 where: {
                     fk_id_usuario: req.body.fk_id_usuario
                 }
-            }).then(function(deleted) {
+            }).then(function (deleted) {
                 if (deleted) {
                     res.json({
                         message: "Se ha eliminado con exito el dato de usuario",
@@ -74,16 +84,38 @@ function deleteUsuarioDatos(usuarioDatos, req, res) {
 
 function updateUsuarioDatos(usuarioDatos, req, res) {
     usuarioDatos.update({
-        nombre_documento: req.body.nombre_documento,
+        nombre: req.body.nombre,
+        apellido: req.body.apellido,
+        dpi: req.body.dpi,
+        puesto: req.body.puesto,
+        NACIONALIDAD: req.body.NACIONALIDAD,
+        EC: req.body.EC,
+        LNA: req.body.LNA,
+        NIT: req.body.NIT,
+        NAIGSS: req.body.NAIGSS,
+        HIJOS: req.body.HIJOS,
+        PROFESION: req.body.PROFESION,
+        ETNIA: req.body.ETNIA,
+        LOCALIZAR: req.body.LOCALIZAR,
+        DIRECCION: req.body.DIRECCION,
+        TEL: req.body.TEL,
+        MOVIL: req.body.MOVIL
     }, {
         where: {
-            fk_id_usuario: req.body.fk_id_usuario
+            id: req.body.id
         }
-    }).then(function(update) {
-        res.json(update);
-    }).catch(function(err) {
+    }).then(update => {
+        if (update) {
+            res.json(update);
+        } else {
+            res.json({
+                message: 'Error al actualizar la informacion del usuario.',
+                error: err
+            });
+        }
+    }).catch(err => {
         res.json({
-            message: 'Error al procesar la petición',
+            message: 'Error al actualizar la informacion del usuario.',
             error: err
         });
     })
@@ -92,9 +124,9 @@ function updateUsuarioDatos(usuarioDatos, req, res) {
 function getUsuarioDatosById(usuarioDatos, req, res) {
     usuarioDatos.findOne({
         where: {
-            fk_id_usuario: req.params.id_usuario
+            fk_id_usuario: req.params.id
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -102,7 +134,7 @@ function getUsuarioDatosById(usuarioDatos, req, res) {
                 message: "No hemos podido encontrar el dato de usuario"
             });
         }
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: "No hemos podido encontrar el dato de usuario",
             error: err
@@ -111,7 +143,7 @@ function getUsuarioDatosById(usuarioDatos, req, res) {
 }
 
 function getAllUsuarioDatos(usuarioDatos, req, res) {
-    usuarioDatos.findAll().then(function(response) {
+    usuarioDatos.findAll().then(function (response) {
         res.json(response);
     });
 }

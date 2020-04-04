@@ -34,6 +34,10 @@ module.exports = (app) => {
     routes.post('/usuario/login', UsuarioController.login);
     routes.post('/usuario/forget', UsuarioController.forgetPass);
 
+    //routes usuario dato
+    routes.get('/usuario/:id', UsuarosDatosController.getById);
+    routes.put('/usuario/data/update', UsuarosDatosController.update);
+
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
     routes.get('/empresa/', AdminGetController.getEmpresas);
