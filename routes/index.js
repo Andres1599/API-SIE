@@ -147,6 +147,9 @@ module.exports = (app) => {
 
     //routes from tipo documento
     routes.get('/tipo/documento/', TipoDocumentosController.getAll);
+    routes.post('/tipo/documento/', TipoDocumentosController.create);
+    routes.put('/tipo/documento/', TipoDocumentosController.update);
+    routes.delete('/tipo/documento/:id_tipo_documento', TipoDocumentosController.delete);
 
     //routes from tipo cuentas
     routes.get('/tipo/cuentas', TipoCuentaController.getAll);
