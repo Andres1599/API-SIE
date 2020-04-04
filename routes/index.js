@@ -22,6 +22,7 @@ module.exports = (app) => {
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
+    const PaisController = require('../controller/pais.controller')(app);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
@@ -153,6 +154,14 @@ module.exports = (app) => {
 
     //routes from tipo cuentas
     routes.get('/tipo/cuentas', TipoCuentaController.getAll);
+    routes.post('/tipo/cuentas', TipoCuentaController.create);
+    routes.put('/tipo/cuentas', TipoCuentaController.update);
+    routes.delete('/tipo/cuentas/:id_tipo_cuenta', TipoCuentaController.delete);
 
+    //routes from pais
+    routes.get('/pais', PaisController.getAll);
+    routes.post('/pais', PaisController.create);
+    routes.put('/pais', PaisController.update);
+    routes.delete('/pais/:id_pais', PaisController.delete);
     return routes;
 };
