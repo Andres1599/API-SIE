@@ -27,13 +27,13 @@ function newPaises(paises, req, res) {
 function deletePaises(paises, req, res) {
     paises.findOne({
         where: {
-            id_pais: req.body.id_pais
+            id_pais: req.params.id_pais
         }
     }).then(function(response) {
         if (response) {
             paises.destroy({
                 where: {
-                    id_pais: req.body.id_pais
+                    id_pais: req.params.id_pais
                 }
             }).then(function(deleted) {
                 if (deleted) {

@@ -37,13 +37,13 @@ function newTipoDocumentos(tipoDocumentos, req, res) {
 function deleteTipoDocumentos(tipoDocumentos, req, res) {
     tipoDocumentos.findOne({
         where: {
-            id_tipo_documento: req.body.id_tipo_documento
+            id_tipo_documento: req.params.id_tipo_documento
         }
     }).then(function (response) {
         if (response) {
             tipoDocumentos.destroy({
                 where: {
-                    id_tipo_documento: req.body.id_tipo_documento
+                    id_tipo_documento: req.params.id_tipo_documento
                 }
             }).then(function (deleted) {
                 if (deleted) {

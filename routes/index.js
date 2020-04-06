@@ -22,6 +22,7 @@ module.exports = (app) => {
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
+    const PaisController = require('../controller/pais.controller')(app);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
@@ -33,6 +34,11 @@ module.exports = (app) => {
     routes.post('/usuario/pass', UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.login);
     routes.post('/usuario/forget', UsuarioController.forgetPass);
+    routes.put('/usuario/pass', UsuarioController.password);
+
+    //routes usuario dato
+    routes.get('/usuario/:id', UsuarosDatosController.getById);
+    routes.put('/usuario/data/update', UsuarosDatosController.update);
 
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
@@ -143,9 +149,20 @@ module.exports = (app) => {
 
     //routes from tipo documento
     routes.get('/tipo/documento/', TipoDocumentosController.getAll);
+    routes.post('/tipo/documento/', TipoDocumentosController.create);
+    routes.put('/tipo/documento/', TipoDocumentosController.update);
+    routes.delete('/tipo/documento/:id_tipo_documento', TipoDocumentosController.delete);
 
     //routes from tipo cuentas
     routes.get('/tipo/cuentas', TipoCuentaController.getAll);
+    routes.post('/tipo/cuentas', TipoCuentaController.create);
+    routes.put('/tipo/cuentas', TipoCuentaController.update);
+    routes.delete('/tipo/cuentas/:id_tipo_cuenta', TipoCuentaController.delete);
 
+    //routes from pais
+    routes.get('/pais', PaisController.getAll);
+    routes.post('/pais', PaisController.create);
+    routes.put('/pais', PaisController.update);
+    routes.delete('/pais/:id_pais', PaisController.delete);
     return routes;
 };

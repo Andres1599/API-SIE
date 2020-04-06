@@ -27,13 +27,13 @@ function newTipoCuentas(tipoCuentas, req, res) {
 function deleteTipoCuentas(tipoCuentas, req, res) {
     tipoCuentas.findOne({
         where: {
-            id_tipo_cuenta: req.body.id_tipo_cuenta
+            id_tipo_cuenta: req.params.id_tipo_cuenta
         }
     }).then(function(response) {
         if (response) {
             tipoCuentas.destroy({
                 where: {
-                    id_tipo_cuenta: req.body.id_tipo_cuenta
+                    id_tipo_cuenta: req.params.id_tipo_cuenta
                 }
             }).then(function(deleted) {
                 if (deleted) {
