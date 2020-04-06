@@ -25,7 +25,7 @@ function getU(Usuario, DatosUsuario, TipoUsuario, req, res) {
         include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido', 'dpi'] },
             { model: TipoUsuario, attributes: ['tipo_usuario'] }
         ],
-        attributes: ['email', 'status']
+        attributes: ['id_usuario','email', 'status']
     }).then(rest => {
         if (rest) {
             res.json(rest);

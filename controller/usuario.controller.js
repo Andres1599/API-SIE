@@ -34,6 +34,9 @@ module.exports = (app, str) => {
         },
         forgetPass: (req, res) => {
             forgetPass(usuario, datosUsuario, req, res);
+        },
+        password: (req, res) => {
+            updatePasswordAdmin(usuario, req, res);
         }
     }
 }
@@ -228,4 +231,40 @@ function forgetPass(usuario, datosUsuario, req, res) {
             });
         }
     });
+}
+
+function updatePasswordAdmin(usuario, req, res) {
+
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.password, salt);
+
+    if (!hash) {
+        res.json({
+            message: str.createErr
+        })
+    }
+
+    usuario.update({
+        status: req.body.status,
+        password: hash
+    },{
+        where: {
+            id_usuario: req.body.id_usuario
+        }
+    }).then((update) => {
+        if (update) {
+            res.json({
+                updated: true,
+                usuario: update
+            })
+        }
+    })
+    .catch(err => {
+        if (err) {
+            res.json({
+                message: 'Error',
+                err
+            })
+        }
+    })
 }

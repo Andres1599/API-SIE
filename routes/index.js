@@ -34,6 +34,7 @@ module.exports = (app) => {
     routes.post('/usuario/pass', UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.login);
     routes.post('/usuario/forget', UsuarioController.forgetPass);
+    routes.put('/usuario/pass', UsuarioController.password);
 
     //routes usuario dato
     routes.get('/usuario/:id', UsuarosDatosController.getById);
