@@ -53,9 +53,12 @@ app.set('orden_liquidacion', db.OrdenLiquidacion);
 app.set('orden_deposito', db.OrdenDeposito);
 app.set('orden_presupuesto', db.OrdenPresupuesto);
 app.set('empresa_moneda', db.EmpresaMoneda);
+app.set('calendario', db.Calendario);
+
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+
 //Set config server
 app.use(morgan('dev'));
 app.use(bodyParser.json());
