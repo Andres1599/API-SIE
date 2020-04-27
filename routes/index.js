@@ -23,6 +23,7 @@ module.exports = (app) => {
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
     const PaisController = require('../controller/pais.controller')(app);
+    const CalendarioController = require('../controller/calendario.controller')(app);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
@@ -96,7 +97,7 @@ module.exports = (app) => {
     routes.delete('/depositos/id', DepositoController.delete);
     routes.put('/depositos/id', DepositoController.update);
     routes.post('/depositos', DepositoController.create);
-    
+
     //routes from empresamonedas
     routes.get('/empresamonedas/', EmpresaMonedaController.getAll);
     routes.get('/empresamonedas/id', EmpresaMonedaController.getById);
@@ -132,7 +133,7 @@ module.exports = (app) => {
     routes.delete('/liquidacionfactura/id', LiquidacionFacturaController.delete);
     routes.put('/liquidacionfactura/id', LiquidacionFacturaController.update);
     routes.post('/liquidacionfactura', LiquidacionFacturaController.create);
-    
+
     //routes from ordendeposito
     routes.get('/ordendeposito/', OrdenDepositoController.getAll);
     routes.get('/ordendeposito/id', OrdenDepositoController.getById);
@@ -164,5 +165,12 @@ module.exports = (app) => {
     routes.post('/pais', PaisController.create);
     routes.put('/pais', PaisController.update);
     routes.delete('/pais/:id_pais', PaisController.delete);
+
+    //routes from calendario
+    routes.get('/calendario', CalendarioController.getAll);
+    routes.get('/calendario/:fk_id_usuario', CalendarioController.getById);
+    routes.post('/calendario', CalendarioController.create);
+    routes.delete('/calendario/:id', CalendarioController.delete);
+
     return routes;
 };
