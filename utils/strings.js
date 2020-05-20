@@ -4,15 +4,16 @@
  * @publicApi
  */
 const STR = {
-    create: 'Se ha creado exitosamente.',
-    update: 'Se ha actualizado exitosamente.',
-    delete: 'Se ha eliminado exitosamente.',
-    createErr: 'No se ha podido crear.',
-    updateErr: 'No se ha podido actualizar.',
-    deleteErr: 'No se ha podido eliminar.',
-    getErr: 'Error al obtener el elemento.',
-    getAll: 'Se a obtenido exitosamente los registros.',
-    get: 'Consulta exitosa.',
+    create: 'Query create successful',
+    update: 'Query update successful',
+    delete: 'Query delete successful',
+    createErr: 'Query create fail',
+    updateErr: 'Query update fail',
+    deleteErr: 'Query delete fail',
+    errCatch: 'Internal server error',
+    getErr: 'Query result fail',
+    getAll: 'Query result successful',
+    get: 'Specific query result successful',
     /**
      * @description
      * Check if object is empty like this {}
@@ -41,4 +42,6 @@ const STR = {
     }
 }
 
-module.exports = STR;
+module.exports = {
+    STR
+};

@@ -38,6 +38,11 @@ module.exports = (sequelize, type, userAssociation) => {
         start: {
             type: type.DATE,
             allowNull: true
+        },
+        status: {
+            type: type.BOOLEAN,
+            allowNull: false,
+            default: false
         }
     }, {
         freezeTableName: true,

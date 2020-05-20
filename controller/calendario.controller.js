@@ -1,24 +1,24 @@
-module.exports = (app) => {
+module.exports = (app, string) => {
 
     const Calendario = app.get('calendario');
 
     return {
         getAll: (req, res) => {
-            getAllEvent(req, res, Calendario)
+            getAllEvent(req, res, string, Calendario)
         },
         getById: (req, res) => {
-            getAllEventById(req, res, Calendario)
+            getAllEventById(req, res, string, Calendario)
         },
         create: (req, res) => {
-            createEvent(req, res, Calendario)
+            createEvent(req, res, string, Calendario)
         },
         delete: (req, res) => {
-            deleteEvent(req, res, Calendario)
+            deleteEvent(req, res, string, Calendario)
         },
     }
 }
 
-function createEvent(req, res, Calendario) {
+function createEvent(req, res, string, Calendario) {
     Calendario.create({
         draggable: req.body.draggable,
         resizable: req.body.resizable,
@@ -28,22 +28,29 @@ function createEvent(req, res, Calendario) {
         title: req.body.title,
         end: req.body.end,
         start: req.body.start,
-        fk_id_usuario: req.body.fk_id_usuario
+        fk_id_usuario: req.body.fk_id_usuario,
+        status: false
     }).then(created => {
         if (created)
             res.json({
-                message: 'Se ha creado exitosamente.',
+                message: string.create,
                 event: created
             });
+        else {
+            res.json({
+                message: string.createErr,
+                event: created
+            });
+        }
     }).catch(err => {
         res.send({
-            message: 'No se ha podido crear.',
+            message: string.errCatch,
             error: err
         });
     });
 }
 
-function deleteEvent(req, res, Calendario) {
+function deleteEvent(req, res, string, Calendario) {
     Calendario.destroy({
         where: {
             id: req.params.id
@@ -51,35 +58,35 @@ function deleteEvent(req, res, Calendario) {
     }).then( deleted => {
         if (deleted) {
             res.json({
-                message: 'Se ha eliminado exitosamente.',
+                message: string.delete,
                 deleted
             })
         } else {
             res.json({
-                message: 'No se ha eliminado exitosamente.',
+                message: string.deleteErr,
                 deleted
             })
         }
     }).catch( err => {
         res.json({
-            message: 'No se ha eliminado exitosamente.',
+            message: string.errCatch,
             error: err
         })
     })
 }
 
-function getAllEvent(req, res, Calendario) {
+function getAllEvent(req, res, string, Calendario) {
     Calendario.findAll().then(events => {
         res.json(events)
     }).catch(err => {
-        res.send({
-            message: 'No se ha podido obtener los eventos de calendario.',
+        res.json({
+            message: string.errCatch,
             error: err
-        });
+        })
     })
 }
 
-function getAllEventById(req, res, Calendario) {
+function getAllEventById(req, res, string, Calendario) {
     Calendario.findAll({
         where: {
             fk_id_usuario: req.params.fk_id_usuario
@@ -87,9 +94,9 @@ function getAllEventById(req, res, Calendario) {
     }).then(events => {
         res.json(events)
     }).catch(err => {
-        res.send({
-            message: 'No se ha podido obtener los eventos de calendario.',
+        res.json({
+            message: string.errCatch,
             error: err
-        });
+        })
     })
 }

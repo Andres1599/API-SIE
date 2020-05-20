@@ -23,7 +23,7 @@ module.exports = (app) => {
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
     const PaisController = require('../controller/pais.controller')(app);
-    const CalendarioController = require('../controller/calendario.controller')(app);
+    const CalendarioController = require('../controller/calendario.controller')(app, str);
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
