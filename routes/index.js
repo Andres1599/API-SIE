@@ -2,28 +2,29 @@ const routes = require('express').Router();
 const str = require('../utils/strings');
 module.exports = (app) => {
     //import models
-    const CartaController = require('../controller/carta.controller')(app);
-    const UsuarioController = require('../controller/usuario.controller')(app, str);
-    const AdminGetController = require('../controller/admin.controller')(app);
-    const BancosController = require('../controller/banco.controller')(app);
-    const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
-    const EmpresaController = require('../controller/empresa.controller')(app);
-    const MonedaController = require('../controller/moneda.controller')(app);
-    const LiquidacionController = require('../controller/liquidacion.controller')(app);
-    const CuentaController = require('../controller/cuenta.controller')(app);
-    const DepositoController = require('../controller/desposito.controller')(app);
-    const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app);
-    const FacturaController = require('../controller/factura.controller')(app);
-    const GastosController = require('../controller/gastos.controller')(app);
-    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app);
-    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
-    const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
-    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
-    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
-    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
-    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
-    const PaisController = require('../controller/pais.controller')(app);
-    const CalendarioController = require('../controller/calendario.controller')(app, str);
+    const CartaController = require('../controller/carta.controller')(app)
+    const UsuarioController = require('../controller/usuario.controller')(app, str)
+    const AdminGetController = require('../controller/admin.controller')(app)
+    const BancosController = require('../controller/banco.controller')(app)
+    const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app)
+    const EmpresaController = require('../controller/empresa.controller')(app)
+    const MonedaController = require('../controller/moneda.controller')(app)
+    const LiquidacionController = require('../controller/liquidacion.controller')(app)
+    const CuentaController = require('../controller/cuenta.controller')(app)
+    const DepositoController = require('../controller/desposito.controller')(app)
+    const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app)
+    const FacturaController = require('../controller/factura.controller')(app)
+    const GastosController = require('../controller/gastos.controller')(app)
+    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app)
+    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app)
+    const OrdenDepositoController = require('../controller/orden.deposito.controller')(app)
+    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app)
+    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
+    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
+    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app)
+    const PaisController = require('../controller/pais.controller')(app)
+    const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str)
+    const CalendarioController = require('../controller/calendario.controller')(app, str)
 
     //routes cartas
     routes.post('/carta/create/', CartaController.create);
@@ -165,6 +166,12 @@ module.exports = (app) => {
     routes.post('/pais', PaisController.create);
     routes.put('/pais', PaisController.update);
     routes.delete('/pais/:id_pais', PaisController.delete);
+
+    //routes from ensayos
+    routes.get('/essay', EnsayoController.getAll)
+    routes.post('/essay', EnsayoController.create)
+    routes.put('/essay', EnsayoController.update)
+    routes.delete('/essay/:id', EnsayoController.delete)
 
     //routes from calendario
     routes.get('/calendario', CalendarioController.getAll);
