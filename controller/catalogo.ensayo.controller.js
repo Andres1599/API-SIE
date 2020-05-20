@@ -1,3 +1,5 @@
+const response = require('../response/response')
+
 module.exports = (app, string) => {
 
     const Essay = app.get('catalogo_ensayo');
@@ -20,12 +22,11 @@ module.exports = (app, string) => {
 
 function getAllEssay(req, res, string, Essay) {
     Essay.findAll().then(essays => {
-        res.json(essays)
+        if (essays) {
+            res.json(new response(true, string.getAll, null, essays))
+        }
     }).catch(err => {
-        res.json({
-            message: string.errCatch,
-            error: err
-        })
+        res.json(new response(false, string.errCatch, err, null))
     })
 }
 
@@ -34,22 +35,14 @@ function createEssay(req, res, string, Essay) {
         nombre_ensayo: req.body.nombre_ensayo,
         iniciales_ensayo: req.body.iniciales_ensayo
     }).then(created => {
-        if (created)
-            res.json({
-                message: string.create,
-                event: created
-            });
+        if (created){
+            res.json(new response(true, string.create, null, created))
+        }
         else {
-            res.json({
-                message: string.createErr,
-                event: created
-            });
+            res.json(new response(false, string.createErr, null, created))
         }
     }).catch(err => {
-        res.send({
-            message: string.errCatch,
-            error: err
-        });
+        res.json(new response(false, string.errCatch, err, null))
     });
 }
 
@@ -60,21 +53,12 @@ function deleteEssay(req, res, string, Essay) {
         }
     }).then(deleted => {
         if (deleted) {
-            res.json({
-                message: string.delete,
-                deleted
-            })
+            res.json(new response(true, string.delete, null, deleted))
         } else {
-            res.json({
-                message: string.deleteErr,
-                deleted
-            })
+            res.json(new response(false, string.deleteErr, null, deleted))
         }
     }).catch(err => {
-        res.json({
-            message: string.errCatch,
-            error: err
-        })
+        res.json(new response(false, string.errCatch, err, null))
     })
 }
 
@@ -88,15 +72,11 @@ function updateEssay(req, res, string, Essay) {
         }
     }).then(updated => {
         if (updated) {
-            res.json({
-                message: string.update,
-                update: updated
-            })
+            res.json(new response(true, string.update, null, updated))
+        } else {
+            res.json(new response(false, string.updateErr, null, updated))
         }
     }).catch(function (err) {
-        res.json({
-            message: string.errCatch,
-            error: err
-        });
+        res.json(new response(false, string.errCatch, err, null))
     })
 }
