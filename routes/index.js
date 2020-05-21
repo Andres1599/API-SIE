@@ -24,6 +24,7 @@ module.exports = (app) => {
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app)
     const PaisController = require('../controller/pais.controller')(app)
     const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str)
+    const ActividadController = require('../controller/actividad.controller')(app, str)
     const CalendarioController = require('../controller/calendario.controller')(app, str)
 
     //routes cartas
@@ -172,6 +173,12 @@ module.exports = (app) => {
     routes.post('/essay', EnsayoController.create)
     routes.put('/essay', EnsayoController.update)
     routes.delete('/essay/:id', EnsayoController.delete)
+
+    //routes from activity
+    routes.get('/activity', ActividadController.getAll)
+    routes.post('/activity', ActividadController.create)
+    routes.put('/activity', ActividadController.update)
+    routes.delete('/activity/:id', ActividadController.delete)
 
     //routes from calendario
     routes.get('/calendario', CalendarioController.getAll);
