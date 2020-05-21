@@ -1,4 +1,4 @@
-module.exports = (sequelize, type, userAssociation) => {
+module.exports = (sequelize, type, userAssociation, essayAssociation, activityAssociation) => {
     var Calendario = sequelize.define('calendario', {
         id: {
             type: type.INTEGER,
@@ -43,19 +43,38 @@ module.exports = (sequelize, type, userAssociation) => {
             type: type.BOOLEAN,
             allowNull: false,
             default: false
+        },
+        client: {
+            type: type.STRING,
+            allowNull: true
+        },
+        noOrder: {
+            type: type.INTEGER,
+            allowNull: true 
         }
     }, {
         freezeTableName: true,
         timestamps: false
     });
 
-    Calendario.belongsTo(userAssociation, {
-        foreignKey: 'fk_id_usuario',
+    Calendario.belongsTo(essayAssociation, {
+        foreignKey: 'fk_id_ensayo',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });
-    userAssociation.hasMany(Calendario, {
-        foreignKey: 'fk_id_usuario',
+    essayAssociation.hasMany(Calendario, {
+        foreignKey: 'fk_id_ensayo',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    Calendario.belongsTo(activityAssociation, {
+        foreignKey: 'fk_id_actividad',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+    activityAssociation.hasMany(Calendario, {
+        foreignKey: 'fk_id_actividad',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });

@@ -29,7 +29,9 @@ function createEvent(req, res, string, Calendario) {
         end: req.body.end,
         start: req.body.start,
         fk_id_usuario: req.body.fk_id_usuario,
-        status: false
+        status: false,
+        fk_id_ensayo: req.body.fk_id_ensayo,
+        fk_id_actividad: req.body.fk_id_actividad
     }).then(created => {
         if (created)
             res.json({

@@ -42,6 +42,7 @@ module.exports = (app) => {
     //routes usuario dato
     routes.get('/usuario/:id', UsuarosDatosController.getById);
     routes.put('/usuario/data/update', UsuarosDatosController.update);
+    routes.get('/usuarios/data', UsuarosDatosController.getAll);
 
     //routes get all master tables
     routes.get('/usuarios/', AdminGetController.getUsuarios);
