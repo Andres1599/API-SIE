@@ -1,13 +1,14 @@
 module.exports = (app, string) => {
 
     const Calendario = app.get('calendario');
+    const CalendarioUsuario = app.get('calendario_usuario');
 
     return {
         getAll: (req, res) => {
             getAllEvent(req, res, string, Calendario)
         },
         getById: (req, res) => {
-            getAllEventById(req, res, string, Calendario)
+            getAllEventById(req, res, string, Calendario, CalendarioUsuario)
         },
         create: (req, res) => {
             createEvent(req, res, string, Calendario)
@@ -88,11 +89,16 @@ function getAllEvent(req, res, string, Calendario) {
     })
 }
 
-function getAllEventById(req, res, string, Calendario) {
-    Calendario.findAll({
+function getAllEventById(req, res, string, Calendario, CalendarioUsuario) {
+    CalendarioUsuario.findAll({
         where: {
             fk_id_usuario: req.params.fk_id_usuario
-        }
+        },
+        include: [
+            {
+                model: Calendario
+            }
+        ]
     }).then(events => {
         res.json(events)
     }).catch(err => {
