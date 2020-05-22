@@ -1,3 +1,4 @@
+const response = require('../response/response')
 module.exports = (app, string) => {
 
     const Calendario = app.get('calendario');
@@ -16,6 +17,18 @@ module.exports = (app, string) => {
         delete: (req, res) => {
             deleteEvent(req, res, string, Calendario)
         },
+        createUser: (req, res) => {
+            createCalendarUser(req, res, CalendarioUsuario, string)
+        },
+        accept: (req, res) => {
+            acceptEvent(req, res, CalendarioUsuario, string)
+        },
+        getByIdToBeAccept: (req, res) => {
+            getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario)
+        },
+        refuse: (req, res) => {
+            refuseEvent(req, res, CalendarioUsuario, string)
+        }
     }
 }
 
@@ -46,10 +59,7 @@ function createEvent(req, res, string, Calendario) {
             });
         }
     }).catch(err => {
-        res.send({
-            message: string.errCatch,
-            error: err
-        });
+        res.json(new response(false, string.errCatch, err, null));
     });
 }
 
@@ -58,7 +68,7 @@ function deleteEvent(req, res, string, Calendario) {
         where: {
             id: req.params.id
         }
-    }).then( deleted => {
+    }).then(deleted => {
         if (deleted) {
             res.json({
                 message: string.delete,
@@ -70,11 +80,8 @@ function deleteEvent(req, res, string, Calendario) {
                 deleted
             })
         }
-    }).catch( err => {
-        res.json({
-            message: string.errCatch,
-            error: err
-        })
+    }).catch(err => {
+        res.json(new response(false, string.errCatch, err, null));
     })
 }
 
@@ -82,29 +89,112 @@ function getAllEvent(req, res, string, Calendario) {
     Calendario.findAll().then(events => {
         res.json(events)
     }).catch(err => {
-        res.json({
-            message: string.errCatch,
-            error: err
-        })
+        res.json(new response(false, string.errCatch, err, null));
     })
 }
 
 function getAllEventById(req, res, string, Calendario, CalendarioUsuario) {
     CalendarioUsuario.findAll({
         where: {
-            fk_id_usuario: req.params.fk_id_usuario
+            fk_id_usuario: req.params.fk_id_usuario,
+            statusAccept: true,
+            cierre_calendario: true
         },
-        include: [
-            {
-                model: Calendario
-            }
-        ]
+        include: [{
+            model: Calendario
+        }]
     }).then(events => {
         res.json(events)
     }).catch(err => {
-        res.json({
-            message: string.errCatch,
-            error: err
-        })
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+function createCalendarUser(req, res, CalendarioUsuario, string) {
+    const records = req.body.data;
+
+    if (!records) {
+        res.json(new response(false, string.errEmpty, null, null))
+    }
+
+    CalendarioUsuario.bulkCreate(records, {}).then((status) => {
+        if (status) {
+            res.json(new response(true, string.create, null, status))
+        } else {
+            res.json(new response(false, string.createErr, null, status))
+        }
+    }).catch((err) => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+function acceptEvent(req, res, CalendarioUsuario, string){
+    CalendarioUsuario.update({
+        statusAccept: true,
+        cierre_calendario: true
+    },{
+        where: {
+            id_calendario_usuario: req.body.id_calendario_usuario
+        }
+    }).then( updated => {
+        if (updated) {
+            res.json(new response(true, string.createErr, null, updated))
+        } else {
+            res.json(new response(false, string.createErr, null, updated))
+        }
+    }).catch( err => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+/**
+ * @description when refuse a event the combination is status: false and close: true. Status means user refuse event
+ * and close means the event has been refused and do not to be shown
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} CalendarioUsuario 
+ * @param {*} string 
+ */
+function refuseEvent(req, res, CalendarioUsuario, string){
+    CalendarioUsuario.update({
+        statusAccept: false,
+        cierre_calendario: true
+    },{
+        where: {
+            id_calendario_usuario: req.body.id_calendario_usuario
+        }
+    }).then( updated => {
+        if (updated) {
+            res.json(new response(true, string.createErr, null, updated))
+        } else {
+            res.json(new response(false, string.createErr, null, updated))
+        }
+    }).catch( err => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+/**
+ * @description All the events that need to be accepted has the combination status: true, close: false. If the 
+ * status is false and the close is true, that means the event is al ready refuse and do not need to be showed
+ */
+function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) {
+    CalendarioUsuario.findAll({
+        where: {
+            fk_id_usuario: req.params.id,
+            statusAccept: false,
+            cierre_calendario: false
+        },
+        include: [{
+            model: Calendario
+        }]
+    }).then(events => {
+        if (events) {
+            res.json(new response(true, string.getAll, null, events))
+        } else {
+            res.json(new response(false, string.getErr, null, events))
+        }
+    }).catch(err => {
+        res.json(new response(false, string.errCatch, err, null));
     })
 }

@@ -11,6 +11,7 @@ const STR = {
     updateErr: 'Query update fail',
     deleteErr: 'Query delete fail',
     errCatch: 'Internal server error',
+    errEmpty: 'Empty data',
     getErr: 'Query result fail',
     getAll: 'Query result successful',
     get: 'Specific query result successful',
