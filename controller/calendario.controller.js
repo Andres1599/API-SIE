@@ -3,6 +3,7 @@ module.exports = (app, string) => {
 
     const Calendario = app.get('calendario');
     const CalendarioUsuario = app.get('calendario_usuario');
+    const sequelize = app.get('sequelize')
 
     return {
         getAll: (req, res) => {
@@ -28,6 +29,9 @@ module.exports = (app, string) => {
         },
         refuse: (req, res) => {
             refuseEvent(req, res, CalendarioUsuario, string)
+        },
+        close: (req, res) => {
+            closeCalendar(req, res, string, sequelize)
         }
     }
 }
@@ -128,21 +132,21 @@ function createCalendarUser(req, res, CalendarioUsuario, string) {
     })
 }
 
-function acceptEvent(req, res, CalendarioUsuario, string){
+function acceptEvent(req, res, CalendarioUsuario, string) {
     CalendarioUsuario.update({
         statusAccept: true,
         cierre_calendario: true
-    },{
+    }, {
         where: {
             id_calendario_usuario: req.body.id_calendario_usuario
         }
-    }).then( updated => {
+    }).then(updated => {
         if (updated) {
             res.json(new response(true, string.createErr, null, updated))
         } else {
             res.json(new response(false, string.createErr, null, updated))
         }
-    }).catch( err => {
+    }).catch(err => {
         res.json(new response(false, string.errCatch, err, null));
     })
 }
@@ -155,21 +159,21 @@ function acceptEvent(req, res, CalendarioUsuario, string){
  * @param {*} CalendarioUsuario 
  * @param {*} string 
  */
-function refuseEvent(req, res, CalendarioUsuario, string){
+function refuseEvent(req, res, CalendarioUsuario, string) {
     CalendarioUsuario.update({
         statusAccept: false,
         cierre_calendario: true
-    },{
+    }, {
         where: {
             id_calendario_usuario: req.body.id_calendario_usuario
         }
-    }).then( updated => {
+    }).then(updated => {
         if (updated) {
             res.json(new response(true, string.createErr, null, updated))
         } else {
             res.json(new response(false, string.createErr, null, updated))
         }
-    }).catch( err => {
+    }).catch(err => {
         res.json(new response(false, string.errCatch, err, null));
     })
 }
@@ -193,6 +197,27 @@ function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario
             res.json(new response(true, string.getAll, null, events))
         } else {
             res.json(new response(false, string.getErr, null, events))
+        }
+    }).catch(err => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+/**
+ * @description close all events by date range. If the status is true on the event, thats means the event has been closed
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} string 
+ * @param {*} Calendario 
+ */
+function closeCalendar(req, res, string, sequelize) {
+    sequelize.query("UPDATE calendario SET status=true WHERE (end >= '" +
+        req.body.start + "' AND end <= '" +
+        req.body.end + "')").then((updated) => {
+        if (updated) {
+            res.json(new response(true, string.update, null, updated))
+        } else {
+            res.json(new response(false, string.updateErr, null, updated))
         }
     }).catch(err => {
         res.json(new response(false, string.errCatch, err, null));

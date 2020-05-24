@@ -79,6 +79,7 @@ const Calendario = CalendarioModel(Sequelize, sequelize, Usuario, CatalogoEnsayo
 const CalendarioUsuario = CalendarioUsuarioModel(Sequelize, sequelize, Usuario, Calendario);
 //EXPORTACION DE LOS MODELOS PARA SETEO EN LA APLICACION EXPRESS
 module.exports = {
+    sequelize,
     Sequelize,
     TipoUsuario,
     Usuario,

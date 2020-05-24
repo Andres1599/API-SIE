@@ -188,6 +188,7 @@ module.exports = (app) => {
     routes.delete('/calendario/:id', CalendarioController.delete);
     routes.post('/calendario/usuario/', CalendarioController.createUser);
     routes.put('/calendario/accept/', CalendarioController.accept);
+    routes.put('/calendario/close/', CalendarioController.close);
     routes.put('/calendario/refuse/', CalendarioController.refuse);
     routes.get('/calendario/accept/:id', CalendarioController.getByIdToBeAccept);
 
