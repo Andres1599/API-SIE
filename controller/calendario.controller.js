@@ -4,6 +4,9 @@ module.exports = (app, string) => {
     const Calendario = app.get('calendario');
     const CalendarioUsuario = app.get('calendario_usuario');
     const sequelize = app.get('sequelize')
+    const Actividad = app.get('catalogo_actividad')
+    const Ensayo = app.get('catalogo_ensayo')
+    const op = app.get('op')
 
     return {
         getAll: (req, res) => {
@@ -32,6 +35,9 @@ module.exports = (app, string) => {
         },
         close: (req, res) => {
             closeCalendar(req, res, string, sequelize)
+        },
+        search: (req, res) => {
+            searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op)
         }
     }
 }
@@ -220,6 +226,57 @@ function closeCalendar(req, res, string, sequelize) {
             res.json(new response(false, string.updateErr, null, updated))
         }
     }).catch(err => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+/**
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} Calendario 
+ * @param {*} Actividad 
+ * @param {*} Ensayo 
+ * @param {*} string 
+ */
+function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequelize) {
+    const Op = sequelize.Op
+
+    Calendario.findAll({
+        where: {
+            [Op.or]: {
+                end: {[Op.between]: [req.body.start, req.body.end]},
+                start: {[Op.between]: [req.body.start, req.body.end]}
+            },
+            fk_id_actividad: req.body.fk_id_actividad,
+        },
+        include: [
+            { model: Actividad },
+            { model: Ensayo },
+        ]
+    }).then( (events) => {
+        if (events) {
+            let dataResponse = {
+                midweek: [],
+                weekend: []
+            };
+
+            events.forEach( item => {
+                if (
+                    item.end.getDay() === 6 ||
+                    item.end.getDay() === 0
+                ) {
+                    dataResponse.weekend.push(item)
+                } else {
+                    dataResponse.midweek.push(item)
+                }
+            });
+
+            res.json(new response(true, string.getAll, null, dataResponse))
+        } else {
+            res.json(new response(false, string.getErr,null, events))
+        }
+    }).catch( (err) => {
         res.json(new response(false, string.errCatch, err, null));
     })
 }

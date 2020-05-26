@@ -191,6 +191,7 @@ module.exports = (app) => {
     routes.put('/calendario/close/', CalendarioController.close);
     routes.put('/calendario/refuse/', CalendarioController.refuse);
     routes.get('/calendario/accept/:id', CalendarioController.getByIdToBeAccept);
+    routes.post('/calendario/search', CalendarioController.search);
 
     return routes;
 };
