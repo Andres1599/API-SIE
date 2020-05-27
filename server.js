@@ -53,7 +53,11 @@ app.set('orden_liquidacion', db.OrdenLiquidacion);
 app.set('orden_deposito', db.OrdenDeposito);
 app.set('orden_presupuesto', db.OrdenPresupuesto);
 app.set('empresa_moneda', db.EmpresaMoneda);
+app.set('catalogo_ensayo', db.CatalogoEnsayo);
+app.set('catalogo_actividad', db.Actividad);
 app.set('calendario', db.Calendario);
+app.set('calendario_usuario', db.CalendarioUsuario);
+app.set('op', db.sequelize);
 
 app.use(bodyParser.urlencoded({
     extended: true

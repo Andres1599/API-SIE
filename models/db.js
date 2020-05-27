@@ -31,7 +31,9 @@ const OrdenDepostioModel = require('./orden.deposito.model');
 const OrdenUsuarioModel = require('./orden.usuario.model');
 const EmpresaMonedaModel = require('./empresa.moneda');
 const CalendarioModel = require('./calendario.model');
-
+const CatalogoEnsayoModel = require('./catalogo.ensayos.model');
+const ActividadModel = require('./actividad.model');
+const CalendarioUsuarioModel = require('./calendario.usuario.model')
 //CONTROL DEL ENTORNO DE DESARROLLO DE LA BASE DE DATOS
 let config;
 
@@ -71,10 +73,13 @@ const OrdenLiquidacion = OrdenLiquidacionModel(Sequelize, sequelize, OrdenViatic
 const OrdenUsuario = OrdenUsuarioModel(Sequelize, sequelize, OrdenViaticos, Usuario);
 const OrdenDeposito = OrdenDepostioModel(Sequelize, sequelize, OrdenViaticos, Deposito);
 const EmpresaMoneda = EmpresaMonedaModel(Sequelize, sequelize, Empresa, Moneda);
-const Calendario = CalendarioModel(Sequelize, sequelize, Usuario);
-
+const CatalogoEnsayo = CatalogoEnsayoModel(Sequelize, sequelize);
+const Actividad = ActividadModel(Sequelize, sequelize);
+const Calendario = CalendarioModel(Sequelize, sequelize, Usuario, CatalogoEnsayo, Actividad);
+const CalendarioUsuario = CalendarioUsuarioModel(Sequelize, sequelize, Usuario, Calendario);
 //EXPORTACION DE LOS MODELOS PARA SETEO EN LA APLICACION EXPRESS
 module.exports = {
+    sequelize,
     Sequelize,
     TipoUsuario,
     Usuario,
@@ -103,5 +108,8 @@ module.exports = {
     OrdenUsuario,
     OrdenDeposito,
     EmpresaMoneda,
-    Calendario
+    Calendario,
+    CatalogoEnsayo,
+    Actividad,
+    CalendarioUsuario
 };
