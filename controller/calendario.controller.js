@@ -37,7 +37,7 @@ module.exports = (app, string) => {
             closeCalendar(req, res, string, sequelize)
         },
         search: (req, res) => {
-            searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op)
+            searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario)
         }
     }
 }
@@ -55,7 +55,9 @@ function createEvent(req, res, string, Calendario) {
         fk_id_usuario: req.body.fk_id_usuario,
         status: false,
         fk_id_ensayo: req.body.fk_id_ensayo,
-        fk_id_actividad: req.body.fk_id_actividad
+        fk_id_actividad: req.body.fk_id_actividad,
+        noOrder: req.body.noOrder,
+        client: req.body.client
     }).then(created => {
         if (created)
             res.json({
@@ -239,7 +241,7 @@ function closeCalendar(req, res, string, sequelize) {
  * @param {*} Ensayo 
  * @param {*} string 
  */
-function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequelize) {
+function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequelize, CalendarioUsuario) {
     const Op = sequelize.Op
 
     Calendario.findAll({
@@ -253,6 +255,7 @@ function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequeli
         include: [
             { model: Actividad },
             { model: Ensayo },
+            { model: CalendarioUsuario },
         ]
     }).then( (events) => {
         if (events) {
