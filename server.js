@@ -4,6 +4,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const express = require('express');
 const db = require('./models/db');
+const str = require('./utils/strings');
 
 //Set express 
 const app = express();
@@ -46,7 +47,7 @@ app.set('liquidacion_factura', db.LiquidacionFactura);
 app.set('cuenta', db.Cuenta);
 app.set('subcuenta', db.Subcuenta);
 app.set('deposito', db.Deposito);
-app.set('orden_viatios', db.OrdenViaticos);
+app.set('orden_viaticos', db.OrdenViaticos);
 app.set('orden_usuario', db.OrdenUsuario);
 app.set('orden_liquidacion', db.OrdenLiquidacion);
 app.set('orden_deposito', db.OrdenDeposito);
@@ -72,7 +73,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     next();
 });
-app.use('/api/sie', require('./routes')(app));
+app.use('/api/sie', require('./routes')(app, str.STR));
 app.use(cors());
 
 app.listen(port, () => {

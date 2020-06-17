@@ -1,22 +1,33 @@
 module.exports = (sequelize, type, orden, liquidacion) => {
-    var OrdenLiquidacion = Sequelize.define('orden_liquidacion', {
+    var OrdenLiquidacion = sequelize.define('orden_liquidacion', {
         id_orden_liquidacion: { type: type.INTEGER, primaryKey: true, autoIncrement: true }
     }, {
         freezeTableName: true,
         timestamps: false
     });
 
-    orden.belongsToMany(liquidacion, {
+    OrdenLiquidacion.belongsTo(orden, {
         foreignKey: 'fk_id_orden',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL',
-        through: OrdenLiquidacion
     });
-
-    liquidacion.belongsToMany(orden, {
+    OrdenLiquidacion.belongsTo(liquidacion, {
         foreignKey: 'fk_id_liquidacion',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL',
-        through: OrdenLiquidacion
     });
+    
+    orden.hasMany(OrdenLiquidacion, {
+        foreignKey: 'fk_id_orden',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL',
+    });
+
+    liquidacion.hasMany(OrdenLiquidacion, {
+        foreignKey: 'fk_id_liquidacion',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL',
+    });
+
+    return OrdenLiquidacion;
 }

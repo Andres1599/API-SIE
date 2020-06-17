@@ -1,33 +1,45 @@
 const routes = require('express').Router();
-const str = require('../utils/strings');
-module.exports = (app) => {
-    //import models
+module.exports = (app, str) => {
+    
+    // letter controls
     const CartaController = require('../controller/carta.controller')(app)
+    // user controls
     const UsuarioController = require('../controller/usuario.controller')(app, str)
-    const AdminGetController = require('../controller/admin.controller')(app)
-    const BancosController = require('../controller/banco.controller')(app)
-    const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app)
-    const EmpresaController = require('../controller/empresa.controller')(app)
-    const MonedaController = require('../controller/moneda.controller')(app)
-    const LiquidacionController = require('../controller/liquidacion.controller')(app)
-    const CuentaController = require('../controller/cuenta.controller')(app)
-    const DepositoController = require('../controller/desposito.controller')(app)
-    const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app)
-    const FacturaController = require('../controller/factura.controller')(app)
-    const GastosController = require('../controller/gastos.controller')(app)
+    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app)
     const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app)
+    const AdminGetController = require('../controller/admin.controller')(app)
+    const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app)
+    // bank controls
+    const BancosController = require('../controller/banco.controller')(app)
+    // company controls
+    const EmpresaController = require('../controller/empresa.controller')(app)
+    //coins controls
+    const MonedaController = require('../controller/moneda.controller')(app)
+    const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app)
+    //account controls
+    const CuentaController = require('../controller/cuenta.controller')(app)
+    // deposit controls
+    const DepositoController = require('../controller/desposito.controller')(app)    
+    // spending controls
+    const GastosController = require('../controller/gastos.controller')(app)
+    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
+    // liquidation controls
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app)
+    const FacturaController = require('../controller/factura.controller')(app)
+    const LiquidacionController = require('../controller/liquidacion.controller')(app)
+    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
+    // order controls
+    const OrdenController = require('../controller/orden.viaticos.controller')(app, str)
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app)
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app)
-    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
-    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
-    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app)
+    // country controls
     const PaisController = require('../controller/pais.controller')(app, str)
+    // calendar controls
     const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str)
     const ActividadController = require('../controller/actividad.controller')(app, str)
     const CalendarioController = require('../controller/calendario.controller')(app, str)
 
-    //routes cartas
+    //routes letter
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
     routes.delete('/carta/delete/', CartaController.delete);
@@ -67,7 +79,7 @@ module.exports = (app) => {
     routes.put('/empresa/', EmpresaController.update);
     routes.get('/empresa/moneda', EmpresaController.getEM);
 
-    //routes from moneda
+    //routes from coin
     routes.post('/moneda/', MonedaController.create);
     routes.post('/moneda/:id_moneda', MonedaController.delete);
     routes.put('/moneda/', MonedaController.update);
@@ -123,28 +135,31 @@ module.exports = (app) => {
     routes.put('/gastos/id', GastosController.update);
     routes.post('/gastos', GastosController.create);
 
-    //routes from gastostipousuario
+    //routes from gastos tipo usuario
     routes.get('/gastostipousuario/', GastosTipoUsuarioController.getAll);
     routes.get('/gastostipousuario/:id', GastosTipoUsuarioController.getById);
     routes.delete('/gastostipousuario/id', GastosTipoUsuarioController.delete);
     routes.put('/gastostipousuario/id', GastosTipoUsuarioController.update);
     routes.post('/gastostipousuario', GastosTipoUsuarioController.create);
 
-    //routes from liquidacionfactura
+    //routes from liquidacion factura
     routes.get('/liquidacionfactura/', LiquidacionFacturaController.getAll);
     routes.get('/liquidacionfactura/id', LiquidacionFacturaController.getById);
     routes.delete('/liquidacionfactura/id', LiquidacionFacturaController.delete);
     routes.put('/liquidacionfactura/id', LiquidacionFacturaController.update);
     routes.post('/liquidacionfactura', LiquidacionFacturaController.create);
 
-    //routes from ordendeposito
+    //routes from per diem
+    routes.get('/ordenes/', OrdenController.getAll);
+    routes.post('/orden/', OrdenController.create);
+    //routes from orden deposito
     routes.get('/ordendeposito/', OrdenDepositoController.getAll);
     routes.get('/ordendeposito/id', OrdenDepositoController.getById);
     routes.delete('/ordendeposito/id', OrdenDepositoController.delete);
     routes.put('/ordendeposito/id', OrdenDepositoController.update);
     routes.post('/ordendeposito', OrdenDepositoController.create);
 
-    //routes from ordenpresupuesto
+    //routes from orden presupuesto
     routes.get('/ordenpresupuesto/', OrdenPresupuestoController.getAll);
     routes.get('/ordenpresupuesto/id', OrdenPresupuestoController.getById);
     routes.delete('/ordenpresupuesto/id', OrdenPresupuestoController.delete);
