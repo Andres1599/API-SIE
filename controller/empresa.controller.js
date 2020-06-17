@@ -1,13 +1,22 @@
 module.exports = function (app) {
-    
-    let empresa = app.get('empresa');
-    let empresaMoneda = app.get('empresa_moneda');
+
+    const empresa = app.get('empresa');
+    const empresaMoneda = app.get('empresa_moneda');
+    const moneda = app.get('moneda');
 
     return {
-        create: function (req, res) { CreateEmpresa(empresa, req, res); },
-        update: function (req, res) { UpdateEmpresa(empresa, req, res); },
-        delete: function (req, res) { DeleteEmpresa(empresa, req, res); },
-        getEM: (req, res) => { getEmpresaMoneda(empresa, empresaMoneda, req, res); }
+        create: (req, res) => {
+            CreateEmpresa(empresa, req, res);
+        },
+        update: (req, res) => {
+            UpdateEmpresa(empresa, req, res);
+        },
+        delete: (req, res) => {
+            DeleteEmpresa(empresa, req, res);
+        },
+        getEM: (req, res) => {
+            getEmpresaMoneda(empresa, empresaMoneda, moneda, req, res);
+        }
     }
 }
 
@@ -69,17 +78,18 @@ function DeleteEmpresa(empresa, req, res) {
     });
 }
 
-function getEmpresaMoneda(empresa, empresaMoneda, req, res) {
+function getEmpresaMoneda(empresa, empresaMoneda, moneda, req, res) {
     empresa.findAll({
             include: [{
-                model: empresaMoneda
+                model: empresaMoneda,
+                include: [moneda]
             }]
         }).then(empresas => {
             if (empresas) {
                 res.status(200).send(empresas)
             }
         })
-        .catch( err => {
+        .catch(err => {
             res.status(400).send({
                 error: err
             })

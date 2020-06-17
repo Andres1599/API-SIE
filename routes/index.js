@@ -22,7 +22,7 @@ module.exports = (app) => {
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app)
-    const PaisController = require('../controller/pais.controller')(app)
+    const PaisController = require('../controller/pais.controller')(app, str)
     const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str)
     const ActividadController = require('../controller/actividad.controller')(app, str)
     const CalendarioController = require('../controller/calendario.controller')(app, str)
