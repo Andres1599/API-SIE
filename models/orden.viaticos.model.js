@@ -4,7 +4,6 @@ module.exports = (sequelize, type, empresa, pais, moneda) => {
         fecha: { type: type.DATE, allowNull: true },
         fecha_salia: { type: type.DATE, allowNull: true },
         fecha_regreso: { type: type.DATE, allowNull: true },
-        orden_trabajo: { type: type.STRING, allowNull: true },
         cliente: { type: type.STRING, allowNull: true },
         correlativo: { type: type.INTEGER },
         status: { type: type.BOOLEAN }
