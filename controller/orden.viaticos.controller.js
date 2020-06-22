@@ -16,6 +16,9 @@ module.exports = function (app, str) {
         getById: (req, res) => {},
         getAll: (req, res) => {
             getAll(req, res, str, ordenViaticos, ordenDepositos, ordenLiquidaciones, ordenUsuarios, ordenOrdenes, ordenPresupuesto)
+        },
+        getAllClient: (req, res) => {
+            getAllClientName(req, res, str, ordenViaticos)
         }
     }
 }
@@ -66,6 +69,22 @@ function getAll(req, res, str, ordenViaticos, ordenDepositos, ordenLiquidaciones
             }
         })
         .catch(err => {
+            res.json(new response(false, str.errCatch, err.message, null))
+        })
+}
+
+function getAllClientName(req, res, str, ordenViaticos) {
+    ordenViaticos.aggregate('cliente', 'DISTINCT', {
+            plain: false
+        }).then((names) => {
+            if (names) {
+                res.json(new response(true, str.get, null, names))
+            } else {
+                res.json(new response(false, str.getErr, null, names))
+            }
+        })
+        .catch(err => {
+            console.error(err)
             res.json(new response(false, str.errCatch, err.message, null))
         })
 }
