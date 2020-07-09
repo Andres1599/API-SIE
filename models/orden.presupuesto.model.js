@@ -1,6 +1,6 @@
 module.exports = (sequelize, type, orden) => {
     var PresupuestoOrden = sequelize.define('orden_presupuestos', {
-        id_presupuesto_orde: {
+        id_presupuesto_orden: {
             type: type.INTEGER,
             primaryKey: true,
             autoIncrement: true

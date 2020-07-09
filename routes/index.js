@@ -1,6 +1,6 @@
 const routes = require('express').Router();
 module.exports = (app, str) => {
-    
+
     // letter controls
     const CartaController = require('../controller/carta.controller')(app)
     // user controls
@@ -19,7 +19,7 @@ module.exports = (app, str) => {
     //account controls
     const CuentaController = require('../controller/cuenta.controller')(app)
     // deposit controls
-    const DepositoController = require('../controller/desposito.controller')(app)    
+    const DepositoController = require('../controller/desposito.controller')(app)
     // spending controls
     const GastosController = require('../controller/gastos.controller')(app)
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
@@ -152,7 +152,8 @@ module.exports = (app, str) => {
     //routes from per diem
     routes.get('/ordenes/', OrdenController.getAll);
     routes.get('/ordenes/clientes/', OrdenController.getAllClient);
-    routes.post('/orden/', OrdenController.create);
+    routes.post('/orden/', OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
+
     //routes from orden deposito
     routes.get('/ordendeposito/', OrdenDepositoController.getAll);
     routes.get('/ordendeposito/id', OrdenDepositoController.getById);
