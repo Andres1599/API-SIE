@@ -30,7 +30,10 @@ module.exports = function (app, str) {
             getAll(req, res, str, orderPerDiem, ordenDepositos, ordenLiquidaciones, usersPerDiem, ordersPerDiem, budgetPerDiem)
         },
         getAllClient: (req, res) => {
-            getAllClientName(req, res, str, ordenViaticos)
+            getAllClientName(req, res, str, orderPerDiem)
+        },
+        max: (req, res, next) => {
+            correlativeCompany(req, res, next, str, orderPerDiem)
         }
     }
 }
@@ -51,7 +54,7 @@ function createOrder(req, res, next, str, orderPerDiem) {
         fecha_salia: orderReq.fecha_salia,
         fecha_regreso: orderReq.fecha_regreso,
         cliente: orderReq.cliente.cliente,
-        correlativo: null,
+        correlativo: orderReq.correlativo,
         status: false,
         fk_id_empresa: orderReq.empresa_moneda.empresa.id_empresa,
         fk_id_pais: orderReq.pais.id_pais,
@@ -252,10 +255,10 @@ function getAll(req, res, str, ordenViaticos, ordenDepositos, ordenLiquidaciones
  * @param {*} req 
  * @param {*} res 
  * @param {*} str 
- * @param {*} ordenViaticos 
+ * @param {*} orderPerDiem 
  */
-function getAllClientName(req, res, str, ordenViaticos) {
-    ordenViaticos.aggregate('cliente', 'DISTINCT', {
+function getAllClientName(req, res, str, orderPerDiem) {
+    orderPerDiem.aggregate('cliente', 'DISTINCT', {
             plain: false
         }).then((names) => {
             if (names) {
@@ -267,4 +270,41 @@ function getAllClientName(req, res, str, ordenViaticos) {
         .catch(err => {
             res.json(new response(false, str.errCatch, err.message, null))
         })
+}
+
+/**
+ *
+ * @description get last correlative from order per diem
+ * @param {*} req
+ * @param {*} res
+ * @param {*} str
+ * @param {*} orderPerDiem
+ */
+function correlativeCompany(req, res, next, str, orderPerDiem) {
+
+    let orderBroadcast = req.body;
+
+    if (!orderBroadcast.order) {
+        res.status(400).json(new response(false, str.paramsErr, err.message, orderBroadcast))
+    }
+
+    orderPerDiem.max('correlativo', {
+        where: {
+            fk_id_empresa: orderBroadcast.order.empresa_moneda.empresa.id_empresa
+        }
+    }).then( company => {
+
+        if ( company ) {
+            
+            orderBroadcast.order.correlativo = ((company*1) +1);
+
+            req.body = orderBroadcast
+            next()
+        } else {
+            res.status(400).json(new response(false, str.getErr, err.message, orderBroadcast))
+        }
+
+    }).catch( err => {
+        res.json(new response(false, str.errCatch, err.message, null))
+    })
 }

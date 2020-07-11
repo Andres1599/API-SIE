@@ -152,7 +152,7 @@ module.exports = (app, str) => {
     //routes from per diem
     routes.get('/ordenes/', OrdenController.getAll);
     routes.get('/ordenes/clientes/', OrdenController.getAllClient);
-    routes.post('/orden/', OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
+    routes.post('/orden/',  OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
 
     //routes from orden deposito
     routes.get('/ordendeposito/', OrdenDepositoController.getAll);
