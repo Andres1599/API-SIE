@@ -251,7 +251,7 @@ function getAll(req, res, str, ordenViaticos, ordenDepositos, ordenLiquidaciones
 }
 
 /**
- * 
+ * @description get clients name from orders per diem
  * @param {*} req 
  * @param {*} res 
  * @param {*} str 
