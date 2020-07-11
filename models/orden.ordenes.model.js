@@ -2,7 +2,7 @@ module.exports = (sequelize, type, orden) => {
     var OrdenOrdenes = sequelize.define('orden_ordenes', {
         id_orden_orden: { type: type.INTEGER, primaryKey: true, autoIncrement: true },
         orden: {
-            type: type.INTEGER,
+            type: type.STRING,
             allowNull: true
         }
     }, {
