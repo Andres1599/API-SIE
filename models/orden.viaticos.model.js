@@ -2,7 +2,7 @@ module.exports = (sequelize, type, empresa, pais, moneda) => {
     var OrdenViaticos = sequelize.define('orden_viaticos', {
         id_orden_viaticos: { type: type.INTEGER, primaryKey: true, autoIncrement: true },
         fecha: { type: type.DATE, allowNull: true },
-        fecha_salia: { type: type.DATE, allowNull: true },
+        fecha_salida: { type: type.DATE, allowNull: true },
         fecha_regreso: { type: type.DATE, allowNull: true },
         cliente: { type: type.STRING, allowNull: true },
         correlativo: { type: type.INTEGER },

@@ -1,11 +1,17 @@
 const response = require('../response/response')
 module.exports = function (app, str) {
     const orderPerDiem = app.get('orden_viaticos');
-    const ordenDepositos = app.get('orden_deposito')
-    const ordenLiquidaciones = app.get('orden_liquidacion')
+    const orderDeposit = app.get('orden_deposito')
+    const orderLiquidation = app.get('orden_liquidacion')
     const usersPerDiem = app.get('orden_usuario')
     const ordersPerDiem = app.get('orden_orden')
     const budgetPerDiem = app.get('orden_presupuesto')
+    const country = app.get('pais')
+    const company = app.get('empresa')
+    const coin = app.get('moneda')
+    const user = app.get('usuario')
+    const userData = app.get('usuario_datos')
+
 
     return {
         createOrder: (req, res, next) => {
@@ -27,7 +33,7 @@ module.exports = function (app, str) {
         delete: (req, res) => {},
         getById: (req, res) => {},
         getAll: (req, res) => {
-            getAll(req, res, str, orderPerDiem, ordenDepositos, ordenLiquidaciones, usersPerDiem, ordersPerDiem, budgetPerDiem)
+            getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
         },
         getAllClient: (req, res) => {
             getAllClientName(req, res, str, orderPerDiem)
@@ -51,7 +57,7 @@ function createOrder(req, res, next, str, orderPerDiem) {
 
     orderPerDiem.create({
         fecha: new Date(),
-        fecha_salia: orderReq.fecha_salia,
+        fecha_salida: orderReq.fecha_salida,
         fecha_regreso: orderReq.fecha_regreso,
         cliente: orderReq.cliente.cliente,
         correlativo: orderReq.correlativo,
@@ -95,25 +101,25 @@ function transformData(orderBroadcast, id) {
         }
 
         if (Array.isArray(orderBroadcast.budget)) {
-            object.budget = orderBroadcast.budget.map( budget => {
+            object.budget = orderBroadcast.budget.map(budget => {
                 return {
                     observaciones: budget.observaciones,
                     gasto: budget.gasto,
                     dias: budget.dias,
-                    valor: budget.valor, 
+                    valor: budget.valor,
                     total: budget.total,
                     fk_id_orden_viaticos: id
                 }
-            } )
+            })
         }
 
         if (Array.isArray(orderBroadcast.budget)) {
-            object.orders = orderBroadcast.orders.map( order => {
+            object.orders = orderBroadcast.orders.map(order => {
                 return {
                     orden: order.orden,
                     fk_id_orden: id
                 }
-            } )
+            })
         }
 
         return object
@@ -134,7 +140,7 @@ function transformData(orderBroadcast, id) {
  */
 function createBudget(req, res, next, str, budget) {
     let orderBroadcast = req.body
-    budget.bulkCreate(orderBroadcast.budget).then( budgets => {
+    budget.bulkCreate(orderBroadcast.budget).then(budgets => {
         if (budgets) {
             req.body = {
                 orders: orderBroadcast.orders,
@@ -144,8 +150,8 @@ function createBudget(req, res, next, str, budget) {
         } else {
             res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
         }
-    }).catch( err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast)) 
+    }).catch(err => {
+        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
     })
 }
 
@@ -159,7 +165,7 @@ function createBudget(req, res, next, str, budget) {
 function createUsers(req, res, str, next, users) {
     let orderBroadcast = req.body;
 
-    users.bulkCreate(orderBroadcast.users).then( user => {
+    users.bulkCreate(orderBroadcast.users).then(user => {
         if (user) {
             req.body = {
                 orders: orderBroadcast.orders,
@@ -168,8 +174,8 @@ function createUsers(req, res, str, next, users) {
         } else {
             res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
         }
-    }).catch( err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast)) 
+    }).catch(err => {
+        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
     })
 
 }
@@ -184,7 +190,7 @@ function createUsers(req, res, str, next, users) {
  */
 function createOrders(req, res, next, str, orders) {
     let orderBroadcast = req.body;
-    orders.bulkCreate(orderBroadcast.orders).then( order => {
+    orders.bulkCreate(orderBroadcast.orders).then(order => {
         if (order) {
             req.body = {
                 create: true,
@@ -193,8 +199,8 @@ function createOrders(req, res, next, str, orders) {
         } else {
             res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
         }
-    }).catch( err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast)) 
+    }).catch(err => {
+        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
     })
 }
 
@@ -214,28 +220,41 @@ function createPerDiem(req, res, str) {
  * @param {*} res 
  * @param {*} str 
  * @param {*} ordenViaticos 
- * @param {*} ordenDepositos 
- * @param {*} ordenLiquidaciones 
+ * @param {*} orderDeposit 
+ * @param {*} orderLiquidation 
  * @param {*} usersPerDiem 
  * @param {*} ordersPerDiem 
  * @param {*} budgetPerDiem 
  */
-function getAll(req, res, str, ordenViaticos, ordenDepositos, ordenLiquidaciones, usersPerDiem, ordersPerDiem, budgetPerDiem) {
+function getAll(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) {
     ordenViaticos.findAll({
             include: [{
                     model: ordersPerDiem
                 },
                 {
-                    model: ordenDepositos
+                    model: orderDeposit
                 },
                 {
-                    model: usersPerDiem
+                    model: usersPerDiem,
+                    include: [{
+                        model: user,
+                        include: [{model: userData}]
+                    }]
                 },
                 {
                     model: budgetPerDiem
                 },
                 {
-                    model: ordenLiquidaciones
+                    model: orderLiquidation
+                },
+                {
+                    model: country
+                },
+                {
+                    model: company
+                },
+                {
+                    model: coin
                 },
             ]
         }).then((ordenes) => {
@@ -292,11 +311,11 @@ function correlativeCompany(req, res, next, str, orderPerDiem) {
         where: {
             fk_id_empresa: orderBroadcast.order.empresa_moneda.empresa.id_empresa
         }
-    }).then( company => {
+    }).then(company => {
 
-        if ( company ) {
-            
-            orderBroadcast.order.correlativo = ((company*1) +1);
+        if (company) {
+
+            orderBroadcast.order.correlativo = ((company * 1) + 1);
 
             req.body = orderBroadcast
             next()
@@ -304,7 +323,7 @@ function correlativeCompany(req, res, next, str, orderPerDiem) {
             res.status(400).json(new response(false, str.getErr, err.message, orderBroadcast))
         }
 
-    }).catch( err => {
+    }).catch(err => {
         res.json(new response(false, str.errCatch, err.message, null))
     })
 }
