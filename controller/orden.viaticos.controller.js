@@ -54,11 +54,12 @@ module.exports = function (app, str) {
 function createOrder(req, res, next, str, orderPerDiem) {
     let orderBroadcast = req.body
     let orderReq = req.body.order
+    
 
     orderPerDiem.create({
         fecha: new Date(),
-        fecha_salida: orderReq.fecha_salida,
-        fecha_regreso: orderReq.fecha_regreso,
+        fecha_salida: addHours(orderReq.fecha_salida),
+        fecha_regreso: addHours(orderReq.fecha_regreso),
         cliente: orderReq.cliente.cliente,
         correlativo: orderReq.correlativo,
         status: false,
@@ -326,4 +327,10 @@ function correlativeCompany(req, res, next, str, orderPerDiem) {
     }).catch(err => {
         res.json(new response(false, str.errCatch, err.message, null))
     })
+}
+
+function addHours(date) {
+    const dateOut = new Date(date);
+    dateOut.setHours(dateOut.getHours() + 6);
+    return dateOut
 }
