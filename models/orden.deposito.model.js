@@ -1,23 +1,33 @@
 module.exports = (sequelize, type, orden, deposito) => {
-    var OrdenDeposito = Sequelize.define('orden_deposito', {
+    var OrdenDeposito = sequelize.define('orden_deposito', {
         id_orden_deposito: { type: type.INTEGER, primaryKey: true, autoIncrement: true }
     }, {
         freezeTableName: true,
         timestamps: false
     });
 
-    orden.belongsToMany(deposito, {
+    OrdenDeposito.belongsTo(orden, {
         foreignKey: 'fk_id_orden',
         onDelete: 'SET NULL',
-        onUpdate: 'SET NULL',
-        through: OrdenDeposito
+        onUpdate: 'SET NULL'
     });
 
-    deposito.belongsToMany(orden, {
+    OrdenDeposito.belongsTo(deposito, {
         foreignKey: 'fk_id_deposito',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL',
-        through: OrdenDeposito
+    });
+
+    orden.hasMany(OrdenDeposito, {
+        foreignKey: 'fk_id_orden',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    deposito.hasMany(OrdenDeposito, {
+        foreignKey: 'fk_id_deposito',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL',
     });
 
     return OrdenDeposito;

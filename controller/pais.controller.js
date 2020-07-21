@@ -1,59 +1,50 @@
-module.exports = function(app) {
-    let paises = app.get('paises');
+const response = require('../response/response')
+module.exports = (app, string) => {
+    const paises = app.get('pais');
     return {
-        create: (req, res) => { newPaises(paises, req, res); },
-        update: (req, res) => { updatePaises(paises, req, res); },
-        delete: (req, res) => { deletePaises(paises, req, res); },
-        getById: (req, res) => { getPaisesById(paises, req, res); },
-        getAll: (req, res) => { getAllPaises(paises, req, res); }
+        create: (req, res) => {
+            newPaises(paises, req, res, string);
+        },
+        update: (req, res) => {
+            updatePaises(paises, req, res);
+        },
+        delete: (req, res) => {
+            deletePaises(paises, req, res);
+        },
+        getAll: (req, res) => {
+            getAllPaises(paises, req, res, string);
+        }
     }
 }
 
-function newPaises(paises, req, res) {
+function newPaises(paises, req, res, string) {
     paises.create({
         nombre_pais: req.body.nombre_pais,
-    }).then(function(response) {
-        if (response) {
-            res.json(response);
+    }).then((country) => {
+        if (country) {
+            res.json(new response(true, string.create, null, country));
         } else {
-            res.json({
-                message: "Error al crear un nuevo pais",
-                created: false
-            });
+            res.json(new response(false, string.createErr, null, country));
         }
+    }).catch(err => {
+        res.json(new response(false, string.errCatch, err, null));
     });
 }
 
 function deletePaises(paises, req, res) {
-    paises.findOne({
+    paises.destroy({
         where: {
             id_pais: req.params.id_pais
         }
-    }).then(function(response) {
-        if (response) {
-            paises.destroy({
-                where: {
-                    id_pais: req.params.id_pais
-                }
-            }).then(function(deleted) {
-                if (deleted) {
-                    res.json({
-                        message: "Se ha eliminado con exito el pais",
-                        deleted: true
-                    });
-                } else {
-                    res.json({
-                        message: "Error al eliminar el pais",
-                        deleted: false
-                    });
-                }
-            });
+    }).then(deleted => {
+        if (deleted) {
+            res.json(new response(true, string.delete, null, deleted));
         } else {
-            res.json({
-                message: "No hemos podido encontrar el pais para eliminarlo"
-            });
+            res.json(new response(false, string.deleteErr, null, deleted));
         }
-    });
+    }).catch(err => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
 }
 
 function updatePaises(paises, req, res) {
@@ -63,39 +54,25 @@ function updatePaises(paises, req, res) {
         where: {
             id_pais: req.body.id_pais
         }
-    }).then(function(update) {
-        res.json(update);
-    }).catch(function(err) {
-        res.json({
-            message: 'Error al procesar la petición',
-            error: err
-        });
-    })
-}
-
-function getPaisesById(paises, req, res) {
-    paises.findOne({
-        where: {
-            id_pais: req.params.id_pais
-        }
-    }).then(function(response) {
-        if (response) {
-            res.json(response);
+    }).then(function (updated) {
+        if (updated) { 
+            res.json(new response(true, string.update, null, updated));
         } else {
-            res.json({
-                message: "No hemos podido encontrar el pais"
-            });
+            res.json(new response(false, string.updateErr, null, updated));
         }
-    }).catch(function(err) {
-        res.json({
-            message: "No hemos podido encontrar el pais",
-            error: err
-        });
-    });
-}
-
-function getAllPaises(paises, req, res) {
-    paises.findAll().then(function(response) {
-        res.json(response);
+    }).catch(function (err) {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}  
+ 
+function getAllPaises(paises, req, res, string) {
+    paises.findAll().then((countries) => {
+        if (countries) {
+            res.json(new response(true, string.get, null, countries));
+        } else {
+            res.json(new response(false, string.getErr, null, countries));
+        }
+    }).catch( err => {
+        res.json(new response(false, string.errCatch, err, null));
     });
 }

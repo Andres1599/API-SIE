@@ -28,6 +28,7 @@ const OrdenViaticosModel = require('./orden.viaticos.model');
 const OrdenPresupuestoModel = require('./orden.presupuesto.model');
 const OrdenLiquidacionModel = require('./orden.liquidacion.model');
 const OrdenDepostioModel = require('./orden.deposito.model');
+const OrdenOrdenesModel = require('./orden.ordenes.model');
 const OrdenUsuarioModel = require('./orden.usuario.model');
 const EmpresaMonedaModel = require('./empresa.moneda');
 const CalendarioModel = require('./calendario.model');
@@ -72,6 +73,7 @@ const OrdenPresupuesto = OrdenPresupuestoModel(Sequelize, sequelize, OrdenViatic
 const OrdenLiquidacion = OrdenLiquidacionModel(Sequelize, sequelize, OrdenViaticos, Liquidacion);
 const OrdenUsuario = OrdenUsuarioModel(Sequelize, sequelize, OrdenViaticos, Usuario);
 const OrdenDeposito = OrdenDepostioModel(Sequelize, sequelize, OrdenViaticos, Deposito);
+const OrdenOrdenes = OrdenOrdenesModel(Sequelize, sequelize, OrdenViaticos);
 const EmpresaMoneda = EmpresaMonedaModel(Sequelize, sequelize, Empresa, Moneda);
 const CatalogoEnsayo = CatalogoEnsayoModel(Sequelize, sequelize);
 const Actividad = ActividadModel(Sequelize, sequelize);
@@ -111,5 +113,6 @@ module.exports = {
     Calendario,
     CatalogoEnsayo,
     Actividad,
-    CalendarioUsuario
+    CalendarioUsuario,
+    OrdenOrdenes
 };
