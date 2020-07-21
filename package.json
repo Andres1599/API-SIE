@@ -29,6 +29,8 @@
         "swagger-ui-express": "^4.1.4"
     },
     "devDependencies": {
-        "nodemon": "^1.19.4"
+        "kind-of": ">=6.0.3",
+        "minimist": ">=1.2.3",
+        "nodemon": "^2.0.2"
     }
 }
