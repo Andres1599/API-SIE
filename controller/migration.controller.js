@@ -177,3 +177,7 @@ function createBills(res, str, bills, dataBills = []) {
         res.json(error);
     }
 }
+
+function migrateLiquidations(req, res, liquidation) {
+    
+}
