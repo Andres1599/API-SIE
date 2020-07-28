@@ -30,6 +30,38 @@ const isArray = (data) => {
     return Array.isArray(data)
 }
 
+const changeTypeBill = (type = '') => {
+
+    if (type === '' || type === 'Factura') {
+        return 1
+    }
+
+    if (type === 'Recibo') {
+        return 3
+    }
+
+    if (type === 'Factura PC') {
+        return 2
+    }
+
+}
+
+const changeTypeGas = (type = 0) => {
+    if (type === 19 || type === 60) {
+        return IDP_SUPER
+    }
+
+    if (type === 20 || type === 61) {
+        return IDP_DIESEL
+    }
+
+    if (type === 22 || type === 62) {
+        return IDP_REGULAR
+    }
+
+    return 0
+}
+
 module.exports = {
     IVA,
     IDP_SUPER,
@@ -40,5 +72,7 @@ module.exports = {
     CalculateIva,
     CalculateWithOutIva,
     CalculateIdp,
+    changeTypeBill,
+    changeTypeGas,
     isArray
 }
