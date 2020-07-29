@@ -39,6 +39,9 @@ module.exports = (app, str) => {
     const ActividadController = require('../controller/actividad.controller')(app, str)
     const CalendarioController = require('../controller/calendario.controller')(app, str)
 
+    // migrations controls
+    const MigrationController = require('../controller/migration.controller')(app, str);
+
     //routes letter
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
@@ -209,6 +212,11 @@ module.exports = (app, str) => {
     routes.put('/calendario/refuse/', CalendarioController.refuse);
     routes.get('/calendario/accept/:id', CalendarioController.getByIdToBeAccept);
     routes.post('/calendario/search', CalendarioController.search);
+
+    //routes from migration
+    routes.get('/migration/bills', MigrationController.migrateBills);
+    routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
+    routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
 
     return routes;
 };
