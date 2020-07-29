@@ -215,6 +215,8 @@ module.exports = (app, str) => {
 
     //routes from migration
     routes.get('/migration/bills', MigrationController.migrateBills);
+    routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
+    routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
 
     return routes;
 };

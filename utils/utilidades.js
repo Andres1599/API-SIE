@@ -62,6 +62,13 @@ const changeTypeGas = (type = 0) => {
     return 0
 }
 
+const groupBy = (xs, key) => {
+    return xs.reduce((rv, x) => {
+        (rv[x[key]] = rv[x[key]] || []).push(x);
+        return rv;
+    }, {});
+};
+
 module.exports = {
     IVA,
     IDP_SUPER,
@@ -74,5 +81,6 @@ module.exports = {
     CalculateIdp,
     changeTypeBill,
     changeTypeGas,
-    isArray
+    isArray,
+    groupBy
 }
