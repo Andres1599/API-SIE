@@ -25,7 +25,7 @@ module.exports = (app, str) => {
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
     // liquidation controls
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app)
-    const FacturaController = require('../controller/factura.controller')(app)
+    const FacturaController = require('../controller/factura.controller')(app, str)
     const LiquidacionController = require('../controller/liquidacion.controller')(app)
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
     // order controls
