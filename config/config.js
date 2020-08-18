@@ -33,5 +33,6 @@ module.exports = {
             logging: false
         },
         status: false
-    }
+    },
+    seed: process.env.SEED
 };
