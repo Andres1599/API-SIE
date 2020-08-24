@@ -7,7 +7,7 @@ const db = require('./models/db');
 const str = require('./utils/strings');
 
 //Set express 
-const app = express();
+var app = express();
 
 let port;
 if (config.develop.port) {
@@ -15,16 +15,6 @@ if (config.develop.port) {
 } else {
     port = config.production.port;
 }
-
-//Sync the database
-db.Sequelize.sync({
-    force: false
-}).then((sync) => {
-    console.log('Base de datos sincronizada');
-}).catch((err) => {
-    console.log('Error al sincronizar la base de datos', err);
-});
-
 app.set('tipo_usuario', db.TipoUsuario);
 app.set('usuario', db.Usuario);
 app.set('usuario_datos', db.UsuarioDatos);
@@ -59,7 +49,6 @@ app.set('catalogo_actividad', db.Actividad);
 app.set('calendario', db.Calendario);
 app.set('calendario_usuario', db.CalendarioUsuario);
 app.set('op', db.sequelize);
-
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -73,12 +62,13 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     next();
 });
-app.use('/api/sie', require('./routes')(app, str.STR));
+
 app.use(cors());
+app.use('/api/sie', require('./routes')(app, str.STR));
 
 app.listen(port, () => {
     console.log("Servidor iniciado en el puerto: " + port);
     console.log("Debug del server: ");
 });
 
-module.exports = app;
+module.exports = app

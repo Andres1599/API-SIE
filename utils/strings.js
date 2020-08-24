@@ -14,6 +14,8 @@ const STR = {
     getErr: 'Query result fail',
     getAll: 'Query result successful',
     get: 'Specific query result successful',
+    error400: 'Bad request',
+    error401: 'Unauthorized'
 }
 
 module.exports = {

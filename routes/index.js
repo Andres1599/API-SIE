@@ -25,7 +25,7 @@ module.exports = (app, str) => {
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
     // liquidation controls
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app)
-    const FacturaController = require('../controller/factura.controller')(app)
+    const FacturaController = require('../controller/factura.controller')(app, str)
     const LiquidacionController = require('../controller/liquidacion.controller')(app)
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
     // order controls
@@ -50,7 +50,7 @@ module.exports = (app, str) => {
     //routes usuario
     routes.post('/usuario/new', UsuarioController.create);
     routes.post('/usuario/pass', UsuarioController.updatePassword);
-    routes.post('/usuario/login', UsuarioController.login);
+    routes.post('/usuario/login', UsuarioController.findByEmail, UsuarioController.login);
     routes.post('/usuario/forget', UsuarioController.forgetPass);
     routes.put('/usuario/pass', UsuarioController.password);
 
@@ -155,7 +155,7 @@ module.exports = (app, str) => {
     //routes from per diem
     routes.get('/ordenes/', OrdenController.getAll);
     routes.get('/ordenes/clientes/', OrdenController.getAllClient);
-    routes.post('/orden/',  OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
+    routes.post('/orden/', OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
 
     //routes from orden deposito
     routes.get('/ordendeposito/', OrdenDepositoController.getAll);

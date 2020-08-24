@@ -1,4 +1,5 @@
 //IMPORTACION DE DEPENDENCIAS PARA CREACION Y SYNC DE LA BASE DE DATOS
+const app = require('./../server.js');
 const Config = require('../config/config');
 const sequelize = require('sequelize');
 
@@ -46,6 +47,15 @@ if (Config.develop.status) {
 
 Sequelize = new sequelize(config.db, config.user, config.password, config.db_);
 
+//SYNC DATA BASE
+Sequelize.sync({
+    force: false
+}).then((sync) => {
+    console.log('Base de datos sincronizada');
+}).catch((err) => {
+    console.log('Error al sincronizar la base de datos', err);
+});
+
 //INSTANCIA DE LOS MODELOS PARA LA SYNC CON LA BASE DE DATOS
 const TipoUsuario = TipoUsuarioModel(Sequelize, sequelize);
 const Usuario = UsuarioModel(Sequelize, sequelize, TipoUsuario);
@@ -61,7 +71,7 @@ const CatalogoGastos = CatalogoGastosModel(Sequelize, sequelize);
 const CatalogoSubgasto = CatalogoSubgastoModel(Sequelize, sequelize, CatalogoGastos);
 const GastoUsuario = GastoUsuarioModel(Sequelize, sequelize, CatalogoGastos, TipoUsuario);
 const Factura = FacturaModel(Sequelize, sequelize, Usuario, TipoDocumento, Moneda, CatalogoSubgasto);
-const Liquidacion = LiquidacionModel(Sequelize, sequelize,Usuario, Empresa, Moneda, TipoCuenta);
+const Liquidacion = LiquidacionModel(Sequelize, sequelize, Usuario, Empresa, Moneda, TipoCuenta);
 const LiquidacionFactura = LiquidacionFacturaModel(Sequelize, sequelize, Liquidacion, Factura);
 const Planilla = PlanillaModel(Sequelize, sequelize, Pais, Moneda, Empresa);
 const PlanillaRecibo = PlanillaReciboModel(Sequelize, sequelize, Planilla, Usuario);
