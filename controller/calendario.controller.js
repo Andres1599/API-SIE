@@ -24,6 +24,9 @@ module.exports = (app, string) => {
         createUser: (req, res) => {
             createCalendarUser(req, res, CalendarioUsuario, string)
         },
+        createUserOnce: (req, res) => {
+            createCalendarUserOnce(req, res, CalendarioUsuario, string)
+        },
         accept: (req, res) => {
             acceptEvent(req, res, CalendarioUsuario, string)
         },
@@ -132,6 +135,29 @@ function createCalendarUser(req, res, CalendarioUsuario, string) {
     }
 
     CalendarioUsuario.bulkCreate(records, {}).then((status) => {
+        if (status) {
+            res.json(new response(true, string.create, null, status))
+        } else {
+            res.json(new response(false, string.createErr, null, status))
+        }
+    }).catch((err) => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+function createCalendarUserOnce(req, res, CalendarioUsuario, string) {
+    const records = req.body;
+
+    if (!records) {
+        res.json(new response(false, string.errEmpty, null, null))
+    }
+
+    CalendarioUsuario.create({
+        cierre_calendario: records.cierre_calendario,
+        fk_id_calendario: records.fk_id_calendario,
+        fk_id_usuario: records.fk_id_usuario,
+        statusAccept: records.statusAccept,
+    }).then((status) => {
         if (status) {
             res.json(new response(true, string.create, null, status))
         } else {

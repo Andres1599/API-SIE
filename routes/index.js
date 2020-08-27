@@ -207,6 +207,7 @@ module.exports = (app, str) => {
     routes.post('/calendario', CalendarioController.create);
     routes.delete('/calendario/:id', CalendarioController.delete);
     routes.post('/calendario/usuario/', CalendarioController.createUser);
+    routes.post('/calendario/usuario/once/', CalendarioController.createUserOnce);
     routes.put('/calendario/accept/', CalendarioController.accept);
     routes.put('/calendario/close/', CalendarioController.close);
     routes.put('/calendario/refuse/', CalendarioController.refuse);
