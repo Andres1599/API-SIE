@@ -125,6 +125,8 @@ function getAllEventById(req, res, string, Calendario, CalendarioUsuario) {
 function createCalendarUser(req, res, CalendarioUsuario, string) {
     const records = req.body.data;
 
+    console.log(records);
+
     if (!records) {
         res.json(new response(false, string.errEmpty, null, null))
     }
