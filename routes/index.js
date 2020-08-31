@@ -130,6 +130,7 @@ module.exports = (app, str) => {
     routes.put('/facturas/id', FacturaController.update);
     routes.post('/facturas', FacturaController.create);
     routes.post('/facturas/usuario', FacturaController.getByIdUser);
+    routes.post('/facturas/dates', FacturaController.getByDate);
 
     //routes from gastos
     routes.get('/gastos/', GastosController.getAll);
