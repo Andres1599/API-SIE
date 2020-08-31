@@ -1,9 +1,10 @@
 const response = require('../response/response')
 module.exports = (app, str) => {
-    let facturas = app.get('factura');
-    let moneda = app.get('moneda');
-    let tipoDocumento = app.get('tipo_documento');
-    let gasto = app.get('subgasto');
+    const facturas = app.get('factura');
+    const moneda = app.get('moneda');
+    const tipoDocumento = app.get('tipo_documento');
+    const gasto = app.get('subgasto');
+    const op = app.get('op')
     return {
         create: (req, res) => {
             newFactura(facturas, req, res);
@@ -22,6 +23,9 @@ module.exports = (app, str) => {
         },
         getByIdUser: (req, res) => {
             getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res);
+        },
+        getByDate: (req, res) => {
+            getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res, op);
         }
     }
 }
@@ -172,6 +176,42 @@ function getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res) {
             })
         }
     }).catch(err => {
+        res.json({
+            message: 'Error al buscar las facturas',
+            err
+        })
+    })
+}
+
+function getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res, sequelize) {
+    const Op = sequelize.Op
+    facturas.findAll({
+        where: {
+            fk_id_usuario: req.body.id_usuario,
+            fk_id_moneda: req.body.fk_id_moneda,
+            fecha_compra: {[Op.between]: [req.body.start, req.body.end]},
+        },
+        include: [{
+                model: moneda
+            },
+            {
+                model: tipoDocumento
+            },
+            {
+                model: gasto
+            },
+        ]
+    }).then(value => {
+        if (value) {
+            res.json(value)
+        } else {
+            res.json({
+                find: false,
+                message: 'No hay facturas asociadas a ese usuario'
+            })
+        }
+    }).catch(err => {
+        console.error(err);
         res.json({
             message: 'Error al buscar las facturas',
             err
