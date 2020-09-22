@@ -10,7 +10,6 @@ const verifyToken = (req, res, next) => {
             message: 'Unauthorized'
         })
     }
-
     jwt.verify(token, config.seed, (err, decoded) => {
 
         if (err) {
@@ -21,6 +20,8 @@ const verifyToken = (req, res, next) => {
                 }
             });
         }
+
+        req.body.userDecode = decoded
 
         next();
 

@@ -42,6 +42,9 @@ module.exports = (app, str) => {
     // migrations controls
     const MigrationController = require('../controller/migration.controller')(app, str);
 
+    // middleware
+    const Middleware = require('../middleware/auth.middleware');
+
     //routes letter
     routes.post('/carta/create/', CartaController.create);
     routes.get('/carta/', CartaController.getAll);
@@ -60,11 +63,11 @@ module.exports = (app, str) => {
     routes.get('/usuarios/data', UsuarosDatosController.getAll);
 
     //routes get all master tables
-    routes.get('/usuarios/', AdminGetController.getUsuarios);
-    routes.get('/empresa/', AdminGetController.getEmpresas);
-    routes.get('/bancos/', AdminGetController.getBancos);
-    routes.get('/monedas/', AdminGetController.getMoneda);
-    routes.get('/tipo/usuario/', AdminGetController.getTipoUsuario);
+    routes.get('/usuarios/', Middleware.verifyToken, AdminGetController.getUsuarios);
+    routes.get('/empresa/', Middleware.verifyToken, AdminGetController.getEmpresas);
+    routes.get('/bancos/', Middleware.verifyToken, AdminGetController.getBancos);
+    routes.get('/monedas/', Middleware.verifyToken, AdminGetController.getMoneda);
+    routes.get('/tipo/usuario/', Middleware.verifyToken, AdminGetController.getTipoUsuario);
 
     //routes from bancos
     routes.post('/bancos/', BancosController.create);
