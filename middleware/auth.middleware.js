@@ -19,12 +19,10 @@ const verifyToken = (req, res, next) => {
                     message: 'Unauthorized'
                 }
             });
+        } else {
+            req.body.userDecode = decoded
+            next();
         }
-
-        req.body.userDecode = decoded
-
-        next();
-
     });
 
 };

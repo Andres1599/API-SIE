@@ -108,6 +108,7 @@ function updateFactura(req, res, str, facturas) {
         status: req.body.status,
         fk_id_usuario: req.body.fk_id_usuario,
         fk_id_tipo_documento: req.body.fk_id_tipo_documento,
+        fk_id_subgasto: req.body.fk_id_subgasto
     }, {
         where: {
             id_factura: req.body.id_factura
@@ -118,7 +119,6 @@ function updateFactura(req, res, str, facturas) {
         } else {
             res.json(new response(false, str.updateErr, null, updated))
         }
-        res.json(updated)
     }).catch(function (err) {
         res.json(new response(false, str.errCatch, err, null))
     })
@@ -211,7 +211,6 @@ function getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res
             })
         }
     }).catch(err => {
-        console.error(err);
         res.json({
             message: 'Error al buscar las facturas',
             err
