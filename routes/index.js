@@ -217,6 +217,8 @@ module.exports = (app, str) => {
     routes.put('/calendario/refuse/', Middleware.verifyToken, CalendarioController.refuse);
     routes.get('/calendario/accept/:id', Middleware.verifyToken, CalendarioController.getByIdToBeAccept);
     routes.post('/calendario/search', Middleware.verifyToken, CalendarioController.search);
+    routes.post('/calendario/search/user', CalendarioController.searchUser);
+    routes.post('/calendario/search/full', CalendarioController.full);
 
     //routes from migration
     routes.get('/migration/bills', Middleware.verifyToken, MigrationController.migrateBills);

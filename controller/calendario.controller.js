@@ -7,6 +7,8 @@ module.exports = (app, string) => {
     const Actividad = app.get('catalogo_actividad')
     const Ensayo = app.get('catalogo_ensayo')
     const op = app.get('op')
+    let Usuario = app.get('usuario');
+    let DatosUsuario = app.get('usuario_datos');
 
     return {
         getAll: (req, res) => {
@@ -37,10 +39,16 @@ module.exports = (app, string) => {
             refuseEvent(req, res, CalendarioUsuario, string)
         },
         close: (req, res) => {
-            closeCalendar(req, res, string, sequelize)
+            closeCalendar(req, res, string, Calendario)
         },
         search: (req, res) => {
             searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario)
+        },
+        searchUser: (req, res) => {
+            searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario)
+        },
+        full: (req, res) => {
+            fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario)
         }
     }
 }
@@ -246,10 +254,10 @@ function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario
  * @param {*} string 
  * @param {*} Calendario 
  */
-function closeCalendar(req, res, string, sequelize) {
-    sequelize.query("UPDATE calendario SET status=true WHERE (end >= '" +
-        req.body.start + "' AND end <= '" +
-        req.body.end + "')").then((updated) => {
+function closeCalendar(req, res, string, Calendario) {
+    Calendario.bulkCreate(req.body.activities, {
+        updateOnDuplicate: ['status']
+    }).then((updated) => {
         if (updated) {
             res.json(new response(true, string.update, null, updated))
         } else {
@@ -275,24 +283,33 @@ function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequeli
     Calendario.findAll({
         where: {
             [Op.or]: {
-                end: {[Op.between]: [req.body.start, req.body.end]},
-                start: {[Op.between]: [req.body.start, req.body.end]}
+                end: {
+                    [Op.between]: [req.body.start, req.body.end]
+                },
+                start: {
+                    [Op.between]: [req.body.start, req.body.end]
+                }
             },
             fk_id_actividad: req.body.fk_id_actividad,
         },
-        include: [
-            { model: Actividad },
-            { model: Ensayo },
-            { model: CalendarioUsuario },
+        include: [{
+                model: Actividad
+            },
+            {
+                model: Ensayo
+            },
+            {
+                model: CalendarioUsuario
+            },
         ]
-    }).then( (events) => {
+    }).then((events) => {
         if (events) {
             let dataResponse = {
                 midweek: [],
                 weekend: []
             };
 
-            events.forEach( item => {
+            events.forEach(item => {
                 if (
                     item.end.getDay() === 6 ||
                     item.end.getDay() === 0
@@ -305,9 +322,107 @@ function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequeli
 
             res.json(new response(true, string.getAll, null, dataResponse))
         } else {
-            res.json(new response(false, string.getErr,null, events))
+            res.json(new response(false, string.getErr, null, events))
         }
-    }).catch( (err) => {
+    }).catch((err) => {
         res.json(new response(false, string.errCatch, err, null));
     })
 }
+
+function searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) {
+    const Op = op.Op
+    Calendario.findAll({
+        where: {
+            [Op.or]: {
+                end: {
+                    [Op.between]: [req.body.start, req.body.end]
+                },
+                start: {
+                    [Op.between]: [req.body.start, req.body.end]
+                }
+            },
+            status: false
+        },
+        include: [{
+                model: Actividad
+            },
+            {
+                model: Ensayo
+            },
+            {
+                model: CalendarioUsuario,
+                include: [
+                    {
+                        model: Usuario,
+                        attributes: ['id_usuario'],
+                        include: [
+                            {
+                                model: DatosUsuario,
+                                attributes: ['nombre', 'apellido']
+                            }
+                        ]
+                    }
+                ],
+                where: {
+                    fk_id_usuario: req.body.fk_id_usuario
+                }
+            },
+        ]
+    }).then((events) => {
+        if (events) {
+            res.json(new response(true, string.getAll, null, events))
+        } else {
+            res.json(new response(false, string.getErr, null, events))
+        }
+    }).catch((err) => {
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
+function fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) {
+    const Op = op.Op
+    Calendario.findAll({
+        where: {
+            [Op.or]: {
+                end: {
+                    [Op.between]: [req.body.start, req.body.end]
+                },
+                start: {
+                    [Op.between]: [req.body.start, req.body.end]
+                }
+            }
+        },
+        include: [{
+                model: Actividad
+            },
+            {
+                model: Ensayo
+            },
+            {
+                model: CalendarioUsuario,
+                include: [
+                    {
+                        model: Usuario,
+                        attributes: ['id_usuario'],
+                        include: [
+                            {
+                                model: DatosUsuario,
+                                attributes: ['nombre', 'apellido']
+                            }
+                        ]
+                    }
+                ]
+            },
+        ]
+    }).then((events) => {
+        if (events) {
+            res.json(new response(true, string.getAll, null, events))
+        } else {
+            res.json(new response(false, string.getErr, null, events))
+        }
+    }).catch((err) => {
+        console.error(err);
+        res.json(new response(false, string.errCatch, err, null));
+    })
+}
+
