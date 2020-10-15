@@ -95,7 +95,7 @@ module.exports = (app, str) => {
 
     //routes from liquidacion
     routes.get('/liquidaciones/', Middleware.verifyToken, LiquidacionController.getAll);
-    routes.post('/liquidaciones/usuario', Middleware.verifyToken, LiquidacionController.getByUsuario);
+    routes.get('/liquidaciones/usuario/:id', LiquidacionController.getByUsuario);
     routes.post('/liquidacion/', Middleware.verifyToken, LiquidacionController.create);
 
     //routes from cuenta

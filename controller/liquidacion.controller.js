@@ -20,7 +20,7 @@ module.exports = function (app) {
             deleteLiquidacion(liquidacion, req, res);
         },
         getByUsuario: (req, res) => {
-            getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, user, userData, factura, subgasto, tipoDocumento, req, res);
+            getLiquidationByUsuario(liquidacion, moneda, tipoCuenta, empresa, req, res);
         },
         getAll: (req, res) => {
             getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res);
@@ -49,12 +49,10 @@ function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, mone
                     },
                     {
                         model: user,
-                        include: [
-                            {
-                                model: userData,
-                                attributes: ['nombre', 'apellido', 'dpi']
-                            }
-                        ]
+                        include: [{
+                            model: userData,
+                            attributes: ['nombre', 'apellido', 'dpi']
+                        }]
                     },
                     {
                         model: liquidacionFactura,
@@ -80,19 +78,12 @@ function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, mone
     })
 }
 
-function getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, user, userData, factura, subgasto, tipoDocumento, req, res) {
+function getLiquidationByUsuario(liquidacion, moneda, tipoCuenta, empresa, req, res) {
     liquidacion.findAll({
             where: {
-                id_usuario: req.body.id_usuario
+                id_usuario: req.params.id
             },
             include: [{
-                    model: liquidacionFactura,
-                    include: [{
-                        model: factura,
-                        include: [subgasto, tipoDocumento]
-                    }]
-                },
-                {
                     model: moneda
                 },
                 {
@@ -101,14 +92,6 @@ function getLiquidacionByUsuario(liquidacion, liquidacionFactura, moneda, tipoCu
                 {
                     model: empresa
                 },
-                {
-                    model: user,
-                    attributes: ['email'],
-                    include: {
-                        model: userData,
-                        attributes: ['nombre', 'apellido', 'dpi']
-                    }
-                }
             ]
         })
         .then(response => {
