@@ -2,42 +2,42 @@ const routes = require('express').Router();
 module.exports = (app, str) => {
 
     // letter controls
-    const CartaController = require('../controller/carta.controller')(app)
+    const CartaController = require('../controller/carta.controller')(app);
     // user controls
-    const UsuarioController = require('../controller/usuario.controller')(app, str)
-    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app)
-    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app)
-    const AdminGetController = require('../controller/admin.controller')(app)
-    const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app)
+    const UsuarioController = require('../controller/usuario.controller')(app, str);
+    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
+    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app);
+    const AdminGetController = require('../controller/admin.controller')(app);
+    const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     // bank controls
-    const BancosController = require('../controller/banco.controller')(app)
+    const BancosController = require('../controller/banco.controller')(app);
     // company controls
-    const EmpresaController = require('../controller/empresa.controller')(app)
+    const EmpresaController = require('../controller/empresa.controller')(app);
     //coins controls
-    const MonedaController = require('../controller/moneda.controller')(app)
-    const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app)
+    const MonedaController = require('../controller/moneda.controller')(app);
+    const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app);
     //account controls
-    const CuentaController = require('../controller/cuenta.controller')(app)
+    const CuentaController = require('../controller/cuenta.controller')(app);
     // deposit controls
-    const DepositoController = require('../controller/desposito.controller')(app)
+    const DepositoController = require('../controller/desposito.controller')(app);
     // spending controls
-    const GastosController = require('../controller/gastos.controller')(app)
-    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app)
+    const GastosController = require('../controller/gastos.controller')(app);
+    const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     // liquidation controls
-    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app)
-    const FacturaController = require('../controller/factura.controller')(app, str)
-    const LiquidacionController = require('../controller/liquidacion.controller')(app)
-    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app)
+    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
+    const FacturaController = require('../controller/factura.controller')(app, str);
+    const LiquidationController = require('../controller/liquidacion.controller')(app, str);
+    const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
     // order controls
-    const OrdenController = require('../controller/orden.viaticos.controller')(app, str)
-    const OrdenDepositoController = require('../controller/orden.deposito.controller')(app)
-    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app)
+    const OrdenController = require('../controller/orden.viaticos.controller')(app, str);
+    const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
+    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
     // country controls
-    const PaisController = require('../controller/pais.controller')(app, str)
+    const PaisController = require('../controller/pais.controller')(app, str);
     // calendar controls
-    const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str)
-    const ActividadController = require('../controller/actividad.controller')(app, str)
-    const CalendarioController = require('../controller/calendario.controller')(app, str)
+    const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str);
+    const ActividadController = require('../controller/actividad.controller')(app, str);
+    const CalendarioController = require('../controller/calendario.controller')(app, str);
 
     // migrations controls
     const MigrationController = require('../controller/migration.controller')(app, str);
@@ -94,10 +94,15 @@ module.exports = (app, str) => {
     routes.get('/moneda/iso/', Middleware.verifyToken, MonedaController.getIso);
 
     //routes from liquidacion
-    routes.get('/liquidaciones/', Middleware.verifyToken, LiquidacionController.getAll);
-    routes.get('/liquidaciones/usuario/:id', LiquidacionController.getByUsuario);
-    routes.post('/liquidacion/', Middleware.verifyToken, LiquidacionController.create);
-
+    routes.get('/liquidaciones/', Middleware.verifyToken, LiquidationController.getAll);
+    routes.get('/liquidacion/:id', Middleware.verifyToken, LiquidationController.getById);
+    routes.get('/liquidaciones/usuario/:id', Middleware.verifyToken, LiquidationController.getByUsuarioNotClose);
+    routes.post('/liquidacion/', Middleware.verifyToken, LiquidationController.create);
+    routes.delete('/liquidacion/:id', Middleware.verifyToken, LiquidationController.delete);
+    routes.delete('/liquidacion/item/:id', Middleware.verifyToken, LiquidationController.deleteItem);
+    routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
+    routes.put('/liquidacion/close/', LiquidationController.close);
+ 
     //routes from cuenta
     routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll);
     routes.get('/cuentas/id', Middleware.verifyToken, CuentaController.getById);
@@ -129,7 +134,7 @@ module.exports = (app, str) => {
     //routes from facturas
     routes.get('/facturas/', Middleware.verifyToken, FacturaController.getAll);
     routes.get('/facturas/id', Middleware.verifyToken, FacturaController.getById);
-    routes.delete('/facturas/id', Middleware.verifyToken, FacturaController.delete);
+    routes.delete('/facturas/:id', FacturaController.delete);
     routes.put('/facturas/id', Middleware.verifyToken, FacturaController.update);
     routes.post('/facturas', Middleware.verifyToken, FacturaController.create);
     routes.post('/facturas/usuario', Middleware.verifyToken, FacturaController.getByIdUser);
@@ -194,16 +199,16 @@ module.exports = (app, str) => {
     routes.delete('/pais/:id_pais', Middleware.verifyToken, PaisController.delete);
 
     //routes from ensayos
-    routes.get('/essay', Middleware.verifyToken, EnsayoController.getAll)
-    routes.post('/essay', Middleware.verifyToken, EnsayoController.create)
-    routes.put('/essay', Middleware.verifyToken, EnsayoController.update)
-    routes.delete('/essay/:id', Middleware.verifyToken, EnsayoController.delete)
+    routes.get('/essay', Middleware.verifyToken, EnsayoController.getAll);
+    routes.post('/essay', Middleware.verifyToken, EnsayoController.create);
+    routes.put('/essay', Middleware.verifyToken, EnsayoController.update);
+    routes.delete('/essay/:id', Middleware.verifyToken, EnsayoController.delete);
 
     //routes from activity
-    routes.get('/activity', Middleware.verifyToken, ActividadController.getAll)
-    routes.post('/activity', Middleware.verifyToken, ActividadController.create)
-    routes.put('/activity', Middleware.verifyToken, ActividadController.update)
-    routes.delete('/activity/:id', Middleware.verifyToken, ActividadController.delete)
+    routes.get('/activity', Middleware.verifyToken, ActividadController.getAll);
+    routes.post('/activity', Middleware.verifyToken, ActividadController.create);
+    routes.put('/activity', Middleware.verifyToken, ActividadController.update);
+    routes.delete('/activity/:id', Middleware.verifyToken, ActividadController.delete);
 
     //routes from calendario
     routes.get('/calendario', Middleware.verifyToken, CalendarioController.getAll);

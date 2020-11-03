@@ -13,7 +13,7 @@ module.exports = (app, str) => {
             updateFactura(req, res, str, facturas);
         },
         delete: (req, res) => {
-            deleteFactura(facturas, req, res);
+            deleteFactura(req, res, facturas, str)
         },
         getById: (req, res) => {
             getFacturasById(facturas, req, res);
@@ -62,36 +62,36 @@ function newFactura(facturas, req, res) {
     });
 }
 
-function deleteFactura(facturas, req, res) {
-    facturas.findOne({
-        where: {
-            id_factura: req.body.id_factura
-        }
-    }).then(function (response) {
-        if (response) {
-            facturas.destroy({
-                where: {
-                    id_factura: req.body.id_factura
-                }
-            }).then(function (deleted) {
-                if (deleted) {
-                    res.json({
-                        message: "Se ha eliminado con exito la factura",
-                        deleted: true
-                    });
-                } else {
-                    res.json({
-                        message: "Error al eliminar la factura",
-                        deleted: false
-                    });
-                }
-            });
+async function getById(id, facturas) {
+    try {
+        bill = await facturas.findOne({where: {id_factura: id}})
+        if (bill) {
+            return bill
         } else {
-            res.json({
-                message: "No hemos podido encontrar el factura para eliminarlo"
-            });
+            return null
         }
-    });
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null))
+    }
+}
+
+async function deleteFactura(req, res, facturas, string) {
+    try {
+        const idBill = req.params.id
+        const bill = await getById(idBill, facturas)
+        if (bill != null) {
+            const deleted = await facturas.destroy({where: {id_factura: idBill}})
+            if (deleted) {
+                res.json(new response(true, string.delete, null, bill))
+            } else {
+                res.json(new response(false, string.deleteErr, null, bill))
+            }
+        } else {
+            res.json(new response(false, string.deleteErr, null, bill))
+        }
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null))
+    }
 }
 
 function updateFactura(req, res, str, facturas) {
@@ -100,6 +100,8 @@ function updateFactura(req, res, str, facturas) {
         correlativo_factura: req.body.correlativo_factura,
         proveedor_factura: req.body.proveedor_factura,
         total_factura: req.body.total_factura,
+        total_siva: req.body.total_siva,
+        iva_factura: req.body.iva_factura,
         total_idp_factura: req.body.total_idp_factura,
         total_sidp_factura: req.body.total_sidp_factura,
         total_inguat_factura: req.body.total_inguat_factura,

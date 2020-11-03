@@ -1,4 +1,5 @@
-module.exports = function (app) {
+const response = require('../response/response')
+module.exports = function (app, string) {
     let liquidacion = app.get('liquidacion');
     let liquidacionFactura = app.get('liquidacion_factura');
     let moneda = app.get('moneda');
@@ -9,6 +10,7 @@ module.exports = function (app) {
     let factura = app.get('factura');
     let subgasto = app.get('subgasto');
     let tipoDocumento = app.get('tipo_documento');
+
     return {
         create: (req, res) => {
             newLiquidacion(liquidacion, req, res);
@@ -17,13 +19,25 @@ module.exports = function (app) {
             updateLiquidacion(liquidacion, req, res);
         },
         delete: (req, res) => {
-            deleteLiquidacion(liquidacion, req, res);
+            deleteLiquidation(req, res, liquidacion, string)
         },
-        getByUsuario: (req, res) => {
-            getLiquidationByUsuario(liquidacion, moneda, tipoCuenta, empresa, req, res);
+        deleteItem: (req, res) => {
+            deleteItemLiquidation(req, res, string, liquidacionFactura)
+        },
+        deleteItemFull: (req, res) => {
+            deleteItemLiquidationFull(req, res, string, liquidacionFactura)
+        },
+        getByUsuarioNotClose: (req, res) => {
+            getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, string)
         },
         getAll: (req, res) => {
             getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res);
+        },
+        getById: (req, res) => {
+            getLiquidacionById(user, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string)
+        },
+        close: (req, res) => {
+            closeLiquidation(req, res, liquidacion, string)
         }
     }
 }
@@ -78,10 +92,11 @@ function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, mone
     })
 }
 
-function getLiquidationByUsuario(liquidacion, moneda, tipoCuenta, empresa, req, res) {
+function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, string) {
     liquidacion.findAll({
             where: {
-                id_usuario: req.params.id
+                id_usuario: req.params.id,
+                estado: false
             },
             include: [{
                     model: moneda
@@ -94,22 +109,16 @@ function getLiquidationByUsuario(liquidacion, moneda, tipoCuenta, empresa, req, 
                 },
             ]
         })
-        .then(response => {
-            if (response) {
-                res.json(response);
+        .then(liquidations => {
+            if (liquidations) {
+                res.json(new response(true, string.get, null, liquidations));
             } else {
-                res.json({
-                    message: 'Error',
-                    error: response
-                });
+                res.json(new response(false, string.getErr, null, liquidations));
             }
         })
         .catch(error => {
             if (error) {
-                res.json({
-                    message: 'Error al obtener la liquidacion',
-                    error
-                });
+                res.json(new response(false, string.errCatch, error, null));
             }
         });
 }
@@ -135,5 +144,125 @@ function newLiquidacion(liquidacion, req, res) {
         });
     } catch (error) {
         res.json(error);
+    }
+}
+
+function getLiquidacionById(user, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string) {
+    const idLiquidation = req.params.id || 0;
+    user.findAll({
+        attributes: ['id_usuario'],
+        include: [{
+            model: liquidacion,
+            where: {
+                id: idLiquidation
+            },
+            attributes: ['id', 'id_liquidacion', 'fecha', 'fecha_cierra', 'estado'],
+            include: [{
+                    model: moneda
+                },
+                {
+                    model: empresa
+                },
+                {
+                    model: tipoCuenta
+                }, {
+                    model: liquidacionFactura,
+                    attributes: ['id_item'],
+                    include: [{
+                        model: factura,
+                        include: [tipoDocumento, subgasto]
+                    }]
+                }
+            ]
+        }]
+    }).then(liquidation => {
+        if (liquidation) {
+            res.json(new response(true, string.get, null, liquidation[0].liquidacions[0]));
+        } else {
+            res.json(new response(false, string.getErr, null, liquidation));
+        }
+    }).catch(error => {
+        res.json(new response(false, string.errCatch, error, null));
+    })
+}
+
+async function deleteLiquidation(req, res, liquidation, string) {
+    try {
+        const idLiquidation = req.params.id
+        const deleted = await liquidation.destroy({
+            where: {
+                id: idLiquidation
+            }
+        })
+
+        if (deleted) {
+            res.json(new response(true, string.delete, null, deleted))
+        } else {
+            res.json(new response(false, string.deleteErr, null, deleted))
+        }
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+async function deleteItemLiquidation(req, res, string, item_liquidation) {
+    try {
+        const id = req.params.id
+        const deleted = await item_liquidation.destroy({
+            where: {
+                id_item: id
+            }
+        })
+
+        if (deleted) {
+            res.json(new response(true, string.delete, null, deleted))
+        } else {
+            res.json(new response(false, string.deleteErr, null, deleted))
+        }
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+async function deleteItemLiquidationFull(req, res, string, item_liquidation) {
+    try {
+        const id = req.params.id
+        const deleted = await item_liquidation.destroy({
+            where: {
+                id_liquidacion: id
+            }
+        })
+
+        if (deleted) {
+            res.json(new response(true, string.delete, null, deleted))
+        } else {
+            res.json(new response(false, string.deleteErr, null, deleted))
+        }
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+async function closeLiquidation(req, res, liquidation, string) {
+    try {
+        const currentDay = new Date()
+        const idLiquidation = req.body.id
+        const updated = await liquidation.update({
+            estado: true,
+            fecha_cierra: currentDay
+        }, {
+            where: {
+                id: idLiquidation
+            }
+        })
+
+        if (updated) {
+            res.json(new response(true, string.update, null, updated))
+        } else {
+            res.json(new response(false, string.updateErr, null, updated))
+        }
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
     }
 }
