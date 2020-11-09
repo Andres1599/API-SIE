@@ -161,7 +161,7 @@ function login(req, res, str) {
         const userResponse = req.body.userResponse;
 
         const options = {
-            expiresIn: '1h'
+            expiresIn: '24h'
         }
 
         let validPassword = bcrypt.compareSync(userSend.password, userResponse.password)
