@@ -226,9 +226,9 @@ module.exports = (app, str) => {
     routes.post('/calendario/search/full', CalendarioController.full);
 
     //routes from migration
-    routes.get('/migration/bills', Middleware.verifyToken, MigrationController.migrateBills);
-    routes.get('/migration/liquidations', Middleware.verifyToken, MigrationController.migrateLiquidation);
-    routes.get('/migration/liquidations/update', Middleware.verifyToken, MigrationController.migrateUpdateLiquidation);
+    routes.get('/migration/bills', MigrationController.migrateBills);
+    routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
+    routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
 
     return routes;
 };
