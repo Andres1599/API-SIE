@@ -51,7 +51,7 @@ module.exports = (app, str) => {
     routes.delete('/carta/delete/', Middleware.verifyToken, CartaController.delete);
 
     //routes usuario
-    routes.post('/usuario/new', Middleware.verifyToken, UsuarioController.create);
+    routes.post('/usuario/new',  UsuarioController.create);
     routes.post('/usuario/pass', Middleware.verifyToken, UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.findByEmail, UsuarioController.login);
     routes.post('/usuario/forget', Middleware.verifyToken, UsuarioController.forgetPass);
