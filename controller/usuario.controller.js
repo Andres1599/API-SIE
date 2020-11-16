@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const response = require('../response/response');
 const config = require('../config/config');
+const utiles = require('../utils/utilidades');
+
 module.exports = (app, str) => {
 
     let usuario = app.get('usuario')
@@ -9,7 +10,7 @@ module.exports = (app, str) => {
 
     return {
         create: (req, res) => {
-            createUsuario(usuario, req, res, str)
+            createUsuario(usuario, datosUsuario, req, res, str)
         },
         updatePassword: (req, res) => {
             changePassword(usuario, req, res, str)
@@ -29,48 +30,52 @@ module.exports = (app, str) => {
     }
 }
 
-function createUsuario(usuario, req, res, str) {
+async function createUsuario(usuario, datosUsuario, req, res, str) {
 
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(req.body.password, salt);
+    try {
+        const password = req.body.password;
 
-    if (!hash) {
-        res.json({
-            message: str.createErr
-        })
+        if (!password) {
+            res.status(400).json(new response(false, str.errCreate, null, null))
+        }
+
+        const hash = utiles.encrypt(password)
+
+        if (hash) {
+
+            const newUser = await usuario.create({
+                email: req.body.email,
+                password: hash,
+                status: true,
+                fk_id_tipo: req.body.tipo_usuario
+            })
+
+            if (newUser) {
+
+                const dataUsuario = await datosUsuario.create({
+                    fk_id_usuario: newUser.id_usuario,
+                    nombre: req.body.nombre,
+                    apellido: req.body.apellido
+                })
+
+                res.json(new response(true, str.create, null, newUser))
+
+            } else {
+                res.json(new response(false, str.createErr, null, newUser))
+            }
+
+        } else {
+            res.json(new response(false, str.createErr, null, null))
+        }
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
     }
-
-    usuario.create({
-        email: req.body.email,
-        password: hash,
-        status: false,
-        fk_id_tipo: req.body.tipo_usuario
-    }).then(response => {
-        if (response)
-            res.json({
-                message: str.create,
-                created: true
-            })
-        else
-            res.json({
-                message: str.createErr,
-                error: response,
-                created: false
-            })
-    }).catch(err => {
-        if (err)
-            res.json({
-                message: str.createErr,
-                error: err,
-                created: false
-            })
-    })
 }
 
 function changePassword(usuario, req, res, str) {
 
-    const salt = bcrypt.genSaltSync(10)
-    const hash = bcrypt.hashSync(req.body.new_pass, salt)
+    const hash = utiles.encrypt(req.body.new_pass)
 
     if (!hash) {
         res.json({
@@ -79,29 +84,28 @@ function changePassword(usuario, req, res, str) {
     }
 
     usuario.findOne({
-            where: {
-                email: req.body.email
+        where: {
+            email: req.body.email
+        }
+    }).then(user => {
+        if (user) {
+            let pass = utiles.decrypt(req.body.old_pass, user.password)
+            if (pass) {
+                return usuario.update({
+                    password: hash
+                }, {
+                    where: {
+                        id_usuario: user.id_usuario
+                    }
+                })
+            } else {
+                res.json({
+                    message: 'El password antiguo no es correcto',
+                    update: false
+                })
             }
-        }).then(user => {
-            if (user) {
-                console.log(user.password)
-                let pass = bcrypt.compareSync(req.body.old_pass, user.password)
-                if (pass) {
-                    return usuario.update({
-                        password: hash
-                    }, {
-                        where: {
-                            id_usuario: user.id_usuario
-                        }
-                    })
-                } else {
-                    res.json({
-                        message: 'El password antiguo no es correcto',
-                        update: false
-                    })
-                }
-            }
-        })
+        }
+    })
         .then(update => {
             if (update) {
                 res.json({
@@ -164,7 +168,7 @@ function login(req, res, str) {
             expiresIn: '24h'
         }
 
-        let validPassword = bcrypt.compareSync(userSend.password, userResponse.password)
+        let validPassword = utiles.decrypt(userSend.password, userResponse.password)
 
         if (validPassword) {
 
@@ -181,7 +185,6 @@ function login(req, res, str) {
         }
 
     } catch (error) {
-        console.error(error)
         res.status(500).json(new response(false, str.errCatch, error, null));
     }
 
@@ -189,8 +192,7 @@ function login(req, res, str) {
 
 async function updateWithOutOldPass(usuario, id_usuario, newPassRandom) {
 
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(newPassRandom, salt);
+    const hash = utiles.encrypt(newPassRandom)
 
     usuario.update({
         password: hash
@@ -254,8 +256,7 @@ function forgetPass(usuario, datosUsuario, req, res) {
 
 function updatePasswordAdmin(usuario, req, res) {
 
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(req.body.password, salt);
+    const hash = utiles.encrypt(req.body.password)
 
     if (!hash) {
         res.json({
@@ -264,20 +265,20 @@ function updatePasswordAdmin(usuario, req, res) {
     }
 
     usuario.update({
-            status: req.body.status,
-            password: hash
-        }, {
-            where: {
-                id_usuario: req.body.id_usuario
-            }
-        }).then((update) => {
-            if (update) {
-                res.json({
-                    updated: true,
-                    usuario: update
-                })
-            }
-        })
+        status: req.body.status,
+        password: hash
+    }, {
+        where: {
+            id_usuario: req.body.id_usuario
+        }
+    }).then((update) => {
+        if (update) {
+            res.json({
+                updated: true,
+                usuario: update
+            })
+        }
+    })
         .catch(err => {
             if (err) {
                 res.json({

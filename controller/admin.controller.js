@@ -1,5 +1,5 @@
-let str = require('../utils/strings');
-
+const str = require('../utils/strings');
+const response = require('../response/response');
 module.exports = (app) => {
 
     let Usuario = app.get('usuario');
@@ -14,7 +14,7 @@ module.exports = (app) => {
         getUsuarios: (req, res) => { getU(Usuario, DatosUsuario, TipoUsuario, req, res); },
         getBancos: (req, res) => { getB(Bancos, req, res); },
         getTipoUsuario: (req, res) => { getTU(TipoUsuario, req, res); },
-        getCatalogo: (req, res) => {},
+        getCatalogo: (req, res) => { },
         getEmpresas: (req, res) => { getE(Empresa, EmpresaMoneda, req, res); },
         getMoneda: (req, res) => { getM(Moneda, req, res); }
     }
@@ -23,9 +23,9 @@ module.exports = (app) => {
 function getU(Usuario, DatosUsuario, TipoUsuario, req, res) {
     Usuario.findAll({
         include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido', 'dpi'] },
-            { model: TipoUsuario, attributes: ['tipo_usuario'] }
+        { model: TipoUsuario, attributes: ['tipo_usuario'] }
         ],
-        attributes: ['id_usuario','email', 'status']
+        attributes: ['id_usuario', 'email', 'status']
     }).then(rest => {
         if (rest) {
             res.json(rest);
@@ -58,17 +58,14 @@ function getB(Bancos, req, res) {
 }
 
 function getTU(TipoUsuario, req, res) {
-    TipoUsuario.findAll().then(rest => {
-        if (rest) {
-            res.json(rest);
+    TipoUsuario.findAll().then(tipoUsuarios => {
+        if (tipoUsuarios) {
+            res.json(new response(true, str.get, null, tipoUsuarios))
         } else {
-            res.json({ message: 'No se ha encontrado ni un Banco.' });
+            res.json(new response(false, str.getErr, null, tipoUsuarios))
         }
     }).catch(err => {
-        res.status(404).send({
-            message: 'Error al realizar la petición.',
-            error: err
-        });
+        res.json(new response(true, str.errCatch, null, err))
     });
 }
 

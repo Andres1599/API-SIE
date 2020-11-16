@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const IVA = 0.12
 const IDP_SUPER = 4.7
 const IDP_DIESEL = 1.3
@@ -7,6 +9,7 @@ const IDP_GAS = 0.5
 const RANDOM_ID = function () {
     return '_' + Math.random().toString(36).substr(2, 9);
 };
+
 const CalculateIva = (total) => {
     if (typeof total === 'number') {
         return (total / 1.12) * IVA
@@ -14,6 +17,7 @@ const CalculateIva = (total) => {
         return 0
     }
 }
+
 const CalculateWithOutIva = (total) => {
     if (typeof total === 'number') {
         return (total / 1.12)
@@ -69,6 +73,24 @@ const groupBy = (xs, key) => {
     }, {});
 };
 
+const encrypt = (text) => {
+    try {
+        const salt = bcrypt.genSaltSync(10);
+        const hash = bcrypt.hashSync(text, salt);
+        return hash
+    } catch (error) {
+        return null
+    }
+}
+
+const decrypt = (text, hash) => {
+    try {
+        return bcrypt.compareSync(text, hash)
+    } catch (error) {
+        return false
+    }
+}
+
 module.exports = {
     IVA,
     IDP_SUPER,
@@ -82,5 +104,7 @@ module.exports = {
     changeTypeBill,
     changeTypeGas,
     isArray,
-    groupBy
+    groupBy,
+    encrypt,
+    decrypt
 }
