@@ -29,9 +29,11 @@ module.exports = function (app, str) {
         create: (req, res) => {
             createPerDiem(req, res, str)
         },
-        update: (req, res) => {},
-        delete: (req, res) => {},
-        getById: (req, res) => {},
+        update: (req, res) => { },
+        delete: (req, res) => { },
+        getById: (req, res) => {
+            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
+        },
         getAll: (req, res) => {
             getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
         },
@@ -54,7 +56,7 @@ module.exports = function (app, str) {
 function createOrder(req, res, next, str, orderPerDiem) {
     let orderBroadcast = req.body
     let orderReq = req.body.order
-    
+
 
     orderPerDiem.create({
         fecha: new Date(),
@@ -229,42 +231,42 @@ function createPerDiem(req, res, str) {
  */
 function getAll(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) {
     ordenViaticos.findAll({
+        include: [{
+            model: ordersPerDiem
+        },
+        {
+            model: orderDeposit
+        },
+        {
+            model: usersPerDiem,
             include: [{
-                    model: ordersPerDiem
-                },
-                {
-                    model: orderDeposit
-                },
-                {
-                    model: usersPerDiem,
-                    include: [{
-                        model: user,
-                        include: [{model: userData}]
-                    }]
-                },
-                {
-                    model: budgetPerDiem
-                },
-                {
-                    model: orderLiquidation
-                },
-                {
-                    model: country
-                },
-                {
-                    model: company
-                },
-                {
-                    model: coin
-                },
-            ]
-        }).then((ordenes) => {
-            if (ordenes) {
-                res.json(new response(true, str.get, null, ordenes))
-            } else {
-                res.json(new response(false, str.getErr, null, ordenes))
-            }
-        })
+                model: user,
+                include: [{ model: userData }]
+            }]
+        },
+        {
+            model: budgetPerDiem
+        },
+        {
+            model: orderLiquidation
+        },
+        {
+            model: country
+        },
+        {
+            model: company
+        },
+        {
+            model: coin
+        },
+        ]
+    }).then((ordenes) => {
+        if (ordenes) {
+            res.json(new response(true, str.get, null, ordenes))
+        } else {
+            res.json(new response(false, str.getErr, null, ordenes))
+        }
+    })
         .catch(err => {
             res.json(new response(false, str.errCatch, err.message, null))
         })
@@ -279,14 +281,14 @@ function getAll(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, us
  */
 function getAllClientName(req, res, str, orderPerDiem) {
     orderPerDiem.aggregate('cliente', 'DISTINCT', {
-            plain: false
-        }).then((names) => {
-            if (names) {
-                res.json(new response(true, str.get, null, names))
-            } else {
-                res.json(new response(false, str.getErr, null, names))
-            }
-        })
+        plain: false
+    }).then((names) => {
+        if (names) {
+            res.json(new response(true, str.get, null, names))
+        } else {
+            res.json(new response(false, str.getErr, null, names))
+        }
+    })
         .catch(err => {
             res.json(new response(false, str.errCatch, err.message, null))
         })
@@ -333,4 +335,38 @@ function addHours(date) {
     const dateOut = new Date(date);
     dateOut.setHours(dateOut.getHours() + 6);
     return dateOut
+}
+
+
+function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) {
+    ordenViaticos.findOne({
+        where: {
+            id_orden_viaticos: req.params.id
+        },
+        include: [
+            ordersPerDiem,
+            orderDeposit, 
+            budgetPerDiem, 
+            orderLiquidation, 
+            country, 
+            company, 
+            coin,
+            {
+                model: usersPerDiem,
+                include: [{
+                    model: user,
+                    include: [{ model: userData }]
+                }]
+            }
+        ]
+    }).then((ordenes) => {
+        if (ordenes) {
+            res.json(new response(true, str.get, null, ordenes))
+        } else {
+            res.json(new response(false, str.getErr, null, ordenes))
+        }
+    })
+        .catch(err => {
+            res.json(new response(false, str.errCatch, err.message, null))
+        })
 }
