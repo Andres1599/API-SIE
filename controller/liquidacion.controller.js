@@ -123,14 +123,33 @@ function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empres
         });
 }
 
-function newLiquidacion(liquidacion, req, res) {
+async function getMaxId(liquidacion, id) {
     try {
+        const data = liquidacion.max('id_liquidacion', { where: {
+            id_usuario: id
+        }})
+
+        if (data) {
+            return data
+        } else {
+            return null
+        }
+    } catch (error) {
+        return null
+    }
+}
+
+async function newLiquidacion(liquidacion, req, res) {
+    try {
+        
+        const idMax = await getMaxId(liquidacion, req.body.id_usuario)
+        
         liquidacion.create({
             id_usuario: req.body.id_usuario,
             id_empresa: req.body.id_empresa,
             id_moneda: req.body.id_moneda,
             id_tipo_liquidacion: req.body.id_tipo_liquidacion,
-            id_liquidacion: 0,
+            id_liquidacion: idMax,
             fecha: new Date(),
             estado: false
         }).then(response => {
