@@ -18,6 +18,9 @@ module.exports = function (app, string) {
         update: (req, res) => {
             updateLiquidacion(liquidacion, req, res);
         },
+        updateId: (req, res) => {
+            updateCorrelativo(req, res, liquidacion, string)
+        },
         delete: (req, res) => {
             deleteLiquidation(req, res, liquidacion, string)
         },
@@ -46,39 +49,39 @@ function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, mone
     user.findAll({
         attributes: ['id_usuario', 'email'],
         include: [{
-                model: userData,
-                attributes: ['nombre', 'apellido']
+            model: userData,
+            attributes: ['nombre', 'apellido']
+        },
+        {
+            model: liquidacion,
+            attributes: ['id', 'id_liquidacion', 'fecha', 'fecha_cierra', 'estado'],
+            include: [{
+                model: moneda
             },
             {
-                model: liquidacion,
-                attributes: ['id', 'id_liquidacion', 'fecha', 'fecha_cierra', 'estado'],
+                model: empresa
+            },
+            {
+                model: tipoCuenta
+            },
+            {
+                model: user,
                 include: [{
-                        model: moneda
-                    },
-                    {
-                        model: empresa
-                    },
-                    {
-                        model: tipoCuenta
-                    },
-                    {
-                        model: user,
-                        include: [{
-                            model: userData,
-                            attributes: ['nombre', 'apellido', 'dpi']
-                        }]
-                    },
-                    {
-                        model: liquidacionFactura,
-                        attributes: ['id_item'],
-                        include: [{
-                            model: factura,
-                            attributes: ["id_factura", "fecha_compra", "correlativo_factura", "proveedor_factura", "ordenes_trabajo", "total_factura", "iva_factura", "total_siva", "total_idp_factura", "total_sidp_factura", "total_inguat_factura", "galones_factura", "exceso_factura", "status", "fecha_registro_factura"],
-                            include: [tipoDocumento, subgasto]
-                        }]
-                    }
-                ]
+                    model: userData,
+                    attributes: ['nombre', 'apellido', 'dpi']
+                }]
+            },
+            {
+                model: liquidacionFactura,
+                attributes: ['id_item'],
+                include: [{
+                    model: factura,
+                    attributes: ["id_factura", "fecha_compra", "correlativo_factura", "proveedor_factura", "ordenes_trabajo", "total_factura", "iva_factura", "total_siva", "total_idp_factura", "total_sidp_factura", "total_inguat_factura", "galones_factura", "exceso_factura", "status", "fecha_registro_factura"],
+                    include: [tipoDocumento, subgasto]
+                }]
             }
+            ]
+        }
         ]
     }).then(response => {
         res.json(response);
@@ -94,21 +97,21 @@ function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, mone
 
 function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, string) {
     liquidacion.findAll({
-            where: {
-                id_usuario: req.params.id,
-                estado: false
-            },
-            include: [{
-                    model: moneda
-                },
-                {
-                    model: tipoCuenta
-                },
-                {
-                    model: empresa
-                },
-            ]
-        })
+        where: {
+            id_usuario: req.params.id,
+            estado: false
+        },
+        include: [{
+            model: moneda
+        },
+        {
+            model: tipoCuenta
+        },
+        {
+            model: empresa
+        },
+        ]
+    })
         .then(liquidations => {
             if (liquidations) {
                 res.json(new response(true, string.get, null, liquidations));
@@ -123,14 +126,35 @@ function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empres
         });
 }
 
-function newLiquidacion(liquidacion, req, res) {
+async function getMaxId(liquidacion, id) {
     try {
+        const data = liquidacion.max('id_liquidacion', {
+            where: {
+                id_usuario: id
+            }
+        })
+
+        if (data) {
+            return data
+        } else {
+            return null
+        }
+    } catch (error) {
+        return null
+    }
+}
+
+async function newLiquidacion(liquidacion, req, res) {
+    try {
+
+        const idMax = await getMaxId(liquidacion, req.body.id_usuario)
+
         liquidacion.create({
             id_usuario: req.body.id_usuario,
             id_empresa: req.body.id_empresa,
             id_moneda: req.body.id_moneda,
             id_tipo_liquidacion: req.body.id_tipo_liquidacion,
-            id_liquidacion: 0,
+            id_liquidacion: idMax,
             fecha: new Date(),
             estado: false
         }).then(response => {
@@ -158,21 +182,21 @@ function getLiquidacionById(user, liquidacion, liquidacionFactura, moneda, tipoC
             },
             attributes: ['id', 'id_liquidacion', 'fecha', 'fecha_cierra', 'estado'],
             include: [{
-                    model: moneda
-                },
-                {
-                    model: empresa
-                },
-                {
-                    model: tipoCuenta
-                }, {
-                    model: liquidacionFactura,
-                    attributes: ['id_item'],
-                    include: [{
-                        model: factura,
-                        include: [tipoDocumento, subgasto]
-                    }]
-                }
+                model: moneda
+            },
+            {
+                model: empresa
+            },
+            {
+                model: tipoCuenta
+            }, {
+                model: liquidacionFactura,
+                attributes: ['id_item'],
+                include: [{
+                    model: factura,
+                    include: [tipoDocumento, subgasto]
+                }]
+            }
             ]
         }]
     }).then(liquidation => {
@@ -264,5 +288,45 @@ async function closeLiquidation(req, res, liquidation, string) {
         }
     } catch (error) {
         res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+async function updateCorrelativo(req, res, liquidacion, string) {
+    try {
+        let pivote = 0
+        const userId = req.body.id_usuario
+        const liquidacionesUsuario = await liquidacion.findAll({
+            attributes: ['id', 'id_liquidacion',],
+            where: { id_usuario: userId },
+        }).map(value => {
+            pivote += 1
+            return {
+                id: value.id,
+                id_liquidacion: pivote
+            }
+        })
+
+        let lista = [];
+        liquidacionesUsuario.forEach( async (value) => {
+            
+            const data  = await updateIdLiquidacion(liquidacion, value)
+            lista.push(data)
+        })
+
+        res.json(new response(true, string.update, null, true));
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+async function updateIdLiquidacion(liquidation, value) {
+    try {
+        const data = await liquidation.update({
+            id_liquidacion: value.id_liquidacion,
+        }, { where: { id: value.id } })
+        return data
+    } catch (error) {
+        return null
     }
 }
