@@ -30,7 +30,9 @@ module.exports = function (app, str) {
             createPerDiem(req, res, str)
         },
         update: (req, res) => { },
-        delete: (req, res) => { },
+        delete: (req, res) => {
+            deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem)
+        },
         getById: (req, res) => {
             getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
         },
@@ -337,7 +339,6 @@ function addHours(date) {
     return dateOut
 }
 
-
 function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) {
     ordenViaticos.findOne({
         where: {
@@ -345,11 +346,11 @@ function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidatio
         },
         include: [
             ordersPerDiem,
-            orderDeposit, 
-            budgetPerDiem, 
-            orderLiquidation, 
-            country, 
-            company, 
+            orderDeposit,
+            budgetPerDiem,
+            orderLiquidation,
+            country,
+            company,
             coin,
             {
                 model: usersPerDiem,
@@ -369,4 +370,21 @@ function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidatio
         .catch(err => {
             res.json(new response(false, str.errCatch, err.message, null))
         })
+}
+
+async function deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem) {
+    try {
+        const idOrder = req.params.id
+        await orderDeposit.destroy({ where: { fk_id_orden: idOrder } })
+        await orderLiquidation.destroy({ where: { fk_id_orden: idOrder } })
+        await budgetPerDiem.destroy({ where: { fk_id_orden_viaticos: idOrder } })
+        await usersPerDiem.destroy({ where: { fk_id_orden: idOrder } })
+        await ordersPerDiem.destroy({ where: { fk_id_orden: idOrder } })
+        await orderPerDiem.destroy({ where: { id_orden_viaticos: idOrder } })
+
+        res.json(new response(true, str.delete, null, true))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, err.message, null))
+    }
 }

@@ -166,7 +166,8 @@ module.exports = (app, str) => {
     routes.get('/ordenes/', Middleware.verifyToken, OrdenController.getAll);
     routes.get('/ordenes/clientes/', Middleware.verifyToken, OrdenController.getAllClient);
     routes.post('/orden/', Middleware.verifyToken, OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
-    routes.get('/orden/:id',  OrdenController.getById);
+    routes.get('/orden/:id', Middleware.verifyToken, OrdenController.getById);
+    routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
 
     //routes from orden deposito
     routes.get('/ordendeposito/', Middleware.verifyToken, OrdenDepositoController.getAll);
