@@ -101,7 +101,8 @@ module.exports = (app, str) => {
     routes.delete('/liquidacion/:id', Middleware.verifyToken, LiquidationController.delete);
     routes.delete('/liquidacion/item/:id', Middleware.verifyToken, LiquidationController.deleteItem);
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
-    routes.put('/liquidacion/close/', LiquidationController.close);
+    routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
+    routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
  
     //routes from cuenta
     routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll);
