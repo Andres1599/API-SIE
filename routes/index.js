@@ -1,3 +1,5 @@
+const { Router } = require('express');
+
 const routes = require('express').Router();
 module.exports = (app, str) => {
 
@@ -13,10 +15,10 @@ module.exports = (app, str) => {
     const BancosController = require('../controller/banco.controller')(app);
     // company controls
     const EmpresaController = require('../controller/empresa.controller')(app);
-    //coins controls
+    // coins controls
     const MonedaController = require('../controller/moneda.controller')(app);
     const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app);
-    //account controls
+    // account controls
     const CuentaController = require('../controller/cuenta.controller')(app);
     // deposit controls
     const DepositoController = require('../controller/desposito.controller')(app);
@@ -32,6 +34,7 @@ module.exports = (app, str) => {
     const OrdenController = require('../controller/orden.viaticos.controller')(app, str);
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app, str);
+    const OrdenOrdersController = require('../controller/orden.usuario.controller')(app, str);
     // country controls
     const PaisController = require('../controller/pais.controller')(app, str);
     // calendar controls
@@ -173,6 +176,10 @@ module.exports = (app, str) => {
     //routes from orden deposito
     routes.delete('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.delete);
     routes.post('/ordendeposito', Middleware.verifyToken, OrdenDepositoController.create);
+
+    //routes from orden usuario
+    routes.post('/orden/usuario/', Middleware.verifyToken, OrdenOrdersController.create);
+    routes.delete('/orden/usuario/:id', Middleware.verifyToken, OrdenOrdersController.delete);
 
     //routes from orden presupuesto
     routes.delete('/orden/presupuesto/:id', Middleware.verifyToken, OrdenPresupuestoController.delete);
