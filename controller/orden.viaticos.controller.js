@@ -29,7 +29,9 @@ module.exports = function (app, str) {
         create: (req, res) => {
             createPerDiem(req, res, str)
         },
-        update: (req, res) => { },
+        update: (req, res) => {
+            updateOrder(req, res, str, orderPerDiem)
+        },
         delete: (req, res) => {
             deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem)
         },
@@ -383,6 +385,26 @@ async function deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiqui
         await orderPerDiem.destroy({ where: { id_orden_viaticos: idOrder } })
 
         res.json(new response(true, str.delete, null, true))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, err.message, null))
+    }
+}
+
+async function updateOrder(req, res, str, orderPerDiem) {
+    try {
+        const updated = await orderPerDiem.update({
+            fecha_salida: addHours(req.body.fecha_salida),
+            fecha_regreso: addHours(req.body.fecha_regreso),
+            cliente: req.body.cliente,
+            fk_id_pais: req.body.fk_id_pais
+        }, {
+            where: {
+                id_orden_viaticos: req.body.id_orden_viaticos
+            }
+        })
+
+        res.json(new response(true, str.update, null, updated))
 
     } catch (error) {
         res.json(new response(false, str.errCatch, err.message, null))

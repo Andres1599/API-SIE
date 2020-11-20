@@ -167,6 +167,7 @@ module.exports = (app, str) => {
     routes.get('/ordenes/clientes/', Middleware.verifyToken, OrdenController.getAllClient);
     routes.post('/orden/', Middleware.verifyToken, OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
     routes.get('/orden/:id', Middleware.verifyToken, OrdenController.getById);
+    routes.put('/orden/', Middleware.verifyToken, OrdenController.update);
     routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
 
     //routes from orden deposito
