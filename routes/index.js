@@ -31,7 +31,7 @@ module.exports = (app, str) => {
     // order controls
     const OrdenController = require('../controller/orden.viaticos.controller')(app, str);
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
-    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
+    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app, str);
     // country controls
     const PaisController = require('../controller/pais.controller')(app, str);
     // calendar controls
@@ -170,18 +170,12 @@ module.exports = (app, str) => {
     routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
 
     //routes from orden deposito
-    routes.get('/ordendeposito/', Middleware.verifyToken, OrdenDepositoController.getAll);
-    routes.get('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.getById);
     routes.delete('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.delete);
-    routes.put('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.update);
     routes.post('/ordendeposito', Middleware.verifyToken, OrdenDepositoController.create);
 
     //routes from orden presupuesto
-    routes.get('/ordenpresupuesto/', Middleware.verifyToken, OrdenPresupuestoController.getAll);
-    routes.get('/ordenpresupuesto/id', Middleware.verifyToken, OrdenPresupuestoController.getById);
-    routes.delete('/ordenpresupuesto/id', Middleware.verifyToken, OrdenPresupuestoController.delete);
-    routes.put('/ordenpresupuesto/id', Middleware.verifyToken, OrdenPresupuestoController.update);
-    routes.post('/ordenpresupuesto', Middleware.verifyToken, OrdenPresupuestoController.create);
+    routes.delete('/orden/presupuesto/:id', Middleware.verifyToken, OrdenPresupuestoController.delete);
+    routes.post('/orden/presupuesto', Middleware.verifyToken, OrdenPresupuestoController.create);
 
     //routes from tipo documento
     routes.get('/tipo/documento/', Middleware.verifyToken, TipoDocumentosController.getAll);
