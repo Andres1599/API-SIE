@@ -8,24 +8,22 @@ module.exports = function (app, str) {
     }
 }
 
-function newOrdenPresupuesto(ordenPresupuesto, req, res, str) {
-    ordenPresupuesto.create({
-        gasto: req.body.gasto,
-        dias: req.body.dias,
-        valor: req.body.valor,
-        total: req.body.total,
-        observaciones: req.body.observaciones,
-        fk_id_orden_viaticos: req.body.fk_id_orden_viaticos,
-    }).then(function (response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "Error al crear una nueva orden de presupuesto",
-                created: false
-            });
-        }
-    });
+async function newOrdenPresupuesto(ordenPresupuesto, req, res, str) {
+    try {
+        const budgetData = await ordenPresupuesto.create({
+            gasto: req.body.gasto,
+            dias: req.body.dias,
+            valor: req.body.valor,
+            total: req.body.total,
+            observaciones: req.body.observaciones,
+            fk_id_orden_viaticos: req.body.fk_id_orden_viaticos,
+        })        
+
+        res.status(200).json(new response(true, str.delete, null, budgetData))
+
+    } catch (error) {
+        res.status(500).json(new response(false, str.errCatch, error, null))
+    }
 }
 
 async function deleteOrdenPresupuesto(ordenPresupuesto, req, res, str) {
