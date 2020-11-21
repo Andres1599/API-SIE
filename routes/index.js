@@ -34,7 +34,8 @@ module.exports = (app, str) => {
     const OrdenController = require('../controller/orden.viaticos.controller')(app, str);
     const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app, str);
-    const OrdenOrdersController = require('../controller/orden.usuario.controller')(app, str);
+    const OrdenUsersController = require('../controller/orden.usuario.controller')(app, str);
+    const OrdenOrderController = require('../controller/orden.ordenes.controller')(app, str);
     // country controls
     const PaisController = require('../controller/pais.controller')(app, str);
     // calendar controls
@@ -178,8 +179,12 @@ module.exports = (app, str) => {
     routes.post('/ordendeposito', Middleware.verifyToken, OrdenDepositoController.create);
 
     //routes from orden usuario
-    routes.post('/orden/usuario/', Middleware.verifyToken, OrdenOrdersController.create);
-    routes.delete('/orden/usuario/:id', Middleware.verifyToken, OrdenOrdersController.delete);
+    routes.post('/orden/usuario/', Middleware.verifyToken, OrdenUsersController.create);
+    routes.delete('/orden/usuario/:id', Middleware.verifyToken, OrdenUsersController.delete);
+
+    //routes from orden usuario
+    routes.post('/orden/orden/', Middleware.verifyToken, OrdenOrderController.create);
+    routes.delete('/orden/orden/:id', Middleware.verifyToken, OrdenOrderController.delete);
 
     //routes from orden presupuesto
     routes.delete('/orden/presupuesto/:id', Middleware.verifyToken, OrdenPresupuestoController.delete);

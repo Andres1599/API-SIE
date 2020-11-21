@@ -39,7 +39,6 @@ async function deleteOrdenPresupuesto(ordenPresupuesto, req, res, str) {
         res.status(200).json(new response(true, str.delete, null, true))
 
     } catch (error) {
-        console.log(error)
         res.status(500).json(new response(false, str.errCatch, error, null))
     }
 }
