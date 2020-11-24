@@ -1,5 +1,3 @@
-const { Router } = require('express');
-
 const routes = require('express').Router();
 module.exports = (app, str) => {
 
@@ -21,7 +19,7 @@ module.exports = (app, str) => {
     // account controls
     const CuentaController = require('../controller/cuenta.controller')(app);
     // deposit controls
-    const DepositoController = require('../controller/desposito.controller')(app);
+    const DepositoController = require('../controller/desposito.controller')(app, str);
     // spending controls
     const GastosController = require('../controller/gastos.controller')(app);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
@@ -107,7 +105,7 @@ module.exports = (app, str) => {
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
     routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
- 
+
     //routes from cuenta
     routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll);
     routes.get('/cuentas/id', Middleware.verifyToken, CuentaController.getById);
@@ -116,18 +114,10 @@ module.exports = (app, str) => {
     routes.post('/cuentas', Middleware.verifyToken, CuentaController.create);
 
     //routes from deposito
-    routes.get('/depositos/', Middleware.verifyToken, DepositoController.getAll);
-    routes.get('/depositos/id', Middleware.verifyToken, DepositoController.getById);
-    routes.delete('/depositos/id', Middleware.verifyToken, DepositoController.delete);
-    routes.put('/depositos/id', Middleware.verifyToken, DepositoController.update);
-    routes.post('/depositos', Middleware.verifyToken, DepositoController.create);
-
-    //routes from deposito
-    routes.get('/depositos/', Middleware.verifyToken, DepositoController.getAll);
-    routes.get('/depositos/id', Middleware.verifyToken, DepositoController.getById);
-    routes.delete('/depositos/id', Middleware.verifyToken, DepositoController.delete);
-    routes.put('/depositos/id', Middleware.verifyToken, DepositoController.update);
-    routes.post('/depositos', Middleware.verifyToken, DepositoController.create);
+    routes.post('/deposito', Middleware.verifyToken, DepositoController.create);
+    routes.delete('/deposito/id', Middleware.verifyToken, DepositoController.delete);
+    routes.get('/deposito/', Middleware.verifyToken, DepositoController.getAll);
+    routes.get('/deposito/id', Middleware.verifyToken, DepositoController.getById);
 
     //routes from empresamonedas
     routes.get('/empresamonedas/', Middleware.verifyToken, EmpresaMonedaController.getAll);
