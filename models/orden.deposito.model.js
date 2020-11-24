@@ -1,5 +1,5 @@
 module.exports = (sequelize, type, orden, deposito) => {
-    var OrdenDeposito = sequelize.define('orden_deposito', {
+    const OrdenDeposito = sequelize.define('orden_deposito', {
         id_orden_deposito: { type: type.INTEGER, primaryKey: true, autoIncrement: true }
     }, {
         freezeTableName: true,

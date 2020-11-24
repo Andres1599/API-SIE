@@ -352,13 +352,13 @@ async function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiqu
             },
             include: [
                 ordersPerDiem,
-                { model: orderDeposit, include: [deposito] },
                 budgetPerDiem,
                 orderLiquidation,
                 country,
                 company,
                 coin,
-                { model: usersPerDiem, include: [{ model: user, include: [{ model: userData }] }] }
+                { model: usersPerDiem, include: [{ model: user, include: [userData] }] },
+                { model: orderDeposit, include: [{ model: deposito, include: [coin] }] },
             ]
         })
 

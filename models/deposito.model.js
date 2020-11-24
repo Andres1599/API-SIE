@@ -1,5 +1,5 @@
-module.exports = (sequelize, type, subcuenta) => {
-    var Deposito = Sequelize.define('deposito', {
+module.exports = (sequelize, type, subcuenta, moneda) => {
+    const Deposito = sequelize.define('deposito', {
         id_deposito: { type: type.INTEGER, primaryKey: true, autoIncrement: true },
         fecha: { type: type.DATE, allowNull: true },
         fecha_registro: { type: type.DATE, allowNull: true },
@@ -16,8 +16,21 @@ module.exports = (sequelize, type, subcuenta) => {
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });
+    
     subcuenta.hasMany(Deposito, {
         foreignKey: 'fk_id_subcuenta',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    Deposito.belongsTo(moneda, {
+        foreignKey: 'fk_id_moneda',
+        onDelete: 'SET NULL',
+        onUpdate: 'SET NULL'
+    });
+
+    moneda.hasMany(Deposito, {
+        foreignKey: 'fk_id_moneda',
         onDelete: 'SET NULL',
         onUpdate: 'SET NULL'
     });
