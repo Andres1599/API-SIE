@@ -115,9 +115,9 @@ module.exports = (app, str) => {
 
     //routes from deposito
     routes.post('/deposito', Middleware.verifyToken, DepositoController.create);
-    routes.delete('/deposito/id', Middleware.verifyToken, DepositoController.delete);
+    routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
     routes.get('/deposito/', Middleware.verifyToken, DepositoController.getAll);
-    routes.get('/deposito/id', Middleware.verifyToken, DepositoController.getById);
+    routes.get('/deposito/:id', Middleware.verifyToken, DepositoController.getById);
 
     //routes from empresamonedas
     routes.get('/empresamonedas/', Middleware.verifyToken, EmpresaMonedaController.getAll);

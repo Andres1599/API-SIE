@@ -11,6 +11,7 @@ module.exports = function (app, str) {
     const coin = app.get('moneda')
     const user = app.get('usuario')
     const userData = app.get('usuario_datos')
+    const deposito = app.get('deposito')
 
 
     return {
@@ -36,7 +37,7 @@ module.exports = function (app, str) {
             deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem)
         },
         getById: (req, res) => {
-            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
+            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito)
         },
         getAll: (req, res) => {
             getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
@@ -341,37 +342,31 @@ function addHours(date) {
     return dateOut
 }
 
-function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) {
-    ordenViaticos.findOne({
-        where: {
-            id_orden_viaticos: req.params.id
-        },
-        include: [
-            ordersPerDiem,
-            orderDeposit,
-            budgetPerDiem,
-            orderLiquidation,
-            country,
-            company,
-            coin,
-            {
-                model: usersPerDiem,
-                include: [{
-                    model: user,
-                    include: [{ model: userData }]
-                }]
-            }
-        ]
-    }).then((ordenes) => {
-        if (ordenes) {
-            res.json(new response(true, str.get, null, ordenes))
-        } else {
-            res.json(new response(false, str.getErr, null, ordenes))
-        }
-    })
-        .catch(err => {
-            res.json(new response(false, str.errCatch, err.message, null))
+async function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito) {
+
+    try {
+
+        const ordenes = await ordenViaticos.findOne({
+            where: {
+                id_orden_viaticos: req.params.id
+            },
+            include: [
+                ordersPerDiem,
+                { model: orderDeposit, include: [deposito] },
+                budgetPerDiem,
+                orderLiquidation,
+                country,
+                company,
+                coin,
+                { model: usersPerDiem, include: [{ model: user, include: [{ model: userData }] }] }
+            ]
         })
+
+        res.json(new response(true, str.get, null, ordenes))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, err.message, null))
+    }
 }
 
 async function deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem) {

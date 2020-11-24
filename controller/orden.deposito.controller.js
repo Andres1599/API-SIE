@@ -24,7 +24,10 @@ async function newOrdenDeposito(req, res, str, ordenDeposito, deposito) {
                 fk_id_subcuenta: req.body.fk_id_subcuenta,
             }
         }, {
-            include: [deposito]
+            include: [{
+                model: deposito,
+                as: 'deposito'
+            }]
         })
 
         res.json(new response(false, str.create, null, dataDeposito))
