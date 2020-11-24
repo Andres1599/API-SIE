@@ -2,7 +2,7 @@ const response = require('../response/response')
 
 module.exports = (app, str) => {
 
-    const ordenDeposito = app.get('orden_liquidacion');
+    const ordenDeposito = app.get('orden_deposito');
     const deposito = app.get('deposito')
 
     return {
@@ -39,9 +39,9 @@ async function newOrdenDeposito(req, res, str, ordenDeposito, deposito) {
 
 async function deleteOrdenDeposito(req, res, str, ordenDeposito, deposito) {
     try {
-        await ordenDeposito.destroy({ where: { id_orden_deposito: req.body.id_orden_deposito } })
-        await deposito.destroy({ where: { id_deposito: req.body.id_deposito } })
-        res.json(new response(false, str.delete, null, true))
+        await ordenDeposito.destroy({ where: { id_orden_deposito: req.params.id } })
+        await deposito.destroy({ where: { id_deposito: req.params.id_deposito } })
+        res.json(new response(true, str.delete, null, true))
     } catch (error) {
         res.status(500).json(new response(false, str.errCatch, error, null))
     }
