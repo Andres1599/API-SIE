@@ -22,6 +22,7 @@ async function newOrdenDeposito(req, res, str, ordenDeposito, deposito) {
                 comentario: req.body.comentario,
                 cambio: req.body.cambio,
                 fk_id_subcuenta: req.body.fk_id_subcuenta,
+                fk_id_moneda: req.body.fk_id_moneda
             }
         }, {
             include: [{
@@ -30,10 +31,10 @@ async function newOrdenDeposito(req, res, str, ordenDeposito, deposito) {
             }]
         })
 
-        res.json(new response(false, str.create, null, dataDeposito))
+        res.json(new response(true, str.create, null, dataDeposito))
 
     } catch (error) {
-        res.status(500).json(new response(false, str.errCatch, error, null))
+        res.json(new response(false, str.errCatch, error, null))
     }
 }
 
@@ -43,6 +44,6 @@ async function deleteOrdenDeposito(req, res, str, ordenDeposito, deposito) {
         await deposito.destroy({ where: { id_deposito: req.params.id_deposito } })
         res.json(new response(true, str.delete, null, true))
     } catch (error) {
-        res.status(500).json(new response(false, str.errCatch, error, null))
+        res.json(new response(false, str.errCatch, error, null))
     }
 }
