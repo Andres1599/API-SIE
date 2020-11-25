@@ -1,15 +1,18 @@
-module.exports = function(app) {
-    let depositos = app.get('deposito');
+module.exports = (app, str) => {
+
+    const depositos = app.get('deposito')
+    const cuenta = app.get('cuenta')
+    const subCuenta = app.get('subcuenta')
+
     return {
-        create: (req, res) => { newDeposito(depositos, req, res); },
-        update: (req, res) => { updateDeposito(depositos, req, res); },
-        delete: (req, res) => { deleteDeposito(depositos, req, res); },
-        getById: (req, res) => { getDepositosById(depositos, req, res); },
-        getAll: (req, res) => { getAllDepositos(depositos, req, res); }
+        create: (req, res) => { newDeposito(depositos, req, res) },
+        delete: (req, res) => { deleteDeposito(depositos, req, res) },
+        getById: (req, res) => { getDepositosById(depositos, req, res) },
+        getAll: (req, res) => { getAllDepositos(depositos, req, res) }
     }
 }
 
-function newDeposito(depositos, req, res) {
+async function newDeposito(depositos, req, res) {
     depositos.create({
         fecha: req.body.fecha,
         fecha_registro: req.body.fecha_registro,
@@ -17,7 +20,7 @@ function newDeposito(depositos, req, res) {
         comentario: req.body.comentario,
         cambio: req.body.cambio,
         fk_id_subcuenta: req.body.subcuenta,
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -34,13 +37,13 @@ function deleteDeposito(depositos, req, res) {
         where: {
             id_deposito: req.body.id_deposito
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             depositos.destroy({
                 where: {
                     id_deposito: req.body.id_deposito
                 }
-            }).then(function(deleted) {
+            }).then(function (deleted) {
                 if (deleted) {
                     res.json({
                         message: "Se ha eliminado con exito el deposito",
@@ -73,9 +76,9 @@ function updateDeposito(depositos, req, res) {
         where: {
             id_deposito: req.body.id_deposito
         }
-    }).then(function(update) {
+    }).then(function (update) {
         res.json(update);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: 'Error al procesar el petición',
             error: err
@@ -88,7 +91,7 @@ function getDepositosById(depositos, req, res) {
         where: {
             id_deposito: req.params.id_deposito
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -96,7 +99,7 @@ function getDepositosById(depositos, req, res) {
                 message: "No hemos podido encontrar el deposito"
             });
         }
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: "No hemos podido encontrar el deposito",
             error: err
@@ -105,7 +108,7 @@ function getDepositosById(depositos, req, res) {
 }
 
 function getAllDepositos(depositos, req, res) {
-    depositos.findAll().then(function(response) {
+    depositos.findAll().then(function (response) {
         res.json(response);
     });
 }

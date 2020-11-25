@@ -11,6 +11,7 @@ module.exports = function (app, str) {
     const coin = app.get('moneda')
     const user = app.get('usuario')
     const userData = app.get('usuario_datos')
+    const deposito = app.get('deposito')
 
 
     return {
@@ -29,10 +30,14 @@ module.exports = function (app, str) {
         create: (req, res) => {
             createPerDiem(req, res, str)
         },
-        update: (req, res) => { },
-        delete: (req, res) => { },
+        update: (req, res) => {
+            updateOrder(req, res, str, orderPerDiem)
+        },
+        delete: (req, res) => {
+            deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem)
+        },
         getById: (req, res) => {
-            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
+            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito)
         },
         getAll: (req, res) => {
             getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
@@ -337,36 +342,66 @@ function addHours(date) {
     return dateOut
 }
 
+async function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito) {
 
-function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) {
-    ordenViaticos.findOne({
-        where: {
-            id_orden_viaticos: req.params.id
-        },
-        include: [
-            ordersPerDiem,
-            orderDeposit, 
-            budgetPerDiem, 
-            orderLiquidation, 
-            country, 
-            company, 
-            coin,
-            {
-                model: usersPerDiem,
-                include: [{
-                    model: user,
-                    include: [{ model: userData }]
-                }]
-            }
-        ]
-    }).then((ordenes) => {
-        if (ordenes) {
-            res.json(new response(true, str.get, null, ordenes))
-        } else {
-            res.json(new response(false, str.getErr, null, ordenes))
-        }
-    })
-        .catch(err => {
-            res.json(new response(false, str.errCatch, err.message, null))
+    try {
+
+        const ordenes = await ordenViaticos.findOne({
+            where: {
+                id_orden_viaticos: req.params.id
+            },
+            include: [
+                ordersPerDiem,
+                budgetPerDiem,
+                orderLiquidation,
+                country,
+                company,
+                coin,
+                { model: usersPerDiem, include: [{ model: user, include: [userData] }] },
+                { model: orderDeposit, include: [{ model: deposito, include: [coin] }] },
+            ]
         })
+
+        res.json(new response(true, str.get, null, ordenes))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, err.message, null))
+    }
+}
+
+async function deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem) {
+    try {
+        const idOrder = req.params.id
+        await orderDeposit.destroy({ where: { fk_id_orden: idOrder } })
+        await orderLiquidation.destroy({ where: { fk_id_orden: idOrder } })
+        await budgetPerDiem.destroy({ where: { fk_id_orden_viaticos: idOrder } })
+        await usersPerDiem.destroy({ where: { fk_id_orden: idOrder } })
+        await ordersPerDiem.destroy({ where: { fk_id_orden: idOrder } })
+        await orderPerDiem.destroy({ where: { id_orden_viaticos: idOrder } })
+
+        res.json(new response(true, str.delete, null, true))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, err.message, null))
+    }
+}
+
+async function updateOrder(req, res, str, orderPerDiem) {
+    try {
+        const updated = await orderPerDiem.update({
+            fecha_salida: addHours(req.body.fecha_salida),
+            fecha_regreso: addHours(req.body.fecha_regreso),
+            cliente: req.body.cliente,
+            fk_id_pais: req.body.fk_id_pais
+        }, {
+            where: {
+                id_orden_viaticos: req.body.id_orden_viaticos
+            }
+        })
+
+        res.json(new response(true, str.update, null, updated))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, err.message, null))
+    }
 }

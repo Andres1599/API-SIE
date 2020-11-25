@@ -13,13 +13,14 @@ module.exports = (app, str) => {
     const BancosController = require('../controller/banco.controller')(app);
     // company controls
     const EmpresaController = require('../controller/empresa.controller')(app);
-    //coins controls
+    // coins controls
     const MonedaController = require('../controller/moneda.controller')(app);
     const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app);
-    //account controls
+    // account controls
     const CuentaController = require('../controller/cuenta.controller')(app);
+    const SubCuentaController = require('../controller/subcuenta.contoller')(app, str);
     // deposit controls
-    const DepositoController = require('../controller/desposito.controller')(app);
+    const DepositoController = require('../controller/desposito.controller')(app, str);
     // spending controls
     const GastosController = require('../controller/gastos.controller')(app);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
@@ -30,8 +31,10 @@ module.exports = (app, str) => {
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
     // order controls
     const OrdenController = require('../controller/orden.viaticos.controller')(app, str);
-    const OrdenDepositoController = require('../controller/orden.deposito.controller')(app);
-    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app);
+    const OrdenDepositoController = require('../controller/orden.deposito.controller')(app, str);
+    const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app, str);
+    const OrdenUsersController = require('../controller/orden.usuario.controller')(app, str);
+    const OrdenOrderController = require('../controller/orden.ordenes.controller')(app, str);
     // country controls
     const PaisController = require('../controller/pais.controller')(app, str);
     // calendar controls
@@ -93,7 +96,7 @@ module.exports = (app, str) => {
     routes.put('/moneda/impuesto/', Middleware.verifyToken, MonedaController.updateImpuesto);
     routes.get('/moneda/iso/', Middleware.verifyToken, MonedaController.getIso);
 
-    //routes from liquidacion
+    // routes from liquidacion
     routes.get('/liquidaciones/', Middleware.verifyToken, LiquidationController.getAll);
     routes.get('/liquidacion/:id', Middleware.verifyToken, LiquidationController.getById);
     routes.get('/liquidaciones/usuario/:id', Middleware.verifyToken, LiquidationController.getByUsuarioNotClose);
@@ -103,27 +106,23 @@ module.exports = (app, str) => {
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
     routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
- 
-    //routes from cuenta
+
+    // routes from cuenta
     routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll);
     routes.get('/cuentas/id', Middleware.verifyToken, CuentaController.getById);
     routes.delete('/cuentas/id', Middleware.verifyToken, CuentaController.delete);
     routes.put('/cuentas/id', Middleware.verifyToken, CuentaController.update);
     routes.post('/cuentas', Middleware.verifyToken, CuentaController.create);
 
-    //routes from deposito
-    routes.get('/depositos/', Middleware.verifyToken, DepositoController.getAll);
-    routes.get('/depositos/id', Middleware.verifyToken, DepositoController.getById);
-    routes.delete('/depositos/id', Middleware.verifyToken, DepositoController.delete);
-    routes.put('/depositos/id', Middleware.verifyToken, DepositoController.update);
-    routes.post('/depositos', Middleware.verifyToken, DepositoController.create);
+    // routes from subcuentas
+    routes.post('/sub/cuenta/orden', SubCuentaController.getByOrder);
+
 
     //routes from deposito
-    routes.get('/depositos/', Middleware.verifyToken, DepositoController.getAll);
-    routes.get('/depositos/id', Middleware.verifyToken, DepositoController.getById);
-    routes.delete('/depositos/id', Middleware.verifyToken, DepositoController.delete);
-    routes.put('/depositos/id', Middleware.verifyToken, DepositoController.update);
-    routes.post('/depositos', Middleware.verifyToken, DepositoController.create);
+    routes.post('/deposito', Middleware.verifyToken, DepositoController.create);
+    routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
+    routes.get('/deposito/', Middleware.verifyToken, DepositoController.getAll);
+    routes.get('/deposito/:id', Middleware.verifyToken, DepositoController.getById);
 
     //routes from empresamonedas
     routes.get('/empresamonedas/', Middleware.verifyToken, EmpresaMonedaController.getAll);
@@ -166,21 +165,25 @@ module.exports = (app, str) => {
     routes.get('/ordenes/', Middleware.verifyToken, OrdenController.getAll);
     routes.get('/ordenes/clientes/', Middleware.verifyToken, OrdenController.getAllClient);
     routes.post('/orden/', Middleware.verifyToken, OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
-    routes.get('/orden/:id',  OrdenController.getById);
+    routes.get('/orden/:id', Middleware.verifyToken, OrdenController.getById);
+    routes.put('/orden/', Middleware.verifyToken, OrdenController.update);
+    routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
 
     //routes from orden deposito
-    routes.get('/ordendeposito/', Middleware.verifyToken, OrdenDepositoController.getAll);
-    routes.get('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.getById);
-    routes.delete('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.delete);
-    routes.put('/ordendeposito/id', Middleware.verifyToken, OrdenDepositoController.update);
-    routes.post('/ordendeposito', Middleware.verifyToken, OrdenDepositoController.create);
+    routes.post('/orden/deposito', Middleware.verifyToken, OrdenDepositoController.create);
+    routes.delete('/orden/deposito/:id/:id_deposito', Middleware.verifyToken, OrdenDepositoController.delete);
+
+    //routes from orden usuario
+    routes.post('/orden/usuario/', Middleware.verifyToken, OrdenUsersController.create);
+    routes.delete('/orden/usuario/:id', Middleware.verifyToken, OrdenUsersController.delete);
+
+    //routes from orden usuario
+    routes.post('/orden/orden/', Middleware.verifyToken, OrdenOrderController.create);
+    routes.delete('/orden/orden/:id', Middleware.verifyToken, OrdenOrderController.delete);
 
     //routes from orden presupuesto
-    routes.get('/ordenpresupuesto/', Middleware.verifyToken, OrdenPresupuestoController.getAll);
-    routes.get('/ordenpresupuesto/id', Middleware.verifyToken, OrdenPresupuestoController.getById);
-    routes.delete('/ordenpresupuesto/id', Middleware.verifyToken, OrdenPresupuestoController.delete);
-    routes.put('/ordenpresupuesto/id', Middleware.verifyToken, OrdenPresupuestoController.update);
-    routes.post('/ordenpresupuesto', Middleware.verifyToken, OrdenPresupuestoController.create);
+    routes.delete('/orden/presupuesto/:id', Middleware.verifyToken, OrdenPresupuestoController.delete);
+    routes.post('/orden/presupuesto', Middleware.verifyToken, OrdenPresupuestoController.create);
 
     //routes from tipo documento
     routes.get('/tipo/documento/', Middleware.verifyToken, TipoDocumentosController.getAll);
