@@ -135,9 +135,9 @@ async function getMaxId(liquidacion, id) {
         })
 
         if (data) {
-            return data
+            return data + 1;
         } else {
-            return null
+            return 1
         }
     } catch (error) {
         return null
