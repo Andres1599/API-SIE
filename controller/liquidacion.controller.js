@@ -128,7 +128,7 @@ function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empres
 
 async function getMaxId(liquidacion, id) {
     try {
-        const data = liquidacion.max('id_liquidacion', {
+        const data = await liquidacion.max('id_liquidacion', {
             where: {
                 id_usuario: id
             }
