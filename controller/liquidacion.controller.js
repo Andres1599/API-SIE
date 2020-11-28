@@ -128,14 +128,14 @@ function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empres
 
 async function getMaxId(liquidacion, id) {
     try {
-        const data = await liquidacion.max('id_liquidacion', {
+        const data = liquidacion.max('id_liquidacion', {
             where: {
                 id_usuario: id
             }
         })
 
         if (data) {
-            return data + 1;
+            return data;
         } else {
             return 1
         }
@@ -154,7 +154,7 @@ async function newLiquidacion(liquidacion, req, res) {
             id_empresa: req.body.id_empresa,
             id_moneda: req.body.id_moneda,
             id_tipo_liquidacion: req.body.id_tipo_liquidacion,
-            id_liquidacion: idMax,
+            id_liquidacion: (idMax * 1 + 1),
             fecha: new Date(),
             estado: false
         }).then(response => {
@@ -307,9 +307,9 @@ async function updateCorrelativo(req, res, liquidacion, string) {
         })
 
         let lista = [];
-        liquidacionesUsuario.forEach( async (value) => {
-            
-            const data  = await updateIdLiquidacion(liquidacion, value)
+        liquidacionesUsuario.forEach(async (value) => {
+
+            const data = await updateIdLiquidacion(liquidacion, value)
             lista.push(data)
         })
 
