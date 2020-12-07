@@ -4,7 +4,7 @@ module.exports = function (app) {
     const factura = app.get('factura');
 
     return {
-        create: (req, res) => { newLiquidacionFactura(liquidacionFactura, req, res); },
+        create: (req, res) => { newLiquidacionFactura(liquidacionFactura, req, res, factura); },
         update: (req, res) => { updateLiquidacionFactura(liquidacionFactura, req, res); },
         delete: (req, res) => { deleteLiquidacionFactura(liquidacionFactura, req, res); },
         getById: (req, res) => { getLiquidacionFacturaById(liquidacionFactura, req, res); },
@@ -16,6 +16,7 @@ async function newLiquidacionFactura(liquidacionFactura, req, res, factura) {
     try {
 
         const facturaUpdate = await factura.update({ status: true }, { where: { id_factura: req.body.id_factura } })
+
         const item = await liquidacionFactura.create({
             id_liquidacion: req.body.id_liquidacion,
             id_factura: req.body.id_factura,
