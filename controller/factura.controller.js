@@ -64,7 +64,7 @@ function newFactura(facturas, req, res) {
 
 async function getById(id, facturas) {
     try {
-        bill = await facturas.findOne({where: {id_factura: id}})
+        bill = await facturas.findOne({ where: { id_factura: id } })
         if (bill) {
             return bill
         } else {
@@ -80,7 +80,7 @@ async function deleteFactura(req, res, facturas, string) {
         const idBill = req.params.id
         const bill = await getById(idBill, facturas)
         if (bill != null) {
-            const deleted = await facturas.destroy({where: {id_factura: idBill}})
+            const deleted = await facturas.destroy({ where: { id_factura: idBill } })
             if (deleted) {
                 res.json(new response(true, string.delete, null, bill))
             } else {
@@ -159,14 +159,14 @@ function getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res) {
             fk_id_usuario: req.body.id_usuario
         },
         include: [{
-                model: moneda
-            },
-            {
-                model: tipoDocumento
-            },
-            {
-                model: gasto
-            },
+            model: moneda
+        },
+        {
+            model: tipoDocumento
+        },
+        {
+            model: gasto
+        },
         ]
     }).then(value => {
         if (value) {
@@ -191,18 +191,10 @@ function getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res
         where: {
             fk_id_usuario: req.body.id_usuario,
             fk_id_moneda: req.body.fk_id_moneda,
-            fecha_compra: {[Op.between]: [req.body.start, req.body.end]},
+            fecha_compra: { [Op.between]: [req.body.start, req.body.end] },
+            status: false
         },
-        include: [{
-                model: moneda
-            },
-            {
-                model: tipoDocumento
-            },
-            {
-                model: gasto
-            },
-        ]
+        include: [moneda, tipoDocumento, gasto]
     }).then(value => {
         if (value) {
             res.json(value)
