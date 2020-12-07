@@ -1,5 +1,8 @@
-module.exports = function(app) {
-    let liquidacionFactura = app.get('liquidacion_factura');
+module.exports = function (app) {
+
+    const liquidacionFactura = app.get('liquidacion_factura');
+    const factura = app.get('factura');
+
     return {
         create: (req, res) => { newLiquidacionFactura(liquidacionFactura, req, res); },
         update: (req, res) => { updateLiquidacionFactura(liquidacionFactura, req, res); },
@@ -9,20 +12,23 @@ module.exports = function(app) {
     }
 }
 
-function newLiquidacionFactura(liquidacionFactura, req, res) {
-    liquidacionFactura.create({
-        id_liquidacion: req.body.id_liquidacion,
-        id_factura: req.body.id_factura,
-    }).then(function(response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "Error al crear una nueva liquidacion",
-                created: false
-            });
-        }
-    });
+async function newLiquidacionFactura(liquidacionFactura, req, res, factura) {
+    try {
+        const facturaUpdate = await factura.update({ status: true }, { id_factura: req.body.id_factura })
+
+        const item = await liquidacionFactura.create({
+            id_liquidacion: req.body.id_liquidacion,
+            id_factura: req.body.id_factura,
+        })
+
+        res.json(item);
+
+    } catch (error) {
+        res.json({
+            message: "Error al crear una nueva liquidacion",
+            created: false
+        });
+    }
 }
 
 function deleteLiquidacionFactura(liquidacionFactura, req, res) {
@@ -30,13 +36,13 @@ function deleteLiquidacionFactura(liquidacionFactura, req, res) {
         where: {
             id_item: req.body.id_item
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             liquidacionFactura.destroy({
                 where: {
                     id_item: req.body.id_item
                 }
-            }).then(function(deleted) {
+            }).then(function (deleted) {
                 if (deleted) {
                     res.json({
                         message: "Se ha eliminado con exito la liquidacion",
@@ -65,9 +71,9 @@ function updateLiquidacionFactura(liquidacionFactura, req, res) {
         where: {
             id_item: req.body.id_item
         }
-    }).then(function(update) {
+    }).then(function (update) {
         res.json(update);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: 'Error al procesar la petición',
             error: err
@@ -80,7 +86,7 @@ function getLiquidacionFacturaById(liquidacionFactura, req, res) {
         where: {
             id_item: req.params.id_item
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -88,7 +94,7 @@ function getLiquidacionFacturaById(liquidacionFactura, req, res) {
                 message: "No hemos podido encontrar la liquidacion"
             });
         }
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: "No hemos podido encontrar la liquidacion",
             error: err
@@ -97,7 +103,7 @@ function getLiquidacionFacturaById(liquidacionFactura, req, res) {
 }
 
 function getAllLiquidacionFactura(liquidacionFactura, req, res) {
-    liquidacionFactura.findAll().then(function(response) {
+    liquidacionFactura.findAll().then(function (response) {
         res.json(response);
     });
 }
