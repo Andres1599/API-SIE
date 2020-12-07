@@ -14,8 +14,8 @@ module.exports = function (app) {
 
 async function newLiquidacionFactura(liquidacionFactura, req, res, factura) {
     try {
-        const facturaUpdate = await factura.update({ status: true }, { id_factura: req.body.id_factura })
 
+        const facturaUpdate = await factura.update({ status: true }, { where: { id_factura: req.body.id_factura } })
         const item = await liquidacionFactura.create({
             id_liquidacion: req.body.id_liquidacion,
             id_factura: req.body.id_factura,
