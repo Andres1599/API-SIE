@@ -15,7 +15,7 @@ module.exports = {
             },
             logging: false
         },
-        status: false
+        status: true
     },
     production: {
         user: process.env.USER_DB_PR,
@@ -32,7 +32,7 @@ module.exports = {
             },
             logging: false
         },
-        status: true
+        status: false
     },
     seed: process.env.SEED
 };

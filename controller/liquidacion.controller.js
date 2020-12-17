@@ -21,6 +21,9 @@ module.exports = function (app, string) {
         updateId: (req, res) => {
             updateCorrelativo(req, res, liquidacion, string)
         },
+        updateFecha: (req, res) => {
+            updateFechaLiquidacion(req, res, string, liquidacion)
+        },
         delete: (req, res) => {
             deleteLiquidation(req, res, liquidacion, string)
         },
@@ -33,11 +36,14 @@ module.exports = function (app, string) {
         getByUsuarioNotClose: (req, res) => {
             getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, string)
         },
+        getByUsuario: (req, res) => {
+            getLiquidationByUsuario(user, userData, liquidacion, moneda, tipoCuenta, empresa, req, res, string)
+        },
         getAll: (req, res) => {
             getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res);
         },
         getById: (req, res) => {
-            getLiquidacionById(user, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string)
+            getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string)
         },
         close: (req, res) => {
             closeLiquidation(req, res, liquidacion, string)
@@ -126,6 +132,27 @@ function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empres
         });
 }
 
+async function getLiquidationByUsuario(user, userData, liquidacion, moneda, tipoCuenta, empresa, req, res, str) {
+    try {
+        const liquidationUser = await liquidacion.findAll({
+            where: { id_usuario: req.params.id },
+            include: [moneda, tipoCuenta, empresa, {
+                model: user,
+                include: [{
+                    model: userData,
+                    attributes: ['nombre', 'apellido', 'dpi']
+                }]
+            },],
+            order: [['fecha', 'ASC']]
+        })
+
+        res.json(new response(true, str.get, null, liquidationUser));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
+}
+
 async function getMaxId(liquidacion, id) {
     try {
         const data = liquidacion.max('id_liquidacion', {
@@ -171,43 +198,38 @@ async function newLiquidacion(liquidacion, req, res) {
     }
 }
 
-function getLiquidacionById(user, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string) {
-    const idLiquidation = req.params.id || 0;
-    user.findAll({
-        attributes: ['id_usuario'],
-        include: [{
-            model: liquidacion,
-            where: {
-                id: idLiquidation
-            },
-            attributes: ['id', 'id_liquidacion', 'fecha', 'fecha_cierra', 'estado'],
-            include: [{
-                model: moneda
-            },
-            {
-                model: empresa
-            },
-            {
-                model: tipoCuenta
-            }, {
-                model: liquidacionFactura,
-                attributes: ['id_item'],
-                include: [{
-                    model: factura,
-                    include: [tipoDocumento, subgasto]
-                }]
-            }
+async function getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string) {
+    try {
+        const idLiquidation = req.params.id || 0;
+
+        const liquidation = await liquidacion.findOne({
+            where: { id: idLiquidation },
+            include: [
+                moneda,
+                empresa,
+                tipoCuenta,
+                {
+                    model: liquidacionFactura,
+                    include: [{
+                        model: factura,
+                        include: [tipoDocumento, subgasto]
+                    }]
+                },
+                {
+                    model: user,
+                    include: [{
+                        model: userData,
+                        attributes: ['nombre', 'apellido', 'dpi']
+                    }]
+                }
             ]
-        }]
-    }).then(liquidation => {
-        if (liquidation) {
-            res.json(new response(true, string.get, null, liquidation[0].liquidacions[0]));
-        } else {
-            res.json(new response(false, string.getErr, null, liquidation));
-        }
-    }).catch(error => {
+        })
+
+        res.json(new response(true, string.get, null, liquidation))
+
+    } catch (error) {
         res.json(new response(false, string.errCatch, error, null));
-    })
+    }
 }
 
 async function deleteLiquidation(req, res, liquidation, string) {
@@ -298,6 +320,7 @@ async function updateCorrelativo(req, res, liquidacion, string) {
         const liquidacionesUsuario = await liquidacion.findAll({
             attributes: ['id', 'id_liquidacion',],
             where: { id_usuario: userId },
+            order: [['fecha', 'ASC']],
         }).map(value => {
             pivote += 1
             return {
@@ -328,5 +351,20 @@ async function updateIdLiquidacion(liquidation, value) {
         return data
     } catch (error) {
         return null
+    }
+}
+
+async function updateFechaLiquidacion(req, res, str, liquidacion) {
+    try {
+
+        const liquidationUpdate = await liquidacion.update(
+            { fecha: req.body.fecha },
+            { where: { id: req.body.id } }
+        )
+
+        res.json(new response(true, str.update, null, liquidationUpdate));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
