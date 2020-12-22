@@ -99,12 +99,14 @@ module.exports = (app, str) => {
     // routes from liquidacion
     routes.get('/liquidaciones/', Middleware.verifyToken, LiquidationController.getAll);
     routes.get('/liquidacion/:id', Middleware.verifyToken, LiquidationController.getById);
-    routes.get('/liquidaciones/usuario/:id', Middleware.verifyToken, LiquidationController.getByUsuarioNotClose);
+    routes.get('/liquidaciones/usuario/not/close/:id', Middleware.verifyToken, LiquidationController.getByUsuarioNotClose);
+    routes.get('/liquidaciones/usuario/:id', Middleware.verifyToken, LiquidationController.getByUsuario);
     routes.post('/liquidacion/', Middleware.verifyToken, LiquidationController.create);
     routes.delete('/liquidacion/:id', Middleware.verifyToken, LiquidationController.delete);
     routes.delete('/liquidacion/item/:id', Middleware.verifyToken, LiquidationController.deleteItem);
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
     routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
+    routes.put('/liquidacion/date/', Middleware.verifyToken, LiquidationController.updateFecha);
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
 
     // routes from cuenta
