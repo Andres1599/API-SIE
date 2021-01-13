@@ -10,9 +10,12 @@ const {
 } = require('../utils/utilidades');
 
 module.exports = (app, str) => {
+
     const bills = app.get('factura')
     const liquidation = app.get('liquidacion')
     const billLiquidation = app.get('liquidacion_factura')
+    const response = require('../response/response')
+
     return {
         migrateBills: (req, res) => {
             getBills(res, str, _axios, bills)
@@ -22,6 +25,12 @@ module.exports = (app, str) => {
         },
         migrateUpdateLiquidation: (req, res) => {
             updateLiquidations(res, _axios, liquidation)
+        },
+        searchLiquidation: (req, res) => {
+            consultLiquidation(req, res, str, response, _axios)
+        },
+        getLiquidation: (req, res) => {
+            readLiquidationItem(req, res, str, response, _axios)
         }
     }
 }
@@ -188,7 +197,7 @@ function createBills(res, str, bills, dataBills = []) {
 }
 
 
-function sortData(data = [], ) {
+function sortData(data = [],) {
     try {
         return data.sort((a, b) => {
             if (a.id_lq > b.id_lq) {
@@ -356,10 +365,10 @@ function updateLiquidations(res, axios, liquidation) {
                 // transform data to update liquidations
                 const dataLiquidation = transformData(data)
 
-                dataLiquidation.forEach( value =>{
+                dataLiquidation.forEach(value => {
                     liquidation.update(value.data, {
                         where: value.where
-                    }).then( updated => {
+                    }).then(updated => {
                         if (!updated) {
                             res.json(updated)
                         }
@@ -373,4 +382,69 @@ function updateLiquidations(res, axios, liquidation) {
         }).catch(error => {
             res.json(error)
         })
+}
+
+function transformLiquidation(liquidation = []) {
+    try {
+        return liquidation.map(value => {
+            return {
+                id_liquidacion: value.id_liquidacion,
+                id_usuario: value.id_usuario,
+                id_empresa: value.id_empresa,
+                id_moneda: value.id_moneda,
+                id_tipo_liquidacion: 1,
+                fecha: value.fecha,
+                fecha_cierra: value.fecha_cierre,
+                estado: false,
+                total: value.total_liquidacion
+            }
+        })
+    } catch (error) {
+        return []
+    }
+}
+
+// consulta de liquidaciones del sistema antiguo
+async function consultLiquidation(req, res, str, response, axios) {
+    try {
+
+        const userId = req.params.id
+
+        if (userId === null) {
+            res.json(new response(false, str.errCatch, null, null));
+        }
+
+        const endPoin = 'http://190.113.91.36:3000/api/eventos/cierre/liquidacion/user/';
+
+        const dataLiquidationOldSystem = await axios.post(endPoin, { id_usuario: userId })
+        const data = transformLiquidation(dataLiquidationOldSystem.data)
+        res.json(new response(true, str.get, null, data));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
+}
+
+async function readLiquidationItem(req, res, str, response, axios) {
+    try {
+
+        const userId = req.params.code
+        const liquidationId = req.params.id
+
+        const endPoin = 'http://190.113.91.36:3000/api/eventos/liquidacion/factura/' + `${liquidationId}` + '/' + `${userId}`;
+        const data = await axios.get(endPoin)
+
+        const bills = data.data.map(bill => bill.factura)
+
+        const billsWithOutIva = mapBillsWithOutIva(bills.filter(value => value.tipo === 'Recibo' || value.tipo === 'Factura PC'))
+        const billsWithIva = mapBillsIva(bills.filter(value => value.tipo === 'Factura' && value.galones === 0))
+        const billsGas = mapBillsIvaGas(bills.filter(value => value.tipo === 'Factura' && value.galones !== 0))
+
+        const billsTransform = billsWithOutIva.concat(billsWithIva).concat(billsGas)
+
+        res.json(new response(true, str.get, null, billsTransform));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
 }

@@ -232,10 +232,12 @@ module.exports = (app, str) => {
     routes.post('/calendario/search/user', CalendarioController.searchUser);
     routes.post('/calendario/search/full', CalendarioController.full);
 
-    //routes from migration
-    routes.get('/migration/bills', MigrationController.migrateBills);
-    routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
-    routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
+    // routes from migration
+    // routes.get('/migration/bills', MigrationController.migrateBills);
+    // routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
+    // routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
+    routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
+    routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);
 
     return routes;
 };
