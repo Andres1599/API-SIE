@@ -151,8 +151,9 @@ module.exports = (app, str) => {
 
     //routes from subgastos
     routes.get('/subgastos/:id', Middleware.verifyToken, SubGastosController.getById);
-    routes.put('/subgastos/', Middleware.verifyToken, SubGastosController.update);
     routes.post('/subgastos/', Middleware.verifyToken, SubGastosController.create);
+    routes.put('/subgastos/', Middleware.verifyToken, SubGastosController.update);
+    routes.delete('/subgastos/', Middleware.verifyToken, SubGastosController.delete);
 
     //routes from gastos tipo usuario
     routes.get('/gastostipousuario/', Middleware.verifyToken, GastosTipoUsuarioController.getAll);
