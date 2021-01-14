@@ -1,7 +1,7 @@
-module.exports = function (app) {
-    let gastosTipoUsuario = app.get('gasto_usuario');
-    let catalogoSubGasto = app.get('subgasto');
-    let gasto = app.get('gasto');
+module.exports = (app) => {
+    const gastosTipoUsuario = app.get('gasto_usuario');
+    const catalogoSubGasto = app.get('subgasto');
+    const gasto = app.get('gasto');
     return {
         create: (req, res) => {
             newGastosTipoUsuario(gastosTipoUsuario, req, res);

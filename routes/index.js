@@ -22,7 +22,7 @@ module.exports = (app, str) => {
     // deposit controls
     const DepositoController = require('../controller/desposito.controller')(app, str);
     // spending controls
-    const GastosController = require('../controller/gastos.controller')(app);
+    const GastosController = require('../controller/gastos.controller')(app, str);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     // liquidation controls
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
@@ -144,10 +144,8 @@ module.exports = (app, str) => {
 
     //routes from gastos
     routes.get('/gastos/', Middleware.verifyToken, GastosController.getAll);
-    routes.get('/gastos/id', Middleware.verifyToken, GastosController.getById);
-    routes.delete('/gastos/id', Middleware.verifyToken, GastosController.delete);
-    routes.put('/gastos/id', Middleware.verifyToken, GastosController.update);
-    routes.post('/gastos', Middleware.verifyToken, GastosController.create);
+    routes.put('/gastos/', Middleware.verifyToken, GastosController.update);
+    routes.post('/gastos/', Middleware.verifyToken, GastosController.create);
 
     //routes from gastos tipo usuario
     routes.get('/gastostipousuario/', Middleware.verifyToken, GastosTipoUsuarioController.getAll);
