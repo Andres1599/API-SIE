@@ -1,23 +1,15 @@
-module.exports = (app) => {
+module.exports = (app, str) => {
+
     const gastosTipoUsuario = app.get('gasto_usuario');
     const catalogoSubGasto = app.get('subgasto');
     const gasto = app.get('gasto');
+
     return {
-        create: (req, res) => {
-            newGastosTipoUsuario(gastosTipoUsuario, req, res);
-        },
-        update: (req, res) => {
-            updateGastosTipoUsuario(gastosTipoUsuario, req, res);
-        },
-        delete: (req, res) => {
-            deleteGastosTipoUsuario(gastosTipoUsuario, req, res);
-        },
-        getById: (req, res) => {
-            getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, req, res);
-        },
-        getAll: (req, res) => {
-            getAllGastosTipoUsuario(gastosTipoUsuario, req, res);
-        }
+        create: (req, res) => { newGastosTipoUsuario(gastosTipoUsuario, req, res) },
+        update: (req, res) => { updateGastosTipoUsuario(gastosTipoUsuario, req, res) },
+        delete: (req, res) => { deleteGastosTipoUsuario(gastosTipoUsuario, req, res) },
+        getById: (req, res) => { getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, req, res) },
+        getAll: (req, res) => { getAllGastosTipoUsuario(gastosTipoUsuario, req, res) }
     }
 }
 

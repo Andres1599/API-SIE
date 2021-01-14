@@ -6,7 +6,7 @@ module.exports = (app, str) => {
     // user controls
     const UsuarioController = require('../controller/usuario.controller')(app, str);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
-    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app);
+    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app, str);
     const AdminGetController = require('../controller/admin.controller')(app);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     // bank controls
