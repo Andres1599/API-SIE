@@ -1,20 +1,22 @@
-module.exports = function(app) {
-    let catalogoSubGasto = app.get('catalogo_subgasto');
+module.exports = function (app, str) {
+
+    const subgasto = app.get('subgasto');
+    const response = require('../response/response');
+
     return {
         create: (req, res) => { newCatalogoSubGasto(catalogoSubGasto, req, res); },
         update: (req, res) => { updateCatalogoSubGasto(catalogoSubGasto, req, res); },
         delete: (req, res) => { deleteCatalogoSubGasto(catalogoSubGasto, req, res); },
-        getById: (req, res) => { getCatalogoSubGastoById(catalogoSubGasto, req, res); },
-        getAll: (req, res) => { getAllCatalogoSubGasto(catalogoSubGasto, req, res); }
+        getById: (req, res) => { getSubGastoByIdGasto(req, res, str, response, subgasto) },
     }
 }
 
-function newCatalogoSubGasto(catalogoSubGasto, req, res) {
+function newCatalogoSubGasto(req, req, str, response, subgasto) {
     catalogoSubGasto.create({
         nombre_subgasto: req.body.nombre_subgasto,
         gasto_max: req.body.gasto_max,
         fk_id_gasto: req.body.fk_id_gasto,
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             res.json(response);
         } else {
@@ -26,18 +28,18 @@ function newCatalogoSubGasto(catalogoSubGasto, req, res) {
     });
 }
 
-function deleteCatalogoSubGasto(catalogoSubGasto, req, res) {
+function deleteCatalogoSubGasto(req, req, str, response, subgasto) {
     catalogoSubGasto.findOne({
         where: {
             id_subgasto: req.body.id_subgasto
         }
-    }).then(function(response) {
+    }).then(function (response) {
         if (response) {
             catalogoSubGasto.destroy({
                 where: {
                     id_subgasto: req.body.id_subgasto
                 }
-            }).then(function(deleted) {
+            }).then(function (deleted) {
                 if (deleted) {
                     res.json({
                         message: "Se ha eliminado con exito el subgasto",
@@ -58,7 +60,7 @@ function deleteCatalogoSubGasto(catalogoSubGasto, req, res) {
     });
 }
 
-function updateCatalogoSubGasto(catalogoSubGasto, req, res) {
+function updateCatalogoSubGasto(req, req, str, response, subgasto) {
     catalogoSubGasto.update({
         nombre_subgasto: req.body.nombre_subgasto,
         gasto_max: req.body.gasto_max,
@@ -67,9 +69,9 @@ function updateCatalogoSubGasto(catalogoSubGasto, req, res) {
         where: {
             id_subgasto: req.body.id_subgasto
         }
-    }).then(function(update) {
+    }).then(function (update) {
         res.json(update);
-    }).catch(function(err) {
+    }).catch(function (err) {
         res.json({
             message: 'Error al procesar la petición',
             error: err
@@ -77,29 +79,17 @@ function updateCatalogoSubGasto(catalogoSubGasto, req, res) {
     })
 }
 
-function getCatalogoSubGastoById(catalogoSubGasto, req, res) {
-    catalogoSubGasto.findOne({
-        where: {
-            id_subgasto: req.params.id_subgasto
-        }
-    }).then(function(response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "No hemos podido encontrar el subgasto"
-            });
-        }
-    }).catch(function(err) {
-        res.json({
-            message: "No hemos podido encontrar el subgasto",
-            error: err
-        });
-    });
-}
+async function getSubGastoByIdGasto(req, res, str, response, subgasto) {
+    try {
+        const subGastos = await subgasto.findAll({
+            where: {
+                fk_id_gasto: req.params.id
+            }
+        })
 
-function getAllCatalogoSubGasto(catalogoSubGasto, req, res) {
-    catalogoSubGasto.findAll().then(function(response) {
-        res.json(response);
-    });
+        res.json(new response(true, str.get, null, subGastos));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
 }
