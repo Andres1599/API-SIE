@@ -6,7 +6,8 @@ module.exports = (app, str) => {
     return {
         create: (req, res) => { newGastos(req, res, str, response, gastos) },
         update: (req, res) => { updateGastos(req, res, str, response, gastos) },
-        getAll: (req, res) => { getAllGastos(req, res, str, response, gastos) }
+        getAll: (req, res) => { getAllGastos(req, res, str, response, gastos) },
+        getById: (req, res) => { getGastosById(req, res, str, response, gastos) }
     }
 }
 
@@ -46,6 +47,21 @@ async function getAllGastos(req, res, str, response, gastos) {
     try {
 
         const dataGastos = await gastos.findAll();
+        res.json(new response(true, str.get, null, dataGastos));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
+}
+
+async function getGastosById(req, res, str, response, gastos) {
+    try {
+
+        const dataGastos = await gastos.findOne({
+            where: {
+                id_gasto: req.params.id
+            }
+        });
         res.json(new response(true, str.get, null, dataGastos));
 
     } catch (error) {

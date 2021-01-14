@@ -144,6 +144,7 @@ module.exports = (app, str) => {
 
     //routes from gastos
     routes.get('/gastos/', Middleware.verifyToken, GastosController.getAll);
+    routes.get('/gastos/:id', Middleware.verifyToken, GastosController.getById);
     routes.put('/gastos/', Middleware.verifyToken, GastosController.update);
     routes.post('/gastos/', Middleware.verifyToken, GastosController.create);
 
