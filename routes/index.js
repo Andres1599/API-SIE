@@ -153,14 +153,13 @@ module.exports = (app, str) => {
     routes.get('/subgastos/:id', Middleware.verifyToken, SubGastosController.getById);
     routes.post('/subgastos/', Middleware.verifyToken, SubGastosController.create);
     routes.put('/subgastos/', Middleware.verifyToken, SubGastosController.update);
-    routes.delete('/subgastos/', Middleware.verifyToken, SubGastosController.delete);
+    routes.delete('/subgastos/:id', Middleware.verifyToken, SubGastosController.delete);
 
     //routes from gastos tipo usuario
-    routes.get('/gastostipousuario/', Middleware.verifyToken, GastosTipoUsuarioController.getAll);
-    routes.get('/gastostipousuario/:id', Middleware.verifyToken, GastosTipoUsuarioController.getById);
-    routes.delete('/gastostipousuario/id', Middleware.verifyToken, GastosTipoUsuarioController.delete);
-    routes.put('/gastostipousuario/id', Middleware.verifyToken, GastosTipoUsuarioController.update);
-    routes.post('/gastostipousuario', Middleware.verifyToken, GastosTipoUsuarioController.create);
+    routes.get('/gastos/tipo/usuario/:id', Middleware.verifyToken, GastosTipoUsuarioController.getById);
+    routes.get('/gastos/tipo/usuario/gasto/:id', Middleware.verifyToken, GastosTipoUsuarioController.getByGasto);
+    routes.delete('/gastos/tipo/usuario/:id', Middleware.verifyToken, GastosTipoUsuarioController.delete);
+    routes.post('/gastos/tipo/usuario/', Middleware.verifyToken, GastosTipoUsuarioController.create);
 
     //routes from liquidacion factura
     routes.get('/liquidacionfactura/', Middleware.verifyToken, LiquidacionFacturaController.getAll);

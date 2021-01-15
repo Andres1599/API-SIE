@@ -32,7 +32,7 @@ async function deleteSubGasto(req, res, str, response, subgasto) {
 
         const deleted = await subgasto.destroy({
             where: {
-                id_subgasto: req.body.id_subgasto
+                id_subgasto: req.params.id
             }
         })
 
