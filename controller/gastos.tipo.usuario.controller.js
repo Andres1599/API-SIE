@@ -1,93 +1,65 @@
-module.exports = function (app) {
-    let gastosTipoUsuario = app.get('gasto_usuario');
-    let catalogoSubGasto = app.get('subgasto');
-    let gasto = app.get('gasto');
+module.exports = (app, str) => {
+
+    const gastosTipoUsuario = app.get('gasto_usuario')
+    const tipoUsuario = app.get('tipo_usuario')
+    const catalogoSubGasto = app.get('subgasto')
+    const gasto = app.get('gasto')
+    const response = require('../response/response')
+
     return {
-        create: (req, res) => {
-            newGastosTipoUsuario(gastosTipoUsuario, req, res);
-        },
-        update: (req, res) => {
-            updateGastosTipoUsuario(gastosTipoUsuario, req, res);
-        },
-        delete: (req, res) => {
-            deleteGastosTipoUsuario(gastosTipoUsuario, req, res);
-        },
-        getById: (req, res) => {
-            getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, req, res);
-        },
-        getAll: (req, res) => {
-            getAllGastosTipoUsuario(gastosTipoUsuario, req, res);
-        }
+        create: (req, res) => { newGastosTipoUsuario(req, res, str, response, gastosTipoUsuario) },
+        delete: (req, res) => { deleteGastosTipoUsuario(req, res, str, response, gastosTipoUsuario) },
+        getById: (req, res) => { getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, req, res) },
+        getByGasto: (req, res) => { getGastosTipoUsuarioByIdGasto(req, res, str, response, gastosTipoUsuario, tipoUsuario) }
     }
 }
 
-function newGastosTipoUsuario(gastosTipoUsuario, req, res) {
-    gastosTipoUsuario.create({
-        fk_id_gasto: req.body.fk_id_gasto,
-        fk_id_tipo_usuario: req.body.fk_id_tipo_usuario,
-    }).then(function (response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "Error al crear un nuevo gasto",
-                created: false
-            });
-        }
-    });
+async function newGastosTipoUsuario(req, res, str, response, gastosTipoUsuario) {
+    try {
+
+        const newGastoTipoUsuario = await gastosTipoUsuario.create({
+            fk_id_gasto: req.body.fk_id_gasto,
+            fk_id_tipo_usuario: req.body.fk_id_tipo_usuario,
+        })
+
+        res.json(new response(true, str.create, null, newGastoTipoUsuario))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
-function deleteGastosTipoUsuario(gastosTipoUsuario, req, res) {
-    gastosTipoUsuario.findOne({
-        where: {
-            id_gasto_usuario: req.body.id_gasto_usuario
-        }
-    }).then(function (response) {
-        if (response) {
-            gastosTipoUsuario.destroy({
-                where: {
-                    id_gasto_usuario: req.body.id_gasto_usuario
-                }
-            }).then(function (deleted) {
-                if (deleted) {
-                    res.json({
-                        message: "Se ha eliminado con exito el gasto",
-                        deleted: true
-                    });
-                } else {
-                    res.json({
-                        message: "Error al eliminar el gasto",
-                        deleted: false
-                    });
-                }
-            });
-        } else {
-            res.json({
-                message: "No hemos podido encontrar el gasto para eliminarlo"
-            });
-        }
-    });
+async function deleteGastosTipoUsuario(req, res, str, response, gastosTipoUsuario) {
+    try {
+
+        const deleted = await gastosTipoUsuario.destroy({
+            where: {
+                id_gasto_usuario: req.params.id
+            }
+        })
+
+        res.json(new response(true, str.delete, null, deleted))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
-function updateGastosTipoUsuario(gastosTipoUsuario, req, res) {
-    gastosTipoUsuario.update({
-        fk_id_gasto: req.body.fk_id_gasto,
-        fk_id_tipo_usuario: req.body.fk_id_tipo_usuario,
-    }, {
-        where: {
-            id_gasto_usuario: req.body.id_gasto_usuario
-        }
-    }).then(function (update) {
-        res.json(update);
-    }).catch(function (err) {
-        res.json({
-            message: 'Error al procesar la petición',
-            error: err
-        });
-    })
+async function getGastosTipoUsuarioByIdGasto(req, res, str, response, gastosTipoUsuario, tipoUsuario) {
+    try {
+        const data = await gastosTipoUsuario.findAll({
+            where: {
+                fk_id_gasto: req.params.id
+            },
+            include: [tipoUsuario]
+        })
+        res.json(new response(true, str.get, null, data))
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
-function getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, req, res) {
+async function getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, req, res) {
     gastosTipoUsuario.findAll({
         where: {
             fk_id_tipo_usuario: req.params.id
@@ -111,11 +83,5 @@ function getGastosTipoUsuarioById(gastosTipoUsuario, catalogoSubGasto, gasto, re
             message: "No hemos podido encontrar el gasto",
             error: err
         });
-    });
-}
-
-function getAllGastosTipoUsuario(gastosTipoUsuario, req, res) {
-    gastosTipoUsuario.findAll().then(function (response) {
-        res.json(response);
     });
 }

@@ -6,7 +6,7 @@ module.exports = (app, str) => {
     // user controls
     const UsuarioController = require('../controller/usuario.controller')(app, str);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
-    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app);
+    const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app, str);
     const AdminGetController = require('../controller/admin.controller')(app);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     // bank controls
@@ -22,7 +22,8 @@ module.exports = (app, str) => {
     // deposit controls
     const DepositoController = require('../controller/desposito.controller')(app, str);
     // spending controls
-    const GastosController = require('../controller/gastos.controller')(app);
+    const GastosController = require('../controller/gastos.controller')(app, str);
+    const SubGastosController = require('../controller/subgasto.controller')(app, str);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     // liquidation controls
     const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
@@ -144,17 +145,21 @@ module.exports = (app, str) => {
 
     //routes from gastos
     routes.get('/gastos/', Middleware.verifyToken, GastosController.getAll);
-    routes.get('/gastos/id', Middleware.verifyToken, GastosController.getById);
-    routes.delete('/gastos/id', Middleware.verifyToken, GastosController.delete);
-    routes.put('/gastos/id', Middleware.verifyToken, GastosController.update);
-    routes.post('/gastos', Middleware.verifyToken, GastosController.create);
+    routes.get('/gastos/:id', Middleware.verifyToken, GastosController.getById);
+    routes.put('/gastos/', Middleware.verifyToken, GastosController.update);
+    routes.post('/gastos/', Middleware.verifyToken, GastosController.create);
+
+    //routes from subgastos
+    routes.get('/subgastos/:id', Middleware.verifyToken, SubGastosController.getById);
+    routes.post('/subgastos/', Middleware.verifyToken, SubGastosController.create);
+    routes.put('/subgastos/', Middleware.verifyToken, SubGastosController.update);
+    routes.delete('/subgastos/:id', Middleware.verifyToken, SubGastosController.delete);
 
     //routes from gastos tipo usuario
-    routes.get('/gastostipousuario/', Middleware.verifyToken, GastosTipoUsuarioController.getAll);
-    routes.get('/gastostipousuario/:id', Middleware.verifyToken, GastosTipoUsuarioController.getById);
-    routes.delete('/gastostipousuario/id', Middleware.verifyToken, GastosTipoUsuarioController.delete);
-    routes.put('/gastostipousuario/id', Middleware.verifyToken, GastosTipoUsuarioController.update);
-    routes.post('/gastostipousuario', Middleware.verifyToken, GastosTipoUsuarioController.create);
+    routes.get('/gastos/tipo/usuario/:id', Middleware.verifyToken, GastosTipoUsuarioController.getById);
+    routes.get('/gastos/tipo/usuario/gasto/:id', Middleware.verifyToken, GastosTipoUsuarioController.getByGasto);
+    routes.delete('/gastos/tipo/usuario/:id', Middleware.verifyToken, GastosTipoUsuarioController.delete);
+    routes.post('/gastos/tipo/usuario/', Middleware.verifyToken, GastosTipoUsuarioController.create);
 
     //routes from liquidacion factura
     routes.get('/liquidacionfactura/', Middleware.verifyToken, LiquidacionFacturaController.getAll);
@@ -232,10 +237,12 @@ module.exports = (app, str) => {
     routes.post('/calendario/search/user', CalendarioController.searchUser);
     routes.post('/calendario/search/full', CalendarioController.full);
 
-    //routes from migration
-    routes.get('/migration/bills', MigrationController.migrateBills);
-    routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
-    routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
+    // routes from migration
+    // routes.get('/migration/bills', MigrationController.migrateBills);
+    // routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
+    // routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
+    routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
+    routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);
 
     return routes;
 };
