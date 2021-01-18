@@ -5,7 +5,7 @@ module.exports = (app, str) => {
     const CartaController = require('../controller/carta.controller')(app);
     // user controls
     const UsuarioController = require('../controller/usuario.controller')(app, str);
-    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app);
+    const UsuarosDatosController = require('../controller/usuario.datos.controller')(app, str);
     const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app, str);
     const AdminGetController = require('../controller/admin.controller')(app);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
@@ -62,9 +62,10 @@ module.exports = (app, str) => {
     routes.put('/usuario/pass', Middleware.verifyToken, UsuarioController.password);
 
     //routes usuario dato
-    routes.get('/usuario/:id', UsuarosDatosController.getById);
-    routes.put('/usuario/data/update', UsuarosDatosController.update);
-    routes.get('/usuarios/data', UsuarosDatosController.getAll);
+    routes.get('/usuario/:id', Middleware.verifyToken, UsuarosDatosController.getById);
+    routes.put('/usuario/data/', Middleware.verifyToken, UsuarosDatosController.update);
+    routes.get('/usuarios/data/', Middleware.verifyToken, UsuarosDatosController.getAll);
+    routes.get('/usuarios/data/report', Middleware.verifyToken, UsuarosDatosController.getReport);
 
     //routes get all master tables
     routes.get('/usuarios/', Middleware.verifyToken, AdminGetController.getUsuarios);

@@ -1,5 +1,9 @@
-module.exports = function (app) {
-    let usuarioDatos = app.get('usuario_datos');
+module.exports = (app, str) => {
+
+    const usuarioDatos = app.get('usuario_datos')
+    const usuarios = app.get('usuario')
+    const response = require('../response/response')
+
     return {
         create: (req, res) => {
             newUsuarioDatos(usuarioDatos, req, res);
@@ -15,6 +19,9 @@ module.exports = function (app) {
         },
         getAll: (req, res) => {
             getAllUsuarioDatos(usuarioDatos, req, res);
+        },
+        getReport: (req, res) => {
+            getReportEmployees(req, res, str, response, usuarioDatos, usuarios)
         }
     }
 }
@@ -146,4 +153,25 @@ function getAllUsuarioDatos(usuarioDatos, req, res) {
     usuarioDatos.findAll().then(function (response) {
         res.json(response);
     });
+}
+
+async function getReportEmployees(req, res, str, response, usuarioDatos, usuarios) {
+    try {
+
+        const datosUsuarios = await usuarioDatos.findAll({
+            include: [
+                {
+                    model: usuarios,
+                    where: {
+                        status: true
+                    }
+                }
+            ]
+        })
+
+        res.json(new response(true, str.get, null, datosUsuarios));
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
 }
