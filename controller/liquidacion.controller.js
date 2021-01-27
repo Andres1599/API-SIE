@@ -1,15 +1,16 @@
 const response = require('../response/response')
-module.exports = function (app, string) {
-    let liquidacion = app.get('liquidacion');
-    let liquidacionFactura = app.get('liquidacion_factura');
-    let moneda = app.get('moneda');
-    let tipoCuenta = app.get('tipo_cuenta');
-    let empresa = app.get('empresa');
-    let user = app.get('usuario');
-    let userData = app.get('usuario_datos');
-    let factura = app.get('factura');
-    let subgasto = app.get('subgasto');
-    let tipoDocumento = app.get('tipo_documento');
+module.exports = (app, str) => {
+
+    const liquidacion = app.get('liquidacion');
+    const liquidacionFactura = app.get('liquidacion_factura');
+    const moneda = app.get('moneda');
+    const tipoCuenta = app.get('tipo_cuenta');
+    const empresa = app.get('empresa');
+    const user = app.get('usuario');
+    const userData = app.get('usuario_datos');
+    const factura = app.get('factura');
+    const subgasto = app.get('subgasto');
+    const tipoDocumento = app.get('tipo_documento');
 
     return {
         create: (req, res) => {
@@ -19,34 +20,34 @@ module.exports = function (app, string) {
             updateLiquidacion(liquidacion, req, res);
         },
         updateId: (req, res) => {
-            updateCorrelativo(req, res, liquidacion, string)
+            updateCorrelativo(req, res, liquidacion, str)
         },
         updateFecha: (req, res) => {
-            updateFechaLiquidacion(req, res, string, liquidacion)
+            updateFechaLiquidacion(req, res, str, liquidacion)
         },
         delete: (req, res) => {
-            deleteLiquidation(req, res, liquidacion, string)
+            deleteLiquidation(req, res, liquidacion, str)
         },
         deleteItem: (req, res) => {
-            deleteItemLiquidation(req, res, string, liquidacionFactura)
+            deleteItemLiquidation(req, res, str, liquidacionFactura)
         },
         deleteItemFull: (req, res) => {
-            deleteItemLiquidationFull(req, res, string, liquidacionFactura)
+            deleteItemLiquidationFull(req, res, str, liquidacionFactura)
         },
         getByUsuarioNotClose: (req, res) => {
-            getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, string)
+            getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, str)
         },
         getByUsuario: (req, res) => {
-            getLiquidationByUsuario(user, userData, liquidacion, moneda, tipoCuenta, empresa, req, res, string)
+            getLiquidationByUsuario(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str)
         },
         getAll: (req, res) => {
             getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res);
         },
         getById: (req, res) => {
-            getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string)
+            getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str)
         },
         close: (req, res) => {
-            closeLiquidation(req, res, liquidacion, string)
+            closeLiquidation(req, res, liquidacion, str)
         }
     }
 }
@@ -101,7 +102,7 @@ function getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, mone
     })
 }
 
-function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, string) {
+function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empresa, req, res, str) {
     liquidacion.findAll({
         where: {
             id_usuario: req.params.id,
@@ -120,29 +121,41 @@ function getLiquidationByUsuarioNotClose(liquidacion, moneda, tipoCuenta, empres
     })
         .then(liquidations => {
             if (liquidations) {
-                res.json(new response(true, string.get, null, liquidations));
+                res.json(new response(true, str.get, null, liquidations));
             } else {
-                res.json(new response(false, string.getErr, null, liquidations));
+                res.json(new response(false, str.getErr, null, liquidations));
             }
         })
         .catch(error => {
             if (error) {
-                res.json(new response(false, string.errCatch, error, null));
+                res.json(new response(false, str.errCatch, error, null));
             }
         });
 }
 
-async function getLiquidationByUsuario(user, userData, liquidacion, moneda, tipoCuenta, empresa, req, res, str) {
+async function getLiquidationByUsuario(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str) {
     try {
         const liquidationUser = await liquidacion.findAll({
             where: { id_usuario: req.params.id },
-            include: [moneda, tipoCuenta, empresa, {
-                model: user,
-                include: [{
-                    model: userData,
-                    attributes: ['nombre', 'apellido', 'dpi']
-                }]
-            },],
+            include: [
+                moneda,
+                empresa,
+                tipoCuenta,
+                {
+                    model: liquidacionFactura,
+                    include: [{
+                        model: factura,
+                        include: [tipoDocumento, subgasto]
+                    }]
+                },
+                {
+                    model: user,
+                    include: [{
+                        model: userData,
+                        attributes: ['nombre', 'apellido', 'dpi']
+                    }]
+                }
+            ],
             order: [['fecha', 'ASC']]
         })
 
@@ -198,7 +211,7 @@ async function newLiquidacion(liquidacion, req, res) {
     }
 }
 
-async function getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, string) {
+async function getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str) {
     try {
         const idLiquidation = req.params.id || 0;
 
@@ -225,14 +238,14 @@ async function getLiquidacionById(user, userData, liquidacion, liquidacionFactur
             ]
         })
 
-        res.json(new response(true, string.get, null, liquidation))
+        res.json(new response(true, str.get, null, liquidation))
 
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 
-async function deleteLiquidation(req, res, liquidation, string) {
+async function deleteLiquidation(req, res, liquidation, str) {
     try {
         const idLiquidation = req.params.id
         const deleted = await liquidation.destroy({
@@ -242,17 +255,17 @@ async function deleteLiquidation(req, res, liquidation, string) {
         })
 
         if (deleted) {
-            res.json(new response(true, string.delete, null, deleted))
+            res.json(new response(true, str.delete, null, deleted))
         } else {
-            res.json(new response(false, string.deleteErr, null, deleted))
+            res.json(new response(false, str.deleteErr, null, deleted))
         }
 
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 
-async function deleteItemLiquidation(req, res, string, item_liquidation) {
+async function deleteItemLiquidation(req, res, str, item_liquidation) {
     try {
         const id = req.params.id
         const deleted = await item_liquidation.destroy({
@@ -262,16 +275,16 @@ async function deleteItemLiquidation(req, res, string, item_liquidation) {
         })
 
         if (deleted) {
-            res.json(new response(true, string.delete, null, deleted))
+            res.json(new response(true, str.delete, null, deleted))
         } else {
-            res.json(new response(false, string.deleteErr, null, deleted))
+            res.json(new response(false, str.deleteErr, null, deleted))
         }
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 
-async function deleteItemLiquidationFull(req, res, string, item_liquidation) {
+async function deleteItemLiquidationFull(req, res, str, item_liquidation) {
     try {
         const id = req.params.id
         const deleted = await item_liquidation.destroy({
@@ -281,16 +294,16 @@ async function deleteItemLiquidationFull(req, res, string, item_liquidation) {
         })
 
         if (deleted) {
-            res.json(new response(true, string.delete, null, deleted))
+            res.json(new response(true, str.delete, null, deleted))
         } else {
-            res.json(new response(false, string.deleteErr, null, deleted))
+            res.json(new response(false, str.deleteErr, null, deleted))
         }
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 
-async function closeLiquidation(req, res, liquidation, string) {
+async function closeLiquidation(req, res, liquidation, str) {
     try {
         const currentDay = new Date()
         const idLiquidation = req.body.id
@@ -304,16 +317,16 @@ async function closeLiquidation(req, res, liquidation, string) {
         })
 
         if (updated) {
-            res.json(new response(true, string.update, null, updated))
+            res.json(new response(true, str.update, null, updated))
         } else {
-            res.json(new response(false, string.updateErr, null, updated))
+            res.json(new response(false, str.updateErr, null, updated))
         }
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 
-async function updateCorrelativo(req, res, liquidacion, string) {
+async function updateCorrelativo(req, res, liquidacion, str) {
     try {
         let pivote = 0
         const userId = req.body.id_usuario
@@ -336,10 +349,10 @@ async function updateCorrelativo(req, res, liquidacion, string) {
             lista.push(data)
         })
 
-        res.json(new response(true, string.update, null, true));
+        res.json(new response(true, str.update, null, true));
 
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 
