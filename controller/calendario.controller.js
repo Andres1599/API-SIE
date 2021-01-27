@@ -7,8 +7,8 @@ module.exports = (app, string) => {
     const Actividad = app.get('catalogo_actividad')
     const Ensayo = app.get('catalogo_ensayo')
     const op = app.get('op')
-    let Usuario = app.get('usuario');
-    let DatosUsuario = app.get('usuario_datos');
+    const Usuario = app.get('usuario');
+    const DatosUsuario = app.get('usuario_datos');
 
     return {
         getAll: (req, res) => {
@@ -21,7 +21,7 @@ module.exports = (app, string) => {
             createEvent(req, res, string, Calendario)
         },
         delete: (req, res) => {
-            deleteEvent(req, res, string, Calendario)
+            deleteEvent(req, res, string, response, Calendario, CalendarioUsuario)
         },
         createUser: (req, res) => {
             createCalendarUser(req, res, CalendarioUsuario, string)
@@ -86,26 +86,19 @@ function createEvent(req, res, string, Calendario) {
     });
 }
 
-function deleteEvent(req, res, string, Calendario) {
-    Calendario.destroy({
-        where: {
-            id: req.params.id
-        }
-    }).then(deleted => {
-        if (deleted) {
-            res.json({
-                message: string.delete,
-                deleted
-            })
-        } else {
-            res.json({
-                message: string.deleteErr,
-                deleted
-            })
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
+async function deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) {
+    try {
+        
+        const idEvent = req.params.id
+
+        const deleteEventUser = await CalendarioUsuario.destroy({ where: { fk_id_calendario: idEvent } })
+        const deleteEvent = await Calendario.destroy({ where: { id: idEvent } })
+
+        res.json(new response(true, string.delete, null, deleteEvent));
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
 }
 
 function getAllEvent(req, res, string, Calendario) {
@@ -293,14 +286,14 @@ function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequeli
             fk_id_actividad: req.body.fk_id_actividad,
         },
         include: [{
-                model: Actividad
-            },
-            {
-                model: Ensayo
-            },
-            {
-                model: CalendarioUsuario
-            },
+            model: Actividad
+        },
+        {
+            model: Ensayo
+        },
+        {
+            model: CalendarioUsuario
+        },
         ]
     }).then((events) => {
         if (events) {
@@ -344,29 +337,29 @@ function searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, 
             status: false
         },
         include: [{
-                model: Actividad
-            },
-            {
-                model: Ensayo
-            },
-            {
-                model: CalendarioUsuario,
-                include: [
-                    {
-                        model: Usuario,
-                        attributes: ['id_usuario'],
-                        include: [
-                            {
-                                model: DatosUsuario,
-                                attributes: ['nombre', 'apellido']
-                            }
-                        ]
-                    }
-                ],
-                where: {
-                    fk_id_usuario: req.body.fk_id_usuario
+            model: Actividad
+        },
+        {
+            model: Ensayo
+        },
+        {
+            model: CalendarioUsuario,
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['id_usuario'],
+                    include: [
+                        {
+                            model: DatosUsuario,
+                            attributes: ['nombre', 'apellido']
+                        }
+                    ]
                 }
-            },
+            ],
+            where: {
+                fk_id_usuario: req.body.fk_id_usuario
+            }
+        },
         ]
     }).then((events) => {
         if (events) {
@@ -393,26 +386,26 @@ function fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op,
             }
         },
         include: [{
-                model: Actividad
-            },
-            {
-                model: Ensayo
-            },
-            {
-                model: CalendarioUsuario,
-                include: [
-                    {
-                        model: Usuario,
-                        attributes: ['id_usuario'],
-                        include: [
-                            {
-                                model: DatosUsuario,
-                                attributes: ['nombre', 'apellido']
-                            }
-                        ]
-                    }
-                ]
-            },
+            model: Actividad
+        },
+        {
+            model: Ensayo
+        },
+        {
+            model: CalendarioUsuario,
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['id_usuario'],
+                    include: [
+                        {
+                            model: DatosUsuario,
+                            attributes: ['nombre', 'apellido']
+                        }
+                    ]
+                }
+            ]
+        },
         ]
     }).then((events) => {
         if (events) {
