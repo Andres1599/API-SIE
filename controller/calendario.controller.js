@@ -3,92 +3,49 @@ module.exports = (app, string) => {
 
     const Calendario = app.get('calendario');
     const CalendarioUsuario = app.get('calendario_usuario');
-    const sequelize = app.get('sequelize')
     const Actividad = app.get('catalogo_actividad')
     const Ensayo = app.get('catalogo_ensayo')
     const op = app.get('op')
     const Usuario = app.get('usuario');
     const DatosUsuario = app.get('usuario_datos');
+    const CalendarioEnsayo = app.get('calendario_ensayo');
 
     return {
-        getAll: (req, res) => {
-            getAllEvent(req, res, string, Calendario)
-        },
-        getById: (req, res) => {
-            getAllEventById(req, res, string, Calendario, CalendarioUsuario)
-        },
-        create: (req, res) => {
-            createEvent(req, res, string, Calendario)
-        },
-        delete: (req, res) => {
-            deleteEvent(req, res, string, response, Calendario, CalendarioUsuario)
-        },
-        createUser: (req, res) => {
-            createCalendarUser(req, res, CalendarioUsuario, string)
-        },
-        createUserOnce: (req, res) => {
-            createCalendarUserOnce(req, res, CalendarioUsuario, string)
-        },
-        accept: (req, res) => {
-            acceptEvent(req, res, CalendarioUsuario, string)
-        },
-        getByIdToBeAccept: (req, res) => {
-            getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario)
-        },
-        refuse: (req, res) => {
-            refuseEvent(req, res, CalendarioUsuario, string)
-        },
-        close: (req, res) => {
-            closeCalendar(req, res, string, Calendario)
-        },
-        search: (req, res) => {
-            searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario)
-        },
-        searchUser: (req, res) => {
-            searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario)
-        },
-        full: (req, res) => {
-            fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario)
-        }
+        getAll: (req, res) => { getAllEvent(req, res, string, Calendario) },
+        getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
+        getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
+        create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
+        delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
+        createUser: (req, res) => { createCalendarUser(req, res, CalendarioUsuario, string) },
+        createUserOnce: (req, res) => { createCalendarUserOnce(req, res, CalendarioUsuario, string) },
+        accept: (req, res) => { acceptEvent(req, res, CalendarioUsuario, string) },
+        getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
+        refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
+        close: (req, res) => { closeCalendar(req, res, string, Calendario) },
+        search: (req, res) => { searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario) },
+        searchUser: (req, res) => { searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) },
+        full: (req, res) => { fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) }
     }
 }
 
-function createEvent(req, res, string, Calendario) {
-    Calendario.create({
-        draggable: req.body.draggable,
-        resizable: req.body.resizable,
-        allDay: req.body.allDay,
-        actions: req.body.actions,
-        color: req.body.color,
-        title: req.body.title,
-        end: req.body.end,
-        start: req.body.start,
-        fk_id_usuario: req.body.fk_id_usuario,
-        status: false,
-        fk_id_ensayo: req.body.fk_id_ensayo,
-        fk_id_actividad: req.body.fk_id_actividad,
-        noOrder: req.body.noOrder,
-        client: req.body.client
-    }).then(created => {
-        if (created)
-            res.json({
-                message: string.create,
-                event: created
-            });
-        else {
-            res.json({
-                message: string.createErr,
-                event: created
-            });
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    });
+async function createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) {
+    try {
+
+        const event = req.body;
+
+        const newEvent = await Calendario.create(event, { include: [CalendarioUsuario, CalendarioEnsayo] })
+
+        res.json(new response(true, string.create, null, newEvent))
+
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null))
+    }
 }
 
 async function deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) {
     try {
-        
+
         const idEvent = req.params.id
 
         const deleteEventUser = await CalendarioUsuario.destroy({ where: { fk_id_calendario: idEvent } })
@@ -109,16 +66,37 @@ function getAllEvent(req, res, string, Calendario) {
     })
 }
 
-function getAllEventById(req, res, string, Calendario, CalendarioUsuario) {
+async function getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) {
+    try {
+        const event = await Calendario.findByPk(req.params.id, {
+            include: [
+                {
+                    model: CalendarioUsuario,
+                    include: [{ model: Usuario, attributes: ['id_usuario'], include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido'] }] }]
+                },
+                Actividad,
+                {
+                    model: CalendarioEnsayo,
+                    include: [Ensayo]
+                }
+            ]
+        })
+
+        res.json(new response(true, string.get, null, event));
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
     CalendarioUsuario.findAll({
         where: {
             fk_id_usuario: req.params.fk_id_usuario,
             statusAccept: true,
             cierre_calendario: true
         },
-        include: [{
-            model: Calendario
-        }]
+        include: [Calendario]
     }).then(events => {
         res.json(events)
     }).catch(err => {
@@ -127,9 +105,8 @@ function getAllEventById(req, res, string, Calendario, CalendarioUsuario) {
 }
 
 function createCalendarUser(req, res, CalendarioUsuario, string) {
-    const records = req.body.data;
 
-    console.log(records);
+    const records = req.body.data;
 
     if (!records) {
         res.json(new response(false, string.errEmpty, null, null))

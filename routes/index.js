@@ -225,7 +225,8 @@ module.exports = (app, str) => {
 
     //routes from calendario
     routes.get('/calendario', Middleware.verifyToken, CalendarioController.getAll);
-    routes.get('/calendario/:fk_id_usuario', Middleware.verifyToken, CalendarioController.getById);
+    routes.get('/calendario/event/:id', Middleware.verifyToken, CalendarioController.getById);
+    routes.get('/calendario/:fk_id_usuario', Middleware.verifyToken, CalendarioController.getUserEventsById);
     routes.post('/calendario', Middleware.verifyToken, CalendarioController.create);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
     routes.post('/calendario/usuario/', Middleware.verifyToken, CalendarioController.createUser);
@@ -239,9 +240,6 @@ module.exports = (app, str) => {
     routes.post('/calendario/search/full', CalendarioController.full);
 
     // routes from migration
-    // routes.get('/migration/bills', MigrationController.migrateBills);
-    // routes.get('/migration/liquidations', MigrationController.migrateLiquidation);
-    // routes.get('/migration/liquidations/update', MigrationController.migrateUpdateLiquidation);
     routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
     routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);
 
