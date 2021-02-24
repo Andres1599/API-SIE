@@ -12,7 +12,8 @@ module.exports = (app, string) => {
 
     return {
         getAll: (req, res) => { getAllEvent(req, res, string, Calendario) },
-        getById: (req, res) => { getAllEventById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
+        getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
+        getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
         createUser: (req, res) => { createCalendarUser(req, res, CalendarioUsuario, string) },
@@ -65,17 +66,37 @@ function getAllEvent(req, res, string, Calendario) {
     })
 }
 
-function getAllEventById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) {
+async function getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) {
+    try {
+        const event = await Calendario.findByPk(req.params.id, {
+            include: [
+                {
+                    model: CalendarioUsuario,
+                    include: [{ model: Usuario, attributes: ['id_usuario'], include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido'] }] }]
+                },
+                Actividad,
+                {
+                    model: CalendarioEnsayo,
+                    include: [Ensayo]
+                }
+            ]
+        })
+
+        res.json(new response(true, string.get, null, event));
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
     CalendarioUsuario.findAll({
         where: {
             fk_id_usuario: req.params.fk_id_usuario,
             statusAccept: true,
             cierre_calendario: true
         },
-        include: [{
-            model: Calendario,
-            include: [CalendarioEnsayo, CalendarioUsuario]
-        }]
+        include: [Calendario]
     }).then(events => {
         res.json(events)
     }).catch(err => {
