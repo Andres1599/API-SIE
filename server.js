@@ -48,6 +48,7 @@ app.set('catalogo_ensayo', db.CatalogoEnsayo);
 app.set('catalogo_actividad', db.Actividad);
 app.set('calendario', db.Calendario);
 app.set('calendario_usuario', db.CalendarioUsuario);
+app.set('calendario_ensayo', db.CalendarioEnsayo);
 app.set('op', db.sequelize);
 app.use(bodyParser.urlencoded({
     extended: true
