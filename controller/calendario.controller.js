@@ -74,7 +74,7 @@ function getAllEventById(req, res, string, Calendario, CalendarioUsuario, Calend
         },
         include: [{
             model: Calendario,
-            include: [CalendarioEnsayo]
+            include: [CalendarioEnsayo, CalendarioUsuario]
         }]
     }).then(events => {
         res.json(events)
