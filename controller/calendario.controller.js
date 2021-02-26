@@ -23,7 +23,7 @@ module.exports = (app, string) => {
         refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
         close: (req, res) => { closeCalendar(req, res, string, Calendario) },
         search: (req, res) => { searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario) },
-        searchUser: (req, res) => { searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) },
+        searchUser: (req, res) => { getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         full: (req, res) => { fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) }
     }
 }
@@ -224,18 +224,29 @@ function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario
  * @param {*} string 
  * @param {*} Calendario 
  */
-function closeCalendar(req, res, string, Calendario) {
-    Calendario.bulkCreate(req.body.activities, {
-        updateOnDuplicate: ['status']
-    }).then((updated) => {
-        if (updated) {
-            res.json(new response(true, string.update, null, updated))
+async function closeCalendar(req, res, string, Calendario) {
+    try {
+        let events = req.body.activities;
+        let count = 0;
+        if (Array.isArray(events)) {
+            await events.forEach(async (event) => {
+                const updateEvent = await Calendario.update({
+                    status: true
+                }, {
+                    where: {
+                        id: event.fk_id_calendario
+                    }
+                })
+                count += 1
+            })
+            res.json(new response(true, string.update, null, true))
+
         } else {
-            res.json(new response(false, string.updateErr, null, updated))
+            res.json(new response(false, string.updateErr, null, null))
         }
-    }).catch(err => {
+    } catch (error) {
         res.json(new response(false, string.errCatch, err, null));
-    })
+    }
 }
 
 /**
@@ -299,54 +310,40 @@ function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequeli
     })
 }
 
-function searchCalendarPerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) {
-    const Op = op.Op
-    Calendario.findAll({
-        where: {
-            [Op.or]: {
-                end: {
-                    [Op.between]: [req.body.start, req.body.end]
-                },
-                start: {
-                    [Op.between]: [req.body.start, req.body.end]
-                }
-            },
-            status: false
-        },
-        include: [{
-            model: Actividad
-        },
-        {
-            model: Ensayo
-        },
-        {
-            model: CalendarioUsuario,
-            include: [
-                {
-                    model: Usuario,
-                    attributes: ['id_usuario'],
-                    include: [
-                        {
-                            model: DatosUsuario,
-                            attributes: ['nombre', 'apellido']
-                        }
-                    ]
-                }
-            ],
+async function getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) {
+    try {
+        const Op = op.Op
+        const events = await CalendarioUsuario.findAll({
             where: {
-                fk_id_usuario: req.body.fk_id_usuario
-            }
-        },
-        ]
-    }).then((events) => {
-        if (events) {
-            res.json(new response(true, string.getAll, null, events))
-        } else {
-            res.json(new response(false, string.getErr, null, events))
-        }
-    }).catch((err) => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
+                fk_id_usuario: req.body.fk_id_usuario,
+                statusAccept: true,
+                cierre_calendario: true
+            },
+            include: [{
+                model: Calendario,
+                where: {
+                    [Op.or]: {
+                        end: { [Op.between]: [req.body.start, req.body.end] },
+                        start: { [Op.between]: [req.body.start, req.body.end] }
+                    },
+                    status: false
+                },
+                include: [
+                    Actividad,
+                    { model: CalendarioEnsayo, include: [Ensayo] },
+                    {
+                        model: CalendarioUsuario,
+                        include: [{ model: Usuario, attributes: ['id_usuario'], include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido'] }] }],
+                    }
+                ]
+            }]
+        })
+
+        res.json(new response(true, string.getAll, null, events))
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null))
+    }
 }
 
 function fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) {
