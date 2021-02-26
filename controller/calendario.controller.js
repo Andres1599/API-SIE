@@ -224,18 +224,29 @@ function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario
  * @param {*} string 
  * @param {*} Calendario 
  */
-function closeCalendar(req, res, string, Calendario) {
-    Calendario.bulkCreate(req.body.activities, {
-        updateOnDuplicate: ['status']
-    }).then((updated) => {
-        if (updated) {
-            res.json(new response(true, string.update, null, updated))
+async function closeCalendar(req, res, string, Calendario) {
+    try {
+        let events = req.body.activities;
+        let count = 0;
+        if (Array.isArray(events)) {
+            await events.forEach(async (event) => {
+                const updateEvent = await Calendario.update({
+                    status: true
+                }, {
+                    where: {
+                        id: event.fk_id_calendario
+                    }
+                })
+                count += 1
+            })
+            res.json(new response(true, string.update, null, true))
+
         } else {
-            res.json(new response(false, string.updateErr, null, updated))
+            res.json(new response(false, string.updateErr, null, null))
         }
-    }).catch(err => {
+    } catch (error) {
         res.json(new response(false, string.errCatch, err, null));
-    })
+    }
 }
 
 /**
