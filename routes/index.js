@@ -228,6 +228,7 @@ module.exports = (app, str) => {
     routes.get('/calendario/event/:id', Middleware.verifyToken, CalendarioController.getById);
     routes.get('/calendario/:fk_id_usuario', Middleware.verifyToken, CalendarioController.getUserEventsById);
     routes.post('/calendario', Middleware.verifyToken, CalendarioController.create);
+    routes.put('/calendario', Middleware.verifyToken, CalendarioController.update);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
     routes.post('/calendario/usuario/', Middleware.verifyToken, CalendarioController.createUser);
     routes.post('/calendario/usuario/once/', Middleware.verifyToken, CalendarioController.createUserOnce);
