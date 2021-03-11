@@ -230,8 +230,9 @@ module.exports = (app, str) => {
     routes.post('/calendario', Middleware.verifyToken, CalendarioController.create);
     routes.put('/calendario', Middleware.verifyToken, CalendarioController.update);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
+    routes.delete('/calendario/usuario/:id', Middleware.verifyToken, CalendarioController.deleteUser);
+    routes.delete('/calendario/ensayo/:id', Middleware.verifyToken, CalendarioController.deleteEssay);
     routes.post('/calendario/usuario/', Middleware.verifyToken, CalendarioController.createUser);
-    routes.post('/calendario/usuario/once/', Middleware.verifyToken, CalendarioController.createUserOnce);
     routes.put('/calendario/accept/', Middleware.verifyToken, CalendarioController.accept);
     routes.put('/calendario/close/', Middleware.verifyToken, CalendarioController.close);
     routes.put('/calendario/refuse/', Middleware.verifyToken, CalendarioController.refuse);
