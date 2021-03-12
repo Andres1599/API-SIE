@@ -42,6 +42,8 @@ module.exports = (app, str) => {
     const EnsayoController = require('../controller/catalogo.ensayo.controller')(app, str);
     const ActividadController = require('../controller/actividad.controller')(app, str);
     const CalendarioController = require('../controller/calendario.controller')(app, str);
+    const CalendarioUsuarioController = require('../controller/calendario.usuario.controller')(app, str);
+    const CalendarioEnsayoController = require('../controller/calendario.ensayo.controller')(app, str);
 
     // migrations controls
     const MigrationController = require('../controller/migration.controller')(app, str);
@@ -230,9 +232,6 @@ module.exports = (app, str) => {
     routes.post('/calendario', Middleware.verifyToken, CalendarioController.create);
     routes.put('/calendario', Middleware.verifyToken, CalendarioController.update);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
-    routes.delete('/calendario/usuario/:id', Middleware.verifyToken, CalendarioController.deleteUser);
-    routes.delete('/calendario/ensayo/:id', Middleware.verifyToken, CalendarioController.deleteEssay);
-    routes.post('/calendario/usuario/', Middleware.verifyToken, CalendarioController.createUser);
     routes.put('/calendario/accept/', Middleware.verifyToken, CalendarioController.accept);
     routes.put('/calendario/close/', Middleware.verifyToken, CalendarioController.close);
     routes.put('/calendario/refuse/', Middleware.verifyToken, CalendarioController.refuse);
@@ -241,6 +240,14 @@ module.exports = (app, str) => {
     routes.post('/calendario/search/user', CalendarioController.searchUser);
     routes.post('/calendario/search/full', CalendarioController.full);
 
+    // routes from calendario usuarios
+    routes.post('/calendario/usuario/', Middleware.verifyToken, CalendarioUsuarioController.create);
+    routes.delete('/calendario/usuario/:id', Middleware.verifyToken, CalendarioUsuarioController.delete);
+
+    // router from calendario ensayos
+    routes.post('/calendario/ensayo/', Middleware.verifyToken, CalendarioEnsayoController.create);
+    routes.delete('/calendario/ensayo/:id', Middleware.verifyToken, CalendarioEnsayoController.delete);
+    
     // routes from migration
     routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
     routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);

@@ -17,9 +17,6 @@ module.exports = (app, string) => {
         create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         update: (req, res) => { updateEvent(req, res, string, response, Calendario) },
         delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
-        deleteUser: (req, res) => { deleteUserEvent(req, res, string, response, CalendarioUsuario) },
-        deleteEssay: (req, res) => { deleteEssayEvent(req, res, string, response, CalendarioEnsayo) },
-        createUser: (req, res) => { createCalendarUser(req, res, CalendarioUsuario, string) },
         accept: (req, res) => { acceptEvent(req, res, CalendarioUsuario, string) },
         getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
         refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
@@ -56,34 +53,6 @@ async function deleteEvent(req, res, string, response, Calendario, CalendarioUsu
         res.json(new response(true, string.delete, null, deleteEvent));
 
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null));
-    }
-}
-
-async function deleteUserEvent(req, res, string, response, CalendarioUsuario) {
-    try {
-        const idUserEvent = req.params.id
-
-        const deleteEventUser = await CalendarioUsuario.destroy({ where: { id_calendario_usuario: idUserEvent } })
-
-        res.json(new response(true, string.delete, null, deleteEventUser));
-
-    } catch (error) {
-        console.log(error);
-        res.json(new response(false, string.errCatch, error, null));
-    }
-}
-
-async function deleteEssayEvent(req, res, string, response, CalendarioEnsayo) {
-    try {
-        const idEssayEvent = req.params.id
-
-        const deleteEventEssay = await CalendarioEnsayo.destroy({ where: { id: idEssayEvent } })
-
-        res.json(new response(true, string.delete, null, deleteEventEssay));
-
-    } catch (error) {
-        console.log(error);
         res.json(new response(false, string.errCatch, error, null));
     }
 }
@@ -157,23 +126,6 @@ function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
     }).catch(err => {
         res.json(new response(false, string.errCatch, err, null));
     })
-}
-
-async function createCalendarUser(req, res, CalendarioUsuario, string) {
-    try {
-
-        const calendarioUsuario = await CalendarioUsuario.create({
-            cierre_calendario: true,
-            fk_id_calendario: req.body.fk_id_calendario,
-            fk_id_usuario: req.body.fk_id_usuario,
-            statusAccept: false,
-        })
-
-        res.json(new response(true, string.create, null, calendarioUsuario))
-
-    } catch (error) {
-        res.json(new response(false, string.errCatch, err, null))
-    }
 }
 
 function acceptEvent(req, res, CalendarioUsuario, string) {
