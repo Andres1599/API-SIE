@@ -10,7 +10,7 @@ module.exports = (app, str) => {
     const sequelize = app.get('op')
 
     return {
-        create: (req, res) => { newSubCuentas(subCuentas, req, res); },
+        create: (req, res) => { newSubCuentas(req, res, subCuentas) },
         update: (req, res) => { updateSubCuentas(subCuentas, req, res); },
         delete: (req, res) => { deleteSubCuentas(subCuentas, req, res); },
         getById: (req, res) => { getSubCuentasById(subCuentas, req, res); },
@@ -19,23 +19,21 @@ module.exports = (app, str) => {
     }
 }
 
-function newSubCuentas(subCuentas, req, res) {
-    subCuentas.create({
-        cuenta_contable: req.body.cuenta_contable,
-        fk_id_cuenta: req.body.fk_id_cuenta,
-        fk_id_moneda: req.body.fk_id_moneda,
-        fk_id_tipo_cuenta: req.body.fk_id_tipo_cuenta,
-        fk_id_empresa: req.body.fk_id_empresa,
-    }).then(function (response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "Error al crear una nueva subcuenta",
-                created: false
-            });
-        }
-    });
+async function newSubCuentas(req, res, subCuentas) {
+    try {
+        const newSubAccount = await subCuentas.create({
+            cuenta_contable: req.body.cuenta_contable,
+            fk_id_cuenta: req.body.fk_id_cuenta,
+            fk_id_moneda: req.body.fk_id_moneda,
+            fk_id_tipo_cuenta: req.body.fk_id_tipo_cuenta,
+            fk_id_empresa: req.body.fk_id_empresa,
+        })
+
+        res.json(new response(false, str.create, null, newSubAccount))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
 function deleteSubCuentas(subCuentas, req, res) {
@@ -146,7 +144,6 @@ async function getCuentasByTecnicos(req, res, str, cuenta, subCuentas, tipoCuent
         res.json(new response(true, str.getAll, null, subAccounta))
 
     } catch (error) {
-        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
     }
 }
