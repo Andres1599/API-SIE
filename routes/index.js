@@ -17,7 +17,7 @@ module.exports = (app, str) => {
     const MonedaController = require('../controller/moneda.controller')(app);
     const EmpresaMonedaController = require('../controller/empresa.moneda.controller')(app);
     // account controls
-    const CuentaController = require('../controller/cuenta.controller')(app);
+    const CuentaController = require('../controller/cuenta.controller')(app, str);
     const SubCuentaController = require('../controller/subcuenta.contoller')(app, str);
     // deposit controls
     const DepositoController = require('../controller/desposito.controller')(app, str);
@@ -115,7 +115,7 @@ module.exports = (app, str) => {
 
     // routes from cuenta
     routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll);
-    routes.get('/cuentas/id', Middleware.verifyToken, CuentaController.getById);
+    routes.get('/cuentas/:id', Middleware.verifyToken, CuentaController.getById);
     routes.delete('/cuentas/id', Middleware.verifyToken, CuentaController.delete);
     routes.put('/cuentas/id', Middleware.verifyToken, CuentaController.update);
     routes.post('/cuentas', Middleware.verifyToken, CuentaController.create);
@@ -247,7 +247,7 @@ module.exports = (app, str) => {
     // router from calendario ensayos
     routes.post('/calendario/ensayo/', Middleware.verifyToken, CalendarioEnsayoController.create);
     routes.delete('/calendario/ensayo/:id', Middleware.verifyToken, CalendarioEnsayoController.delete);
-    
+
     // routes from migration
     routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
     routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);
