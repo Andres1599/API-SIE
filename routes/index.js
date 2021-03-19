@@ -114,15 +114,15 @@ module.exports = (app, str) => {
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
 
     // routes from cuenta
-    routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll);
-    routes.get('/cuentas/:id', Middleware.verifyToken, CuentaController.getById);
-    routes.delete('/cuentas/id', Middleware.verifyToken, CuentaController.delete);
-    routes.put('/cuentas/id', Middleware.verifyToken, CuentaController.update);
-    routes.post('/cuentas', Middleware.verifyToken, CuentaController.create);
+    routes.get('/cuentas/', Middleware.verifyToken, CuentaController.getAll)
+    routes.get('/cuentas/:id', Middleware.verifyToken, CuentaController.getById)
+    routes.delete('/cuentas/id', Middleware.verifyToken, CuentaController.delete)
+    routes.post('/cuentas', Middleware.verifyToken, CuentaController.create)
 
     // routes from subcuentas
+    routes.post('/sub/cuenta/', SubCuentaController.create);
+    routes.put('/sub/cuenta/', SubCuentaController.update);
     routes.post('/sub/cuenta/orden', SubCuentaController.getByOrder);
-
 
     //routes from deposito
     routes.post('/deposito', Middleware.verifyToken, DepositoController.create);

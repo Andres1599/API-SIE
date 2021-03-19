@@ -20,6 +20,10 @@ module.exports = (sequelize, type, assosiationUser, assosiationCompany, assosiat
         estado: {
             type: type.INTEGER,
             allowNull: true
+        },
+        cambio: {
+            type: type.FLOAT,
+            allowNull: true
         }
     }, {
         freezeTableName: true,

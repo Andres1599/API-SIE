@@ -196,7 +196,8 @@ async function newLiquidacion(liquidacion, req, res) {
             id_tipo_liquidacion: req.body.id_tipo_liquidacion,
             id_liquidacion: (idMax * 1 + 1),
             fecha: new Date(),
-            estado: false
+            estado: false,
+            cambio: 0
         }).then(response => {
             if (response) {
                 res.json(response);
