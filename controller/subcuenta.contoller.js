@@ -12,7 +12,7 @@ module.exports = (app, str) => {
     return {
         create: (req, res) => { createSubCuentas(req, res, str, subCuentas) },
         update: (req, res) => { updateSubCuentas(req, res, str, subCuentas) },
-        getById: (req, res) => { getSubCuentasById(subCuentas, req, res) },
+        getById: (req, res) => { getSubCuentasByIdUser(req, res, str, cuenta, subCuentas, tipoCuenta, moneda, empresa) },
         getByOrder: (req, res) => { getCuentasByTecnicos(req, res, str, cuenta, subCuentas, tipoCuenta, moneda, empresa, sequelize) }
     }
 }
@@ -52,25 +52,28 @@ async function updateSubCuentas(req, res, str, subCuentas) {
     }
 }
 
-function getSubCuentasById(subCuentas, req, res) {
-    subCuentas.findOne({
-        where: {
-            id_cuenta_empresa: req.params.id_cuenta_empresa
-        }
-    }).then(function (response) {
-        if (response) {
-            res.json(response);
+async function getSubCuentasByIdUser(req, res, str, cuenta, subCuentas, tipoCuenta, moneda, empresa) {
+    try {
+        const cuentas = await cuenta.findOne({
+            where: {
+                fk_id_usuario: req.params.id
+            },
+            include: [{
+                model: subCuentas,
+                include: [tipoCuenta, moneda, empresa]
+            }]
+        })
+
+        if (cuentas.hasOwnProperty('subcuentas')) {
+            res.json(new response(true, str.getAll, null, cuentas.subcuentas))
         } else {
-            res.json({
-                message: "No hemos podido encontrar la subcuenta"
-            });
+            res.json(new response(true, str.getAll, null, []))
         }
-    }).catch(function (err) {
-        res.json({
-            message: "No hemos podido encontrar la subcuenta",
-            error: err
-        });
-    });
+
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
 async function getCuentasByTecnicos(req, res, str, cuenta, subCuentas, tipoCuenta, moneda, empresa, sequelize) {

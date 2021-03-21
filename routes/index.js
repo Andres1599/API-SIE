@@ -120,9 +120,10 @@ module.exports = (app, str) => {
     routes.post('/cuentas', Middleware.verifyToken, CuentaController.create)
 
     // routes from subcuentas
-    routes.post('/sub/cuenta/', SubCuentaController.create);
-    routes.put('/sub/cuenta/', SubCuentaController.update);
-    routes.post('/sub/cuenta/orden', SubCuentaController.getByOrder);
+    routes.get('/sub/cuenta/:id', Middleware.verifyToken, SubCuentaController.getById);
+    routes.post('/sub/cuenta/', Middleware.verifyToken, SubCuentaController.create);
+    routes.put('/sub/cuenta/', Middleware.verifyToken, SubCuentaController.update);
+    routes.post('/sub/cuenta/orden', Middleware.verifyToken, SubCuentaController.getByOrder);
 
     //routes from deposito
     routes.post('/deposito', Middleware.verifyToken, DepositoController.create);
