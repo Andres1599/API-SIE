@@ -36,6 +36,8 @@ module.exports = (app, str) => {
     const OrdenPresupuestoController = require('../controller/orden.presupuesto.controller')(app, str);
     const OrdenUsersController = require('../controller/orden.usuario.controller')(app, str);
     const OrdenOrderController = require('../controller/orden.ordenes.controller')(app, str);
+    const OrdenLiquidationController = require('../controller/orden.liquidacion.controller')(app, str);
+
     // country controls
     const PaisController = require('../controller/pais.controller')(app, str);
     // calendar controls
@@ -183,6 +185,10 @@ module.exports = (app, str) => {
     //routes from orden deposito
     routes.post('/orden/deposito', Middleware.verifyToken, OrdenDepositoController.create);
     routes.delete('/orden/deposito/:id/:id_deposito', Middleware.verifyToken, OrdenDepositoController.delete);
+
+    //routes from orden liquidation
+    routes.post('/orden/liquidation', Middleware.verifyToken, OrdenLiquidationController.create);
+    routes.delete('/orden/liquidation/:id', Middleware.verifyToken, OrdenLiquidationController.delete);
 
     //routes from orden usuario
     routes.post('/orden/usuario/', Middleware.verifyToken, OrdenUsersController.create);
