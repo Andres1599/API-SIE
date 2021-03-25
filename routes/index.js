@@ -189,6 +189,7 @@ module.exports = (app, str) => {
     //routes from orden liquidation
     routes.post('/orden/liquidation', Middleware.verifyToken, OrdenLiquidationController.create);
     routes.delete('/orden/liquidation/:id', Middleware.verifyToken, OrdenLiquidationController.delete);
+    routes.post('/orden/liquidation/search', Middleware.verifyToken, OrdenLiquidationController.getByUserOrder);
 
     //routes from orden usuario
     routes.post('/orden/usuario/', Middleware.verifyToken, OrdenUsersController.create);

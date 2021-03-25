@@ -1,5 +1,6 @@
 const response = require('../response/response')
 module.exports = function (app, str) {
+
     const orderPerDiem = app.get('orden_viaticos');
     const orderDeposit = app.get('orden_deposito')
     const orderLiquidation = app.get('orden_liquidacion')
@@ -12,7 +13,7 @@ module.exports = function (app, str) {
     const user = app.get('usuario')
     const userData = app.get('usuario_datos')
     const deposito = app.get('deposito')
-
+    const liquidation = app.get('liquidacion')
 
     return {
         createOrder: (req, res, next) => {
@@ -37,7 +38,7 @@ module.exports = function (app, str) {
             deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem)
         },
         getById: (req, res) => {
-            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito)
+            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito, liquidation)
         },
         getAll: (req, res) => {
             getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
@@ -342,7 +343,7 @@ function addHours(date) {
     return dateOut
 }
 
-async function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito) {
+async function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito, liquidation) {
 
     try {
 
@@ -353,18 +354,21 @@ async function getByIdFull(req, res, str, ordenViaticos, orderDeposit, orderLiqu
             include: [
                 ordersPerDiem,
                 budgetPerDiem,
-                orderLiquidation,
                 country,
                 company,
                 coin,
                 { model: usersPerDiem, include: [{ model: user, include: [userData] }] },
                 { model: orderDeposit, include: [{ model: deposito, include: [coin] }] },
+                {
+                    model: orderLiquidation, include: [{ model: liquidation, include: [coin, { model: user, include: [userData] }] }]
+                },
             ]
         })
 
         res.json(new response(true, str.get, null, ordenes))
 
     } catch (error) {
+        console.log(error)
         res.json(new response(false, str.errCatch, err.message, null))
     }
 }
