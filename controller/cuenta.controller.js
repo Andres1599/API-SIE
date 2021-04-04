@@ -1,30 +1,24 @@
-module.exports = function (app) {
-    const cuentas = app.get('cuenta');
-    const usuario = app.get('usuario');
-    const datos_usuario = app.get('usuario_datos');
-    const sub_cuenta = app.get('subcuenta');
+module.exports = (app, str) => {
+    const Cuentas = app.get('cuenta');
+    const Usuarios = app.get('usuario');
+    const DatosUsuarios = app.get('usuario_datos');
+    const SubCuentas = app.get('subcuenta');
+    const Empresa = app.get('empresa')
+    const Moneda = app.get('moneda')
+    const TipoCuenta = app.get('tipo_cuenta')
+    const response = require('../response/response')
+
     return {
-        create: (req, res) => {
-            newCuenta(cuentas, req, res);
-        },
-        update: (req, res) => {
-            updateCuenta(cuentas, req, res);
-        },
-        delete: (req, res) => {
-            deleteCuenta(cuentas, req, res);
-        },
-        getById: (req, res) => {
-            getCuentasById(cuentas, req, res);
-        },
-        getAll: (req, res) => {
-            getAllCuentas(cuentas, usuario, datos_usuario, sub_cuenta, req, res);
-        }
+        create: (req, res) => { newCuenta(Cuentas, req, res) },
+        delete: (req, res) => { deleteCuenta(Cuentas, req, res) },
+        getAll: (req, res) => { getAllCuentas(req, res, str, response, Cuentas, Usuarios, DatosUsuarios) },
+        getById: (req, res) => { getCuentasById(req, res, str, response, Cuentas, SubCuentas, Empresa, Moneda, TipoCuenta, Usuarios, DatosUsuarios) },
     }
 }
 
-function newCuenta(cuentas, req, res) {
-    cuentas.create({
-        fk_id_usuario: req.body.id_usuario,
+async function newCuenta(Cuentas, req, res) {
+    Cuentas.create({
+        fk_id_Usuarios: req.body.id_Usuarios,
     }).then(function (response) {
         if (response) {
             res.json(response);
@@ -37,14 +31,14 @@ function newCuenta(cuentas, req, res) {
     });
 }
 
-function deleteCuenta(cuentas, req, res) {
-    cuentas.findOne({
+function deleteCuenta(Cuentas, req, res) {
+    Cuentas.findOne({
         where: {
             id_cuenta: req.body.id_cuenta
         }
     }).then(function (response) {
         if (response) {
-            cuentas.destroy({
+            Cuentas.destroy({
                 where: {
                     id_cuenta: req.body.id_cuenta
                 }
@@ -69,56 +63,26 @@ function deleteCuenta(cuentas, req, res) {
     });
 }
 
-function updateCuenta(cuentas, req, res) {
-    cuentas.update({
-        fk_id_usuario: req.body.id_usuario,
-    }, {
-        where: {
-            id_cuenta: req.body.id_cuenta
-        }
-    }).then(function (update) {
-        res.json(update);
-    }).catch(function (err) {
-        res.json({
-            message: 'Error al procesar la petición',
-            error: err
-        });
-    })
+async function getAllCuentas(req, res, str, response, Cuentas, Usuarios, DatosUsuarios) {
+    try {
+        const cuentas = await Cuentas.findAll({ include: [{ model: Usuarios, include: [DatosUsuarios] }] })
+        res.json(new response(true, str.get, null, cuentas))
+    } catch (error) {
+        res.json(new response(false, str.errCatch, null, error))
+    }
 }
 
-function getCuentasById(cuentas, req, res) {
-    cuentas.findOne({
-        where: {
-            id_cuenta: req.params.id_cuenta
-        }
-    }).then(function (response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "No hemos podido encontrar al cuenta"
-            });
-        }
-    }).catch(function (err) {
-        res.json({
-            message: "No hemos podido encontrar al cuenta",
-            error: err
-        });
-    });
-}
-
-function getAllCuentas(cuentas, usuario, datos_usuario, sub_cuenta, req, res) {
-    cuentas.findAll({
-        include: [
-            {
-                model: usuario,
-                include: [datos_usuario]
-            },
-            {
-                model: sub_cuenta
-            }
-        ]
-    }).then(function (response) {
-        res.json(response);
-    });
+async function getCuentasById(req, res, str, response, Cuentas, SubCuentas, Empresa, Moneda, TipoCuenta, Usuario, DatosUsuario) {
+    try {
+        const idCuenta = req.params.id
+        const cuenta = await Cuentas.findByPk(idCuenta, {
+            include: [
+                { model: SubCuentas, include: [Empresa, Moneda, TipoCuenta] },
+                { model: Usuario, include: [DatosUsuario] }
+            ]
+        })
+        res.json(new response(true, str.get, null, cuenta))
+    } catch (error) {
+        res.json(new response(false, str.errCatch, null, error))
+    }
 }

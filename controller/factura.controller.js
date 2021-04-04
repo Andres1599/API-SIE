@@ -6,27 +6,14 @@ module.exports = (app, str) => {
     const gasto = app.get('subgasto');
     const op = app.get('op')
     return {
-        create: (req, res) => {
-            newFactura(facturas, req, res);
-        },
-        update: (req, res) => {
-            updateFactura(req, res, str, facturas);
-        },
-        delete: (req, res) => {
-            deleteFactura(req, res, facturas, str)
-        },
-        getById: (req, res) => {
-            getFacturasById(facturas, req, res);
-        },
-        getAll: (req, res) => {
-            getAllFacturas(facturas, req, res);
-        },
-        getByIdUser: (req, res) => {
-            getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res);
-        },
-        getByDate: (req, res) => {
-            getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res, op);
-        }
+        create: (req, res) => { newFactura(facturas, req, res); },
+        bulkCreate: (req, res) => { bulkCreateFactura(req, res, str, facturas) },
+        update: (req, res) => { updateFactura(req, res, str, facturas); },
+        delete: (req, res) => { deleteFactura(req, res, facturas, str) },
+        getById: (req, res) => { getFacturasById(facturas, req, res); },
+        getAll: (req, res) => { getAllFacturas(facturas, req, res); },
+        getByIdUser: (req, res) => { getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res); },
+        getByDate: (req, res) => { getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res, op); }
     }
 }
 
@@ -60,6 +47,19 @@ function newFactura(facturas, req, res) {
             });
         }
     });
+}
+
+async function bulkCreateFactura(req, res, str, facturas) {
+    try {
+
+        const arrayFacturas = req.body.data
+        const newFacturas = await facturas.bulkCreate(arrayFacturas)
+
+        res.json(new response(true, str.create, null, newFacturas))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
 async function getById(id, facturas) {

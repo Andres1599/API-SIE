@@ -15,9 +15,8 @@ module.exports = (app, string) => {
         getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
         getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
+        update: (req, res) => { updateEvent(req, res, string, response, Calendario) },
         delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
-        createUser: (req, res) => { createCalendarUser(req, res, CalendarioUsuario, string) },
-        createUserOnce: (req, res) => { createCalendarUserOnce(req, res, CalendarioUsuario, string) },
         accept: (req, res) => { acceptEvent(req, res, CalendarioUsuario, string) },
         getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
         refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
@@ -55,6 +54,31 @@ async function deleteEvent(req, res, string, response, Calendario, CalendarioUsu
 
     } catch (error) {
         res.json(new response(false, string.errCatch, error, null));
+    }
+}
+
+async function updateEvent(req, res, string, response, Calendario) {
+    try {
+
+        const event = req.body;
+
+        const updateEvent = await Calendario.update({
+            title: event.title,
+            start: event.start,
+            end: event.end,
+            client: event.client,
+            noOrder: event.noOrder,
+            fk_id_actividad: event.fk_id_actividad
+        }, {
+            where: {
+                id: req.body.id
+            }
+        })
+
+        res.json(new response(true, string.update, null, updateEvent))
+
+    } catch (error) {
+        res.json(new response(false, string.errCatch, error, null))
     }
 }
 
@@ -100,48 +124,6 @@ function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
     }).then(events => {
         res.json(events)
     }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-function createCalendarUser(req, res, CalendarioUsuario, string) {
-
-    const records = req.body.data;
-
-    if (!records) {
-        res.json(new response(false, string.errEmpty, null, null))
-    }
-
-    CalendarioUsuario.bulkCreate(records, {}).then((status) => {
-        if (status) {
-            res.json(new response(true, string.create, null, status))
-        } else {
-            res.json(new response(false, string.createErr, null, status))
-        }
-    }).catch((err) => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-function createCalendarUserOnce(req, res, CalendarioUsuario, string) {
-    const records = req.body;
-
-    if (!records) {
-        res.json(new response(false, string.errEmpty, null, null))
-    }
-
-    CalendarioUsuario.create({
-        cierre_calendario: records.cierre_calendario,
-        fk_id_calendario: records.fk_id_calendario,
-        fk_id_usuario: records.fk_id_usuario,
-        statusAccept: records.statusAccept,
-    }).then((status) => {
-        if (status) {
-            res.json(new response(true, string.create, null, status))
-        } else {
-            res.json(new response(false, string.createErr, null, status))
-        }
-    }).catch((err) => {
         res.json(new response(false, string.errCatch, err, null));
     })
 }
