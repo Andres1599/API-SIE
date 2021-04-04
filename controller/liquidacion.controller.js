@@ -1,4 +1,5 @@
 const response = require('../response/response')
+
 module.exports = (app, str) => {
 
     const liquidacion = app.get('liquidacion');
@@ -13,7 +14,7 @@ module.exports = (app, str) => {
     const tipoDocumento = app.get('tipo_documento');
 
     return {
-        create: (req, res) => { newLiquidacion(liquidacion, req, res); },
+        create: (req, res) => { newLiquidacion(req, res, str, liquidacion) },
         update: (req, res) => { updateLiquidacion(liquidacion, req, res); },
         updateId: (req, res) => { updateCorrelativo(req, res, liquidacion, str) },
         updateFecha: (req, res) => { updateFechaLiquidacion(req, res, str, liquidacion) },
@@ -160,12 +161,12 @@ async function getMaxId(liquidacion, id) {
     }
 }
 
-async function newLiquidacion(liquidacion, req, res) {
+async function newLiquidacion(req, res, str, liquidacion) {
     try {
 
         const idMax = await getMaxId(liquidacion, req.body.id_usuario)
 
-        liquidacion.create({
+        const newLiquidation = await liquidacion.create({
             id_usuario: req.body.id_usuario,
             id_empresa: req.body.id_empresa,
             id_moneda: req.body.id_moneda,
@@ -174,17 +175,12 @@ async function newLiquidacion(liquidacion, req, res) {
             fecha: new Date(),
             estado: false,
             cambio: 0
-        }).then(response => {
-            if (response) {
-                res.json(response);
-            } else {
-                res.json({
-                    create: false
-                });
-            }
-        });
+        })
+
+        res.json(new response(true, str.create, null, newLiquidation));
+
     } catch (error) {
-        res.json(error);
+        res.json(new response(false, str.errCatch, error, null));
     }
 }
 

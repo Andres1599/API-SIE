@@ -146,6 +146,7 @@ module.exports = (app, str) => {
     routes.delete('/facturas/:id', FacturaController.delete);
     routes.put('/facturas/id', Middleware.verifyToken, FacturaController.update);
     routes.post('/facturas', Middleware.verifyToken, FacturaController.create);
+    routes.post('/facturas/bunch', Middleware.verifyToken, FacturaController.bulkCreate);
     routes.post('/facturas/usuario', Middleware.verifyToken, FacturaController.getByIdUser);
     routes.post('/facturas/dates', Middleware.verifyToken, FacturaController.getByDate);
 
