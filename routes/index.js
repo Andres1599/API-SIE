@@ -60,7 +60,6 @@ module.exports = (app, str) => {
 
     //routes usuario
     routes.post('/usuario/new', Middleware.verifyToken, UsuarioController.create);
-    routes.post('/usuario/pass', Middleware.verifyToken, UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.findByEmail, UsuarioController.login);
     routes.put('/usuario/pass', Middleware.verifyToken, UsuarioController.update);
 

@@ -10,7 +10,6 @@ module.exports = (app, str) => {
 
     return {
         create: (req, res) => { createUsuario(usuario, datosUsuario, req, res, str) },
-        updatePassword: (req, res) => { changePassword(usuario, req, res, str) },
         findByEmail: (req, res, next) => { findUserByEmail(req, res, next, str, usuario, datosUsuario) },
         login: (req, res) => { login(req, res, str) },
         update: (req, res) => { updateUserAdmin(req, res, str, usuario) }
@@ -58,57 +57,6 @@ async function createUsuario(usuario, datosUsuario, req, res, str) {
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }
-}
-
-function changePassword(usuario, req, res, str) {
-
-    const hash = utiles.encrypt(req.body.new_pass)
-
-    if (!hash) {
-        res.json({
-            message: str.updateErr
-        })
-    }
-
-    usuario.findOne({
-        where: {
-            email: req.body.email
-        }
-    }).then(user => {
-        if (user) {
-            let pass = utiles.decrypt(req.body.old_pass, user.password)
-            if (pass) {
-                return usuario.update({
-                    password: hash
-                }, {
-                    where: {
-                        id_usuario: user.id_usuario
-                    }
-                })
-            } else {
-                res.json({
-                    message: 'El password antiguo no es correcto',
-                    update: false
-                })
-            }
-        }
-    })
-        .then(update => {
-            if (update) {
-                res.json({
-                    message: str.update,
-                    update: true
-                })
-            }
-        })
-        .catch(err => {
-            if (err)
-                res.json({
-                    message: str.updateErr,
-                    error: err,
-                    updated: false
-                })
-        })
 }
 
 function findUserByEmail(req, res, next, str, usuario, datosUsuario) {
