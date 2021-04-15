@@ -7,7 +7,7 @@ module.exports = (app, str) => {
     const UsuarioController = require('../controller/usuario.controller')(app, str);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app, str);
     const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app, str);
-    const AdminGetController = require('../controller/admin.controller')(app);
+    const AdminGetController = require('../controller/admin.controller')(app, str);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     // bank controls
     const BancosController = require('../controller/banco.controller')(app);
@@ -62,8 +62,7 @@ module.exports = (app, str) => {
     routes.post('/usuario/new', Middleware.verifyToken, UsuarioController.create);
     routes.post('/usuario/pass', Middleware.verifyToken, UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.findByEmail, UsuarioController.login);
-    routes.post('/usuario/forget', Middleware.verifyToken, UsuarioController.forgetPass);
-    routes.put('/usuario/pass', Middleware.verifyToken, UsuarioController.password);
+    routes.put('/usuario/pass', Middleware.verifyToken, UsuarioController.update);
 
     //routes usuario dato
     routes.get('/usuario/:id', Middleware.verifyToken, UsuarosDatosController.getById);
