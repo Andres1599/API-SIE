@@ -26,7 +26,7 @@ module.exports = (app, str) => {
     const SubGastosController = require('../controller/subgasto.controller')(app, str);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     // liquidation controls
-    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
+    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app, str);
     const FacturaController = require('../controller/factura.controller')(app, str);
     const LiquidationController = require('../controller/liquidacion.controller')(app, str);
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
@@ -167,11 +167,7 @@ module.exports = (app, str) => {
     routes.post('/gastos/tipo/usuario/', Middleware.verifyToken, GastosTipoUsuarioController.create);
 
     //routes from liquidacion factura
-    routes.get('/liquidacionfactura/', Middleware.verifyToken, LiquidacionFacturaController.getAll);
-    routes.get('/liquidacionfactura/id', Middleware.verifyToken, LiquidacionFacturaController.getById);
-    routes.delete('/liquidacionfactura/id', Middleware.verifyToken, LiquidacionFacturaController.delete);
-    routes.put('/liquidacionfactura/id', Middleware.verifyToken, LiquidacionFacturaController.update);
-    routes.post('/liquidacionfactura', Middleware.verifyToken, LiquidacionFacturaController.create);
+    routes.post('/liquidacion/factura', Middleware.verifyToken, LiquidacionFacturaController.create);
 
     //routes from per diem
     routes.get('/ordenes/', Middleware.verifyToken, OrdenController.getAll);
