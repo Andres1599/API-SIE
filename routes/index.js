@@ -139,8 +139,6 @@ module.exports = (app, str) => {
     routes.post('/empresamonedas', Middleware.verifyToken, EmpresaMonedaController.create);
 
     //routes from facturas
-    routes.get('/facturas/', Middleware.verifyToken, FacturaController.getAll);
-    routes.get('/facturas/id', Middleware.verifyToken, FacturaController.getById);
     routes.delete('/facturas/:id', FacturaController.delete);
     routes.put('/facturas/id', Middleware.verifyToken, FacturaController.update);
     routes.post('/facturas', Middleware.verifyToken, FacturaController.create);
