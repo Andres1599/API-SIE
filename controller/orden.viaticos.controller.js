@@ -16,73 +16,41 @@ module.exports = function (app, str) {
     const liquidation = app.get('liquidacion')
 
     return {
-        createOrder: (req, res, next) => {
-            createOrder(req, res, next, str, orderPerDiem)
-        },
-        createOrderBudget: (req, res, next) => {
-            createBudget(req, res, next, str, budgetPerDiem)
-        },
-        createOrderUsers: (req, res, next) => {
-            createUsers(req, res, str, next, usersPerDiem)
-        },
-        createOrderOrders: (req, res, next) => {
-            createOrders(req, res, next, str, ordersPerDiem)
-        },
-        create: (req, res) => {
-            createPerDiem(req, res, str)
-        },
-        update: (req, res) => {
-            updateOrder(req, res, str, orderPerDiem)
-        },
-        delete: (req, res) => {
-            deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem)
-        },
-        getById: (req, res) => {
-            getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito, liquidation)
-        },
+        createOrder: (req, res, next) => { createOrder(req, res, next, str, orderPerDiem) },
+        create: (req, res) => { createPerDiem(req, res, str) },
+        update: (req, res) => { updateOrder(req, res, str, orderPerDiem) },
+        delete: (req, res) => { deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem) },
+        getById: (req, res) => { getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito, liquidation) },
         getAll: (req, res) => {
             getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
         },
-        getAllClient: (req, res) => {
-            getAllClientName(req, res, str, orderPerDiem)
-        },
-        max: (req, res, next) => {
-            correlativeCompany(req, res, next, str, orderPerDiem)
-        }
+        getAllClient: (req, res) => { getAllClientName(req, res, str, orderPerDiem) }
     }
 }
 
-/**
- * @description create header order
- * @param {*} req 
- * @param {*} res 
- * @param {*} str 
- * @param {*} ordenViaticos 
- */
-function createOrder(req, res, next, str, orderPerDiem) {
-    let orderBroadcast = req.body
-    let orderReq = req.body.order
+async function createOrder(req, res, str, orderPerDiem) {
+    try {
+        const orden = req.body;
 
-    orderPerDiem.create({
-        fecha: new Date(),
-        fecha_salida: addHours(orderReq.fecha_salida),
-        fecha_regreso: addHours(orderReq.fecha_regreso),
-        cliente: orderReq.cliente.cliente,
-        correlativo: orderReq.correlativo,
-        status: false,
-        fk_id_empresa: orderReq.empresa_moneda.empresa.id_empresa,
-        fk_id_pais: orderReq.pais.id_pais,
-        fk_id_moneda: orderReq.empresa_moneda.moneda.fk_id_moneda
-    }).then(header => {
-        if (header) {
-            req.body = transformData(orderBroadcast, header.id_orden_viaticos)
-            next();
-        } else {
-            res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
-        }
-    }).catch(err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
-    })
+        const correlativo = await orderPerDiem.max('correlativo', { where: { fk_id_empresa: orden.fk_id_empresa } })
+
+        const newOrdenViaticos = await orderPerDiem.create({
+            fecha: new Date(),
+            fecha_salida: addHours(orden.fecha_salida),
+            fecha_regreso: addHours(orden.fecha_regreso),
+            cliente: orden.cliente,
+            correlativo: ((correlativo * 1) + 1),
+            status: false,
+            fk_id_empresa: orden.fk_id_empresa,
+            fk_id_pais: orden.fk_id_pais,
+            fk_id_moneda: orden.fk_id_moneda
+        });
+
+        res.json(new response(true, str.create, null, newOrdenViaticos))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
 /**
@@ -135,90 +103,6 @@ function transformData(orderBroadcast, id) {
     } catch (error) {
         console.error(error)
         return null
-    }
-}
-
-/**
- * @description create budget per diem
- * @param {*} req 
- * @param {*} res 
- * @param {*} str 
- * @param {*} next 
- * @param {*} budget 
- */
-function createBudget(req, res, next, str, budget) {
-    let orderBroadcast = req.body
-    budget.bulkCreate(orderBroadcast.budget).then(budgets => {
-        if (budgets) {
-            req.body = {
-                orders: orderBroadcast.orders,
-                users: orderBroadcast.users
-            }
-            next()
-        } else {
-            res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
-        }
-    }).catch(err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
-    })
-}
-
-/**
- * @description create users per diem
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @param {*} users 
- */
-function createUsers(req, res, str, next, users) {
-    let orderBroadcast = req.body;
-
-    users.bulkCreate(orderBroadcast.users).then(user => {
-        if (user) {
-            req.body = {
-                orders: orderBroadcast.orders,
-            }
-            next()
-        } else {
-            res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
-        }
-    }).catch(err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
-    })
-
-}
-
-/**
- * @description create orders per diem
- * @param {*} req 
- * @param {*} res `
- * @param {*} next 
- * @param {*} str 
- * @param {*} orders 
- */
-function createOrders(req, res, next, str, orders) {
-    let orderBroadcast = req.body;
-    orders.bulkCreate(orderBroadcast.orders).then(order => {
-        if (order) {
-            req.body = {
-                create: true,
-            }
-            next()
-        } else {
-            res.status(400).json(new response(false, str.createErr, null, orderBroadcast))
-        }
-    }).catch(err => {
-        res.status(500).json(new response(false, str.errCatch, err.message, orderBroadcast))
-    })
-}
-
-
-function createPerDiem(req, res, str) {
-    let orderBroadcast = req.body;
-    if (orderBroadcast.create) {
-        res.status(201).json(new response(true, str.create, null, null))
-    } else {
-        res.status(400).json(new response(false, str.createErr, null, null))
     }
 }
 
@@ -297,43 +181,6 @@ function getAllClientName(req, res, str, orderPerDiem) {
         .catch(err => {
             res.json(new response(false, str.errCatch, err.message, null))
         })
-}
-
-/**
- *
- * @description get last correlative from order per diem
- * @param {*} req
- * @param {*} res
- * @param {*} str
- * @param {*} orderPerDiem
- */
-function correlativeCompany(req, res, next, str, orderPerDiem) {
-
-    let orderBroadcast = req.body;
-
-    if (!orderBroadcast.order) {
-        res.status(400).json(new response(false, str.paramsErr, err.message, orderBroadcast))
-    }
-
-    orderPerDiem.max('correlativo', {
-        where: {
-            fk_id_empresa: orderBroadcast.order.empresa_moneda.empresa.id_empresa
-        }
-    }).then(company => {
-
-        if (company) {
-
-            orderBroadcast.order.correlativo = ((company * 1) + 1);
-
-            req.body = orderBroadcast
-            next()
-        } else {
-            res.status(400).json(new response(false, str.getErr, err.message, orderBroadcast))
-        }
-
-    }).catch(err => {
-        res.json(new response(false, str.errCatch, err.message, null))
-    })
 }
 
 function addHours(date) {
