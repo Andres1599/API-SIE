@@ -1,6 +1,6 @@
 module.exports = (app, str) => {
     const Factura = app.get('factura')
-    const moneda = app.get('moneda')
+    const Moneda = app.get('moneda')
     const tipoDocumento = app.get('tipo_documento')
     const gasto = app.get('subgasto')
     const op = app.get('op')
@@ -10,7 +10,7 @@ module.exports = (app, str) => {
         bulkCreate: (req, res) => { bulkCreateFactura(req, res, str, response, Factura) },
         update: (req, res) => { updateFactura(req, res, str, response, Factura) },
         delete: (req, res) => { deleteFactura(req, res, str, response, Factura) },
-        getByIdUser: (req, res) => { getAllByUsuario(Factura, moneda, tipoDocumento, gasto, req, res) },
+        getByIdUser: (req, res) => { getAllByUsuario(Factura, Moneda, tipoDocumento, gasto, req, res) },
         getByDate: (req, res) => { getAllFacturaPerDates(req, res, str, response, Factura, Moneda, tipoDocumento, gasto, op) }
     }
 }

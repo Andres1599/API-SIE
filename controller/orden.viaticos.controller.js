@@ -63,7 +63,6 @@ function createOrder(req, res, next, str, orderPerDiem) {
     let orderBroadcast = req.body
     let orderReq = req.body.order
 
-
     orderPerDiem.create({
         fecha: new Date(),
         fecha_salida: addHours(orderReq.fecha_salida),
