@@ -47,6 +47,9 @@ module.exports = (app, str) => {
     const CalendarioUsuarioController = require('../controller/calendario.usuario.controller')(app, str);
     const CalendarioEnsayoController = require('../controller/calendario.ensayo.controller')(app, str);
 
+    // catalogo asuetos
+    const CatalogoAsuetosController = require('../controller/catalogo.asuetos.controller')(app, str);
+
     // migrations controls
     const MigrationController = require('../controller/migration.controller')(app, str);
 
@@ -248,6 +251,12 @@ module.exports = (app, str) => {
     // router from calendario ensayos
     routes.post('/calendario/ensayo/', Middleware.verifyToken, CalendarioEnsayoController.create);
     routes.delete('/calendario/ensayo/:id', Middleware.verifyToken, CalendarioEnsayoController.delete);
+
+    // router from catalogo de asuetos
+    routes.get('/asuetos', Middleware.verifyToken, CatalogoAsuetosController.getAll);
+    routes.post('/asuetos', Middleware.verifyToken, CatalogoAsuetosController.create);
+    routes.put('/asuetos', Middleware.verifyToken, CatalogoAsuetosController.update);
+    routes.delete('/asuetos/:id', Middleware.verifyToken, CatalogoAsuetosController.delete);
 
     // routes from migration
     routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
