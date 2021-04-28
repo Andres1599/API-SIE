@@ -50,6 +50,7 @@ app.set('calendario', db.Calendario);
 app.set('calendario_usuario', db.CalendarioUsuario);
 app.set('calendario_ensayo', db.CalendarioEnsayo);
 app.set('op', db.sequelize);
+app.set('catalogo_asuetos', db.CatalogoAsuetos);
 app.use(bodyParser.urlencoded({
     extended: true
 }));
