@@ -170,7 +170,7 @@ module.exports = (app, str) => {
     //routes from per diem
     routes.get('/ordenes/', Middleware.verifyToken, OrdenController.getAll);
     routes.get('/ordenes/clientes/', Middleware.verifyToken, OrdenController.getAllClient);
-    routes.post('/orden/', Middleware.verifyToken, OrdenController.createOrder);
+    routes.post('/orden/', Middleware.verifyToken, OrdenController.create);
     routes.get('/orden/:id', Middleware.verifyToken, OrdenController.getById);
     routes.put('/orden/', Middleware.verifyToken, OrdenController.update);
     routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);

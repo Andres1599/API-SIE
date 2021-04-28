@@ -16,14 +16,11 @@ module.exports = function (app, str) {
     const liquidation = app.get('liquidacion')
 
     return {
-        createOrder: (req, res, next) => { createOrder(req, res, next, str, orderPerDiem) },
-        create: (req, res) => { createPerDiem(req, res, str) },
+        create: (req, res) => { createOrder(req, res, str, orderPerDiem) },
         update: (req, res) => { updateOrder(req, res, str, orderPerDiem) },
         delete: (req, res) => { deleteOrder(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem) },
         getById: (req, res) => { getByIdFull(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData, deposito, liquidation) },
-        getAll: (req, res) => {
-            getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData)
-        },
+        getAll: (req, res) => { getAll(req, res, str, orderPerDiem, orderDeposit, orderLiquidation, usersPerDiem, ordersPerDiem, budgetPerDiem, country, company, coin, user, userData) },
         getAllClient: (req, res) => { getAllClientName(req, res, str, orderPerDiem) }
     }
 }
@@ -49,60 +46,8 @@ async function createOrder(req, res, str, orderPerDiem) {
         res.json(new response(true, str.create, null, newOrdenViaticos))
 
     } catch (error) {
+        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
-    }
-}
-
-/**
- * @description transform data, add id order per diem to the arrays
- * @param {*} orderBroadcast 
- * @param {*} id 
- */
-function transformData(orderBroadcast, id) {
-    try {
-        let object = {
-            users: [],
-            budget: [],
-            orders: []
-        }
-
-        if (Array.isArray(orderBroadcast.users)) {
-            object.users = orderBroadcast.users.map(user => {
-                return {
-                    fk_id_usuario: user.fk_id_usuario,
-                    encargado_orden: user.encargado_orden,
-                    fk_id_orden: id
-                }
-            })
-        }
-
-        if (Array.isArray(orderBroadcast.budget)) {
-            object.budget = orderBroadcast.budget.map(budget => {
-                return {
-                    observaciones: budget.observaciones,
-                    gasto: budget.gasto,
-                    dias: budget.dias,
-                    valor: budget.valor,
-                    total: budget.total,
-                    fk_id_orden_viaticos: id
-                }
-            })
-        }
-
-        if (Array.isArray(orderBroadcast.budget)) {
-            object.orders = orderBroadcast.orders.map(order => {
-                return {
-                    orden: order.orden,
-                    fk_id_orden: id
-                }
-            })
-        }
-
-        return object
-
-    } catch (error) {
-        console.error(error)
-        return null
     }
 }
 
