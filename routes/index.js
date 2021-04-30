@@ -56,6 +56,9 @@ module.exports = (app, str) => {
     // middleware
     const Middleware = require('../middleware/auth.middleware');
 
+    // Vacaciones
+    const PeriodoVacacionesController = require('../controller/periodos.vacaciones.controller')(app, str);
+
     //routes letter
     routes.post('/carta/create/', Middleware.verifyToken, CartaController.create);
     routes.get('/carta/', Middleware.verifyToken, CartaController.getAll);
@@ -261,6 +264,12 @@ module.exports = (app, str) => {
     // routes from migration
     routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
     routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);
+
+    // routes from periodo de vacaciones
+    routes.post('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.create);
+    routes.get('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.getByUser);
+    routes.delete('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.delete);
+    routes.put('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.update);
 
     return routes;
 };
