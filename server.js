@@ -51,6 +51,8 @@ app.set('calendario_usuario', db.CalendarioUsuario);
 app.set('calendario_ensayo', db.CalendarioEnsayo);
 app.set('op', db.sequelize);
 app.set('catalogo_asuetos', db.CatalogoAsuetos);
+app.set('periodos_vacaciones', db.PeriodoVacaciones);
+app.set('dias_vacaciones', db.DiasVacaciones);
 app.use(bodyParser.urlencoded({
     extended: true
 }));
