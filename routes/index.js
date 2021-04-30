@@ -58,6 +58,7 @@ module.exports = (app, str) => {
 
     // Vacaciones
     const PeriodoVacacionesController = require('../controller/periodos.vacaciones.controller')(app, str);
+    const DiasVacacionesController = require('../controller/dias.vacaciones.controller')(app, str);
 
     //routes letter
     routes.post('/carta/create/', Middleware.verifyToken, CartaController.create);
@@ -270,6 +271,10 @@ module.exports = (app, str) => {
     routes.get('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.getByUser);
     routes.delete('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.delete);
     routes.put('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.update);
+
+    // routes from dias de vacaciones
+    routes.post('/dias/vacaciones/', Middleware.verifyToken, DiasVacacionesController.create);
+    routes.delete('/dias/vacaciones/:periodo/:dias/:total', Middleware.verifyToken, DiasVacacionesController.delete);
 
     return routes;
 };
