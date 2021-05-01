@@ -36,7 +36,7 @@ module.exports = (sequelize, type, usuarios) => {
 
     PeriodosVacaciones.belongsTo(usuarios, { foreignKey: 'fk_id_usuario' });
 
-    usuarios.hasMany(PeriodosVacaciones, { foreignKey: 'fk_id_tipo_usuario' })
+    usuarios.hasMany(PeriodosVacaciones, { foreignKey: 'fk_id_usuario' })
 
     return PeriodosVacaciones;
 }
