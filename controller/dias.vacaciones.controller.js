@@ -2,7 +2,7 @@ const response = require('../response/response')
 
 module.exports = (app, str) => {
 
-    const PeriodoVacaciones = app.get('catalogo_actividad');
+    const PeriodoVacaciones = app.get('periodos_vacaciones');
     const DiasVacaciones = app.get('dias_vacaciones');
 
     return {
