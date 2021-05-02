@@ -41,7 +41,7 @@ async function createDiasVacaciones(req, res, str, PeriodoVacaciones, DiasVacaci
             fk_id_periodo: req.body.fk_id_periodo
         })
 
-        res.json(new response(false, str.create, null, newDiasVacaciones))
+        res.json(new response(true, str.create, null, newDiasVacaciones))
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }
@@ -60,11 +60,17 @@ async function deleteDiasVacaciones(req, res, str, PeriodoVacaciones, DiasVacaci
             }
         })
 
-        if (!periodo) {
+        const diasActuales = await DiasVacaciones.findOne({
+            where: {
+                id: idDias
+            }
+        })
+
+        if (!periodo && !diasActuales) {
             res.json(new response(false, str.deleteErr, null, null))
         }
 
-        const dias = (periodo.dias_disponibles + (total * 1))
+        const dias = (periodo.dias_disponibles + diasActuales.dias_consumidos)
 
         const updatePeriodo = await PeriodoVacaciones.update({
             dias_disponibles: dias
@@ -80,7 +86,7 @@ async function deleteDiasVacaciones(req, res, str, PeriodoVacaciones, DiasVacaci
             }
         })
 
-        res.json(new response(false, str.create, null, deleteDiasVacaciones))
+        res.json(new response(true, str.delete, null, deleteDiasVacaciones))
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }
