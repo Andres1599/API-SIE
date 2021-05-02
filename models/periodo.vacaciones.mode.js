@@ -19,7 +19,7 @@ module.exports = (sequelize, type, usuarios) => {
         },
         fecha_firma: {
             type: type.DATE,
-            allowNull: false
+            allowNull: true
         },
         dias_disponibles: {
             type: type.INTEGER,

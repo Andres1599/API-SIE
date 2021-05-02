@@ -26,7 +26,6 @@ async function getAllByUserPeriodoVacaciones(req, res, str, PeriodoVacaciones, D
         })
         res.json(new response(true, str.getAll, null, periodosVacaciones))
     } catch (error) {
-        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
     }
 }
@@ -38,9 +37,9 @@ async function createPeriodoVacaciones(req, res, str, PeriodoVacaciones) {
             del: periodoVacaciones.del,
             al: periodoVacaciones.al,
             anno: periodoVacaciones.anno,
-            fecha_firma: periodoVacaciones.fecha_firma,
             dias_disponibles: periodoVacaciones.dias_disponibles,
-            liquidado: false
+            liquidado: false,
+            fk_id_usuario: periodoVacaciones.fk_id_usuario
         })
         res.json(new response(true, str.create, null, newPeriodosVacaciones))
     } catch (error) {

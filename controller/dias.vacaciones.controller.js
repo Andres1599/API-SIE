@@ -37,7 +37,8 @@ async function createDiasVacaciones(req, res, str, PeriodoVacaciones, DiasVacaci
             del: req.body.del,
             al: req.body.al,
             fecha_retorno: req.body.fecha_retorno,
-            dias_consumidos: req.body.dias_consumidos
+            dias_consumidos: req.body.dias_consumidos,
+            fk_id_periodo: req.body.fk_id_periodo
         })
 
         res.json(new response(false, str.create, null, newDiasVacaciones))
