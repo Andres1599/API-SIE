@@ -180,6 +180,7 @@ async function newLiquidacion(req, res, str, liquidacion) {
         res.json(new response(true, str.create, null, newLiquidation));
 
     } catch (error) {
+        console.log(error)
         res.json(new response(false, str.errCatch, error, null));
     }
 }

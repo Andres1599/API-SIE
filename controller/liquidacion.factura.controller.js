@@ -1,16 +1,17 @@
+const response = require('../response/response')
 module.exports = (app, str) => {
 
     const liquidacionFactura = app.get('liquidacion_factura');
     const factura = app.get('factura');
 
     return {
-        create: (req, res) => { newLiquidacionFactura(liquidacionFactura, req, res, factura); },
+        create: (req, res) => { newLiquidacionFactura(req, res, str, liquidacionFactura, factura) },
         delete: (req, res) => { deleteLiquidacionFactura(liquidacionFactura, req, res); }
     }
 
 }
 
-async function newLiquidacionFactura(liquidacionFactura, req, res, factura) {
+async function newLiquidacionFactura(req, res, str, liquidacionFactura, factura) {
     try {
 
         const facturaUpdate = await factura.update({ status: true }, { where: { id_factura: req.body.id_factura } })
@@ -20,13 +21,11 @@ async function newLiquidacionFactura(liquidacionFactura, req, res, factura) {
             id_factura: req.body.id_factura,
         })
 
-        res.json(item);
+        res.json(new response(true, str.create, null, item))
 
     } catch (error) {
-        res.json({
-            message: "Error al crear una nueva liquidacion",
-            created: false
-        });
+        console.log(error)
+        res.json(new response(false, str.errCatch, error, null))
     }
 }
 
