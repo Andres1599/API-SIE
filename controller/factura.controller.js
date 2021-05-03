@@ -1,24 +1,22 @@
-const response = require('../response/response')
 module.exports = (app, str) => {
-    const facturas = app.get('factura');
-    const moneda = app.get('moneda');
-    const tipoDocumento = app.get('tipo_documento');
-    const gasto = app.get('subgasto');
+    const Factura = app.get('factura')
+    const Moneda = app.get('moneda')
+    const tipoDocumento = app.get('tipo_documento')
+    const gasto = app.get('subgasto')
     const op = app.get('op')
+    const response = require('../response/response')
     return {
-        create: (req, res) => { newFactura(facturas, req, res); },
-        bulkCreate: (req, res) => { bulkCreateFactura(req, res, str, facturas) },
-        update: (req, res) => { updateFactura(req, res, str, facturas); },
-        delete: (req, res) => { deleteFactura(req, res, facturas, str) },
-        getById: (req, res) => { getFacturasById(facturas, req, res); },
-        getAll: (req, res) => { getAllFacturas(facturas, req, res); },
-        getByIdUser: (req, res) => { getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res); },
-        getByDate: (req, res) => { getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res, op); }
+        create: (req, res) => { newFactura(Factura, req, res) },
+        bulkCreate: (req, res) => { bulkCreateFactura(req, res, str, response, Factura) },
+        update: (req, res) => { updateFactura(req, res, str, response, Factura) },
+        delete: (req, res) => { deleteFactura(req, res, str, response, Factura) },
+        getByIdUser: (req, res) => { getAllByUsuario(Factura, Moneda, tipoDocumento, gasto, req, res) },
+        getByDate: (req, res) => { getAllFacturaPerDates(req, res, str, response, Factura, Moneda, tipoDocumento, gasto, op) }
     }
 }
 
-function newFactura(facturas, req, res) {
-    facturas.create({
+function newFactura(Factura, req, res) {
+    Factura.create({
         fecha_compra: req.body.fecha_compra,
         correlativo_factura: req.body.correlativo_factura,
         proveedor_factura: req.body.proveedor_factura,
@@ -49,112 +47,62 @@ function newFactura(facturas, req, res) {
     });
 }
 
-async function bulkCreateFactura(req, res, str, facturas) {
+async function bulkCreateFactura(req, res, str, response, Factura) {
     try {
 
-        const arrayFacturas = req.body.data
-        const newFacturas = await facturas.bulkCreate(arrayFacturas)
+        const arrayFactura = req.body.data
+        const newFactura = await Factura.bulkCreate(arrayFactura)
 
-        res.json(new response(true, str.create, null, newFacturas))
+        res.json(new response(true, str.create, null, newFactura))
 
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }
 }
 
-async function getById(id, facturas) {
-    try {
-        bill = await facturas.findOne({ where: { id_factura: id } })
-        if (bill) {
-            return bill
-        } else {
-            return null
-        }
-    } catch (error) {
-        res.json(new response(false, string.errCatch, error, null))
-    }
-}
-
-async function deleteFactura(req, res, facturas, string) {
+async function deleteFactura(req, res, str, response, Factura) {
     try {
         const idBill = req.params.id
-        const bill = await getById(idBill, facturas)
-        if (bill != null) {
-            const deleted = await facturas.destroy({ where: { id_factura: idBill } })
-            if (deleted) {
-                res.json(new response(true, string.delete, null, bill))
-            } else {
-                res.json(new response(false, string.deleteErr, null, bill))
-            }
-        } else {
-            res.json(new response(false, string.deleteErr, null, bill))
-        }
+        const deletedFactura = await Factura.destroy({ where: { id_factura: idBill } })
+        res.json(new response(true, str.delete, null, deletedFactura))
     } catch (error) {
-        res.json(new response(false, string.errCatch, error, null))
+        res.json(new response(false, str.errCatch, error, null))
     }
 }
 
-function updateFactura(req, res, str, facturas) {
-    facturas.update({
-        fecha_compra: req.body.fecha_compra,
-        correlativo_factura: req.body.correlativo_factura,
-        proveedor_factura: req.body.proveedor_factura,
-        total_factura: req.body.total_factura,
-        total_siva: req.body.total_siva,
-        iva_factura: req.body.iva_factura,
-        total_idp_factura: req.body.total_idp_factura,
-        total_sidp_factura: req.body.total_sidp_factura,
-        total_inguat_factura: req.body.total_inguat_factura,
-        galones_factura: req.body.galones_factura,
-        exceso_factura: req.body.exceso_factura,
-        status: req.body.status,
-        fk_id_usuario: req.body.fk_id_usuario,
-        fk_id_tipo_documento: req.body.fk_id_tipo_documento,
-        fk_id_subgasto: req.body.fk_id_subgasto
-    }, {
-        where: {
-            id_factura: req.body.id_factura
-        }
-    }).then((updated) => {
-        if (updated) {
-            res.json(new response(true, str.update, null, updated))
-        } else {
-            res.json(new response(false, str.updateErr, null, updated))
-        }
-    }).catch(function (err) {
+async function updateFactura(req, res, str, response, Factura) {
+    try {
+        const updateFactua = await Factura.update({
+            fecha_compra: req.body.fecha_compra,
+            correlativo_factura: req.body.correlativo_factura,
+            proveedor_factura: req.body.proveedor_factura,
+            total_factura: req.body.total_factura,
+            total_siva: req.body.total_siva,
+            iva_factura: req.body.iva_factura,
+            total_idp_factura: req.body.total_idp_factura,
+            total_sidp_factura: req.body.total_sidp_factura,
+            total_inguat_factura: req.body.total_inguat_factura,
+            galones_factura: req.body.galones_factura,
+            exceso_factura: req.body.exceso_factura,
+            status: req.body.status,
+            fk_id_usuario: req.body.fk_id_usuario,
+            fk_id_tipo_documento: req.body.fk_id_tipo_documento,
+            fk_id_subgasto: req.body.fk_id_subgasto
+        }, {
+            where: {
+                id_factura: req.body.id_factura
+            }
+        })
+
+        res.json(new response(true, str.update, null, updateFactua))
+
+    } catch (error) {
         res.json(new response(false, str.errCatch, err, null))
-    })
+    }
 }
 
-function getFacturasById(facturas, req, res) {
-    facturas.findOne({
-        where: {
-            id_factura: req.params.id_factura
-        }
-    }).then(function (response) {
-        if (response) {
-            res.json(response);
-        } else {
-            res.json({
-                message: "No hemos podido encontrar al factura"
-            });
-        }
-    }).catch(function (err) {
-        res.json({
-            message: "No hemos podido encontrar al factura",
-            error: err
-        });
-    });
-}
-
-function getAllFacturas(facturas, req, res) {
-    facturas.findAll().then(function (response) {
-        res.json(response);
-    });
-}
-
-function getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res) {
-    facturas.findAll({
+function getAllByUsuario(Factura, moneda, tipoDocumento, gasto, req, res) {
+    Factura.findAll({
         where: {
             fk_id_usuario: req.body.id_usuario
         },
@@ -174,40 +122,33 @@ function getAllByUsuario(facturas, moneda, tipoDocumento, gasto, req, res) {
         } else {
             res.json({
                 find: false,
-                message: 'No hay facturas asociadas a ese usuario'
+                message: 'No hay Factura asociadas a ese usuario'
             })
         }
     }).catch(err => {
         res.json({
-            message: 'Error al buscar las facturas',
+            message: 'Error al buscar las Factura',
             err
         })
     })
 }
 
-function getAllFacturasPerDates(facturas, moneda, tipoDocumento, gasto, req, res, sequelize) {
-    const Op = sequelize.Op
-    facturas.findAll({
-        where: {
-            fk_id_usuario: req.body.id_usuario,
-            fk_id_moneda: req.body.fk_id_moneda,
-            fecha_compra: { [Op.between]: [req.body.start, req.body.end] },
-            status: false
-        },
-        include: [moneda, tipoDocumento, gasto]
-    }).then(value => {
-        if (value) {
-            res.json(value)
-        } else {
-            res.json({
-                find: false,
-                message: 'No hay facturas asociadas a ese usuario'
-            })
-        }
-    }).catch(err => {
-        res.json({
-            message: 'Error al buscar las facturas',
-            err
+async function getAllFacturaPerDates(req, res, str, response, Factura, Moneda, tipoDocumento, gasto, sequelize) {
+    try {
+        const Op = sequelize.Op
+        const facturas = await Factura.findAll({
+            where: {
+                fk_id_usuario: req.body.id_usuario,
+                fk_id_moneda: req.body.fk_id_moneda,
+                fecha_compra: { [Op.between]: [req.body.start, req.body.end] },
+                status: false
+            },
+            include: [Moneda, tipoDocumento, gasto]
         })
-    })
+
+        res.json(new response(true, str.getAll, null, facturas))
+
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }

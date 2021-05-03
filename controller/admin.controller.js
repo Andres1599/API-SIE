@@ -1,48 +1,35 @@
-const str = require('../utils/strings');
 const response = require('../response/response');
-module.exports = (app) => {
+module.exports = (app, str) => {
 
-    let Usuario = app.get('usuario');
-    let DatosUsuario = app.get('usuario_datos');
-    let TipoUsuario = app.get('tipo_usuario');
-    let Bancos = app.get('banco');
-    let Empresa = app.get('empresa');
-    let EmpresaMoneda = app.get('empresa_moneda');
-    let Moneda = app.get('moneda');
+    const Usuario = app.get('usuario');
+    const DatosUsuario = app.get('usuario_datos');
+    const TipoUsuario = app.get('tipo_usuario');
+    const Bancos = app.get('banco');
+    const Empresa = app.get('empresa');
+    const EmpresaMoneda = app.get('empresa_moneda');
+    const Moneda = app.get('moneda');
 
     return {
-        getUsuarios: (req, res) => { getU(Usuario, DatosUsuario, TipoUsuario, req, res); },
-        getBancos: (req, res) => { getB(Bancos, req, res); },
-        getTipoUsuario: (req, res) => { getTU(TipoUsuario, req, res); },
-        getCatalogo: (req, res) => { },
+        getUsuarios: (req, res) => { getAllUsuarios(req, res, str, response, Usuario, DatosUsuario, TipoUsuario) },
+        getBancos: (req, res) => { getB(req, res, str, Bancos) },
+        getTipoUsuario: (req, res) => { getTU(req, res, str, response, TipoUsuario) },
         getEmpresas: (req, res) => { getE(Empresa, EmpresaMoneda, req, res); },
         getMoneda: (req, res) => { getM(Moneda, req, res); }
     }
 }
 
-function getU(Usuario, DatosUsuario, TipoUsuario, req, res) {
-    Usuario.findAll({
-        include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido', 'dpi'] },
-        { model: TipoUsuario, attributes: ['tipo_usuario'] }
-        ],
-        attributes: ['id_usuario', 'email', 'status']
-    }).then(rest => {
-        if (rest) {
-            res.json(rest);
-        } else {
-            res.json({
-                message: 'No se ha encontrado ni un usuario.'
-            });
-        }
-    }).catch(err => {
-        res.status(404).send({
-            message: 'Error al realizar la petición.',
-            error: err
-        });
-    });
+async function getAllUsuarios(req, res, str, response, Usuario, DatosUsuario, TipoUsuario) {
+    try {
+        const usuarios = await Usuario.findAll({
+            include: [DatosUsuario, TipoUsuario]
+        })
+        res.json(new response(true, str.getAll, null, usuarios))
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
 }
 
-function getB(Bancos, req, res) {
+function getB(req, res, str, Bancos) {
     Bancos.findAll().then(rest => {
         if (rest) {
             res.json(rest);
@@ -57,7 +44,7 @@ function getB(Bancos, req, res) {
     });
 }
 
-function getTU(TipoUsuario, req, res) {
+function getTU(req, res, str, response, TipoUsuario) {
     TipoUsuario.findAll().then(tipoUsuarios => {
         if (tipoUsuarios) {
             res.json(new response(true, str.get, null, tipoUsuarios))

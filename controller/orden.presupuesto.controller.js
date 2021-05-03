@@ -10,14 +10,15 @@ module.exports = function (app, str) {
 
 async function newOrdenPresupuesto(ordenPresupuesto, req, res, str) {
     try {
+        const total = (req.body.dias * 1) * (req.body.valor * 1)
         const budgetData = await ordenPresupuesto.create({
             gasto: req.body.gasto,
             dias: req.body.dias,
             valor: req.body.valor,
-            total: req.body.total,
+            total: total,
             observaciones: req.body.observaciones,
             fk_id_orden_viaticos: req.body.fk_id_orden_viaticos,
-        })        
+        })
 
         res.status(200).json(new response(true, str.delete, null, budgetData))
 

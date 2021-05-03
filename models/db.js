@@ -37,6 +37,9 @@ const CatalogoEnsayoModel = require('./catalogo.ensayos.model');
 const ActividadModel = require('./actividad.model');
 const CalendarioUsuarioModel = require('./calendario.usuario.model')
 const CalendarioEnsayoModel = require('./calendario.ensayo.model')
+const CatalogoAsuetosModel = require('./catalogo.asuetos.model')
+const PeriodosVacacionesModel = require('./periodo.vacaciones.mode')
+const DiasVacacionesModel = require('./dias.vacaciones.model')
 //CONTROL DEL ENTORNO DE DESARROLLO DE LA BASE DE DATOS
 let config;
 
@@ -91,6 +94,9 @@ const Actividad = ActividadModel(Sequelize, sequelize);
 const Calendario = CalendarioModel(Sequelize, sequelize, Usuario, CatalogoEnsayo, Actividad);
 const CalendarioUsuario = CalendarioUsuarioModel(Sequelize, sequelize, Usuario, Calendario);
 const CalendarioEnsayo = CalendarioEnsayoModel(Sequelize, sequelize, CatalogoEnsayo, Calendario);
+const CatalogoAsuetos = CatalogoAsuetosModel(Sequelize, sequelize);
+const PeriodoVacaciones = PeriodosVacacionesModel(Sequelize, sequelize, Usuario);
+const DiasVacaciones = DiasVacacionesModel(Sequelize, sequelize, PeriodoVacaciones);
 //EXPORTACION DE LOS MODELOS PARA SETEO EN LA APLICACION EXPRESS
 module.exports = {
     sequelize,
@@ -127,5 +133,8 @@ module.exports = {
     Actividad,
     CalendarioUsuario,
     OrdenOrdenes,
-    CalendarioEnsayo
+    CalendarioEnsayo,
+    CatalogoAsuetos,
+    DiasVacaciones,
+    PeriodoVacaciones
 };

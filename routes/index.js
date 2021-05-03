@@ -7,7 +7,7 @@ module.exports = (app, str) => {
     const UsuarioController = require('../controller/usuario.controller')(app, str);
     const UsuarosDatosController = require('../controller/usuario.datos.controller')(app, str);
     const GastosTipoUsuarioController = require('../controller/gastos.tipo.usuario.controller')(app, str);
-    const AdminGetController = require('../controller/admin.controller')(app);
+    const AdminGetController = require('../controller/admin.controller')(app, str);
     const TipoUsuarioController = require('../controller/tipo.usuario.controller')(app);
     // bank controls
     const BancosController = require('../controller/banco.controller')(app);
@@ -26,7 +26,7 @@ module.exports = (app, str) => {
     const SubGastosController = require('../controller/subgasto.controller')(app, str);
     const TipoCuentaController = require('../controller/tipo.cuenta.controller')(app);
     // liquidation controls
-    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app);
+    const LiquidacionFacturaController = require('../controller/liquidacion.factura.controller')(app, str);
     const FacturaController = require('../controller/factura.controller')(app, str);
     const LiquidationController = require('../controller/liquidacion.controller')(app, str);
     const TipoDocumentosController = require('../controller/tipo.documento.controller')(app);
@@ -47,11 +47,18 @@ module.exports = (app, str) => {
     const CalendarioUsuarioController = require('../controller/calendario.usuario.controller')(app, str);
     const CalendarioEnsayoController = require('../controller/calendario.ensayo.controller')(app, str);
 
+    // catalogo asuetos
+    const CatalogoAsuetosController = require('../controller/catalogo.asuetos.controller')(app, str);
+
     // migrations controls
     const MigrationController = require('../controller/migration.controller')(app, str);
 
     // middleware
     const Middleware = require('../middleware/auth.middleware');
+
+    // Vacaciones
+    const PeriodoVacacionesController = require('../controller/periodos.vacaciones.controller')(app, str);
+    const DiasVacacionesController = require('../controller/dias.vacaciones.controller')(app, str);
 
     //routes letter
     routes.post('/carta/create/', Middleware.verifyToken, CartaController.create);
@@ -60,10 +67,8 @@ module.exports = (app, str) => {
 
     //routes usuario
     routes.post('/usuario/new', Middleware.verifyToken, UsuarioController.create);
-    routes.post('/usuario/pass', Middleware.verifyToken, UsuarioController.updatePassword);
     routes.post('/usuario/login', UsuarioController.findByEmail, UsuarioController.login);
-    routes.post('/usuario/forget', Middleware.verifyToken, UsuarioController.forgetPass);
-    routes.put('/usuario/pass', Middleware.verifyToken, UsuarioController.password);
+    routes.put('/usuario/pass', Middleware.verifyToken, UsuarioController.update);
 
     //routes usuario dato
     routes.get('/usuario/:id', Middleware.verifyToken, UsuarosDatosController.getById);
@@ -141,8 +146,6 @@ module.exports = (app, str) => {
     routes.post('/empresamonedas', Middleware.verifyToken, EmpresaMonedaController.create);
 
     //routes from facturas
-    routes.get('/facturas/', Middleware.verifyToken, FacturaController.getAll);
-    routes.get('/facturas/id', Middleware.verifyToken, FacturaController.getById);
     routes.delete('/facturas/:id', FacturaController.delete);
     routes.put('/facturas/id', Middleware.verifyToken, FacturaController.update);
     routes.post('/facturas', Middleware.verifyToken, FacturaController.create);
@@ -169,16 +172,12 @@ module.exports = (app, str) => {
     routes.post('/gastos/tipo/usuario/', Middleware.verifyToken, GastosTipoUsuarioController.create);
 
     //routes from liquidacion factura
-    routes.get('/liquidacionfactura/', Middleware.verifyToken, LiquidacionFacturaController.getAll);
-    routes.get('/liquidacionfactura/id', Middleware.verifyToken, LiquidacionFacturaController.getById);
-    routes.delete('/liquidacionfactura/id', Middleware.verifyToken, LiquidacionFacturaController.delete);
-    routes.put('/liquidacionfactura/id', Middleware.verifyToken, LiquidacionFacturaController.update);
-    routes.post('/liquidacionfactura', Middleware.verifyToken, LiquidacionFacturaController.create);
+    routes.post('/liquidacion/factura', Middleware.verifyToken, LiquidacionFacturaController.create);
 
     //routes from per diem
     routes.get('/ordenes/', Middleware.verifyToken, OrdenController.getAll);
     routes.get('/ordenes/clientes/', Middleware.verifyToken, OrdenController.getAllClient);
-    routes.post('/orden/', Middleware.verifyToken, OrdenController.max, OrdenController.createOrder, OrdenController.createOrderBudget, OrdenController.createOrderUsers, OrdenController.createOrderOrders, OrdenController.create);
+    routes.post('/orden/', Middleware.verifyToken, OrdenController.create);
     routes.get('/orden/:id', Middleware.verifyToken, OrdenController.getById);
     routes.put('/orden/', Middleware.verifyToken, OrdenController.update);
     routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
@@ -257,9 +256,25 @@ module.exports = (app, str) => {
     routes.post('/calendario/ensayo/', Middleware.verifyToken, CalendarioEnsayoController.create);
     routes.delete('/calendario/ensayo/:id', Middleware.verifyToken, CalendarioEnsayoController.delete);
 
+    // router from catalogo de asuetos
+    routes.get('/asuetos', Middleware.verifyToken, CatalogoAsuetosController.getAll);
+    routes.post('/asuetos', Middleware.verifyToken, CatalogoAsuetosController.create);
+    routes.put('/asuetos', Middleware.verifyToken, CatalogoAsuetosController.update);
+    routes.delete('/asuetos/:id', Middleware.verifyToken, CatalogoAsuetosController.delete);
+
     // routes from migration
     routes.get('/migration/liquidation/consult/:id', MigrationController.searchLiquidation);
     routes.get('/migration/liquidation/consult/:id/:code', MigrationController.getLiquidation);
+
+    // routes from periodo de vacaciones
+    routes.post('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.create);
+    routes.get('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.getByUser);
+    routes.delete('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.delete);
+    routes.put('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.update);
+
+    // routes from dias de vacaciones
+    routes.post('/dias/vacaciones/', Middleware.verifyToken, DiasVacacionesController.create);
+    routes.delete('/dias/vacaciones/:periodo/:dias/:total', Middleware.verifyToken, DiasVacacionesController.delete);
 
     return routes;
 };
