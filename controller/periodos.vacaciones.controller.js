@@ -12,6 +12,7 @@ module.exports = (app, str) => {
         update: (req, res) => { updatePeriodoVacaciones(req, res, str, PeriodoVacaciones) },
         create: (req, res) => { createPeriodoVacaciones(req, res, str, PeriodoVacaciones) },
         delete: (req, res) => { deletePeriodoVacaciones(req, res, str, PeriodoVacaciones) },
+        close: (req, res) => { closePeriodoVacaciones(req, res, str, PeriodoVacaciones) }
     }
 }
 
@@ -77,6 +78,23 @@ async function deletePeriodoVacaciones(req, res, str, PeriodoVacaciones) {
             }
         })
         res.json(new response(true, str.delete, null, updatePeriodosVacaciones))
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
+}
+
+async function closePeriodoVacaciones(req, res, str, PeriodoVacaciones) {
+    try {
+        const idPerdiodo = req.params.id
+        const updatePeriodosVacaciones = await PeriodoVacaciones.update({
+            liquidado: true,
+            fecha_firma: new Date()
+        }, {
+            where: {
+                id: idPerdiodo
+            }
+        })
+        res.json(new response(true, str.update, null, updatePeriodosVacaciones))
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }

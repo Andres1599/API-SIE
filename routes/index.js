@@ -271,6 +271,7 @@ module.exports = (app, str) => {
     routes.get('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.getByUser);
     routes.delete('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.delete);
     routes.put('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.update);
+    routes.put('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.close);
 
     // routes from dias de vacaciones
     routes.post('/dias/vacaciones/', Middleware.verifyToken, DiasVacacionesController.create);
