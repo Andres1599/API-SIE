@@ -9,6 +9,7 @@ module.exports = (app, str) => {
 
     return {
         getByUser: (req, res) => { getAllByUserPeriodoVacaciones(req, res, str, PeriodoVacaciones, DiasVacaciones) },
+        getById: (req, res) => { getByIdPeriodoVacaciones(req, res, str, PeriodoVacaciones, Usuario, DatosUsuario) },
         update: (req, res) => { updatePeriodoVacaciones(req, res, str, PeriodoVacaciones) },
         create: (req, res) => { createPeriodoVacaciones(req, res, str, PeriodoVacaciones) },
         delete: (req, res) => { deletePeriodoVacaciones(req, res, str, PeriodoVacaciones) },
@@ -26,6 +27,21 @@ async function getAllByUserPeriodoVacaciones(req, res, str, PeriodoVacaciones, D
             include: [DiasVacaciones]
         })
         res.json(new response(true, str.getAll, null, periodosVacaciones))
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
+}
+
+async function getByIdPeriodoVacaciones(req, res, str, PeriodoVacaciones, Usuario, DatosUsuario) {
+    try {
+        const idPeriodo = req.params.id
+        const periodoVacaciones = await PeriodoVacaciones.findOne({
+            where: {
+                id: idPeriodo
+            },
+            include: [{ model: Usuario, include: [DatosUsuario] }]
+        })
+        res.json(new response(true, str.getAll, null, periodoVacaciones))
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }
@@ -85,7 +101,7 @@ async function deletePeriodoVacaciones(req, res, str, PeriodoVacaciones) {
 
 async function closePeriodoVacaciones(req, res, str, PeriodoVacaciones) {
     try {
-        const idPerdiodo = req.params.id
+        const idPerdiodo = req.body.id
         const updatePeriodosVacaciones = await PeriodoVacaciones.update({
             liquidado: true,
             fecha_firma: new Date()

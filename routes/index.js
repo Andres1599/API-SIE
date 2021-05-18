@@ -269,9 +269,10 @@ module.exports = (app, str) => {
     // routes from periodo de vacaciones
     routes.post('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.create);
     routes.get('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.getByUser);
+    routes.get('/periodo/vacaciones/carta/:id', Middleware.verifyToken, PeriodoVacacionesController.getById);
     routes.delete('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.delete);
     routes.put('/periodo/vacaciones/', Middleware.verifyToken, PeriodoVacacionesController.update);
-    routes.put('/periodo/vacaciones/:id', Middleware.verifyToken, PeriodoVacacionesController.close);
+    routes.put('/periodo/vacaciones/close', Middleware.verifyToken, PeriodoVacacionesController.close);
 
     // routes from dias de vacaciones
     routes.post('/dias/vacaciones/', Middleware.verifyToken, DiasVacacionesController.create);
