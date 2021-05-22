@@ -299,14 +299,15 @@ async function getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo,
             where: {
                 fk_id_usuario: req.body.fk_id_usuario,
                 statusAccept: true,
-                cierre_calendario: true
+                cierre_calendario: true,
             },
             include: [{
                 model: Calendario,
                 where: {
                     [Op.or]: {
                         end: { [Op.between]: [req.body.start, req.body.end] },
-                        start: { [Op.between]: [req.body.start, req.body.end] }
+                        start: { [Op.between]: [req.body.start, req.body.end] },
+                        fk_id_actividad: req.body.fk_id_actividad
                     },
                     status: false
                 },
