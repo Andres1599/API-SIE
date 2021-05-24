@@ -21,7 +21,7 @@ module.exports = (app, string) => {
         getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
         refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
         close: (req, res) => { closeCalendar(req, res, string, Calendario) },
-        search: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario) },
+        search: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         searchUser: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         full: (req, res) => { fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) }
     }
@@ -250,7 +250,7 @@ async function searchCalendar(req, res, string, sequelize, Calendario, Actividad
                         [Op.between]: [where.start, where.end]
                     }
                 },
-                fk_id_actividad: req.body.fk_id_actividad,
+                fk_id_actividad: where.id_actividad,
             },
             include: [
                 Actividad,
@@ -264,7 +264,8 @@ async function searchCalendar(req, res, string, sequelize, Calendario, Actividad
         })
         res.json(new response(true, string.getAll, null, eventSearch))
     } catch (error) {
-        res.json(new response(false, string.errCatch, err, null))
+        console.log(error)
+        res.json(new response(false, string.errCatch, error, null))
     }
 }
 
