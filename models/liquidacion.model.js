@@ -28,6 +28,11 @@ module.exports = (sequelize, type, assosiationUser, assosiationCompany, assosiat
         total: {
             type: type.FLOAT,
             allowNull: true
+        },
+        ajuste_excedente: {
+            type: type.FLOAT,
+            allowNull: true,
+            default: 0
         }
     }, {
         freezeTableName: true,

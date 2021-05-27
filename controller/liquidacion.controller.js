@@ -25,7 +25,8 @@ module.exports = (app, str) => {
         getByUsuario: (req, res) => { getLiquidationByUsuario(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str) },
         getAll: (req, res) => { getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res) },
         getById: (req, res) => { getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str) },
-        close: (req, res) => { closeLiquidation(req, res, liquidacion, str) }
+        close: (req, res) => { closeLiquidation(req, res, liquidacion, str) },
+        unclose: (req, res) => { unCloseLiquidation(req, res, str, liquidacion) },
     }
 }
 
@@ -284,6 +285,7 @@ async function closeLiquidation(req, res, liquidation, str) {
             estado: true,
             fecha_cierra: currentDay,
             total: req.body.total,
+            ajuste_excedente: req.body.ajuste_excedente,
             fk_id_subcuenta: req.body.fk_id_subcuenta
         }, {
             where: {
@@ -352,6 +354,21 @@ async function updateFechaLiquidacion(req, res, str, liquidacion) {
 
         res.json(new response(true, str.update, null, liquidationUpdate));
 
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null));
+    }
+}
+
+async function unCloseLiquidation(req, res, str, liquidation) {
+    try {
+        const updated = await liquidation.update({
+            estado: false,
+        }, {
+            where: {
+                id: req.body.id
+            }
+        })
+        res.json(new response(true, str.update, null, updated))
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null));
     }

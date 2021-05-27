@@ -117,6 +117,7 @@ module.exports = (app, str) => {
     routes.delete('/liquidacion/item/:id', Middleware.verifyToken, LiquidationController.deleteItem);
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
     routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
+    routes.put('/liquidacion/unclose/', Middleware.verifyToken, LiquidationController.unclose);
     routes.put('/liquidacion/date/', Middleware.verifyToken, LiquidationController.updateFecha);
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
 
