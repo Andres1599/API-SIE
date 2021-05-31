@@ -21,7 +21,11 @@ module.exports = (app, str) => {
 async function getAllUsuarios(req, res, str, response, Usuario, DatosUsuario, TipoUsuario) {
     try {
         const usuarios = await Usuario.findAll({
-            include: [DatosUsuario, TipoUsuario]
+            where: {
+                status: true
+            },
+            include: [{ model: DatosUsuario }, TipoUsuario],
+            order: [[DatosUsuario, 'nombre', 'ASC']]
         })
         res.json(new response(true, str.getAll, null, usuarios))
     } catch (error) {

@@ -21,7 +21,7 @@ module.exports = (app, string) => {
         getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
         refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
         close: (req, res) => { closeCalendar(req, res, string, Calendario) },
-        search: (req, res) => { searchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario) },
+        search: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         searchUser: (req, res) => { getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         full: (req, res) => { fullSearchCalendar(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario) }
     }
@@ -231,65 +231,43 @@ async function closeCalendar(req, res, string, Calendario) {
     }
 }
 
-/**
- * 
- * @param {*} req 
- * @param {*} res 
- * @param {*} Calendario 
- * @param {*} Actividad 
- * @param {*} Ensayo 
- * @param {*} string 
- */
-function searchCalendar(req, res, Calendario, Actividad, Ensayo, string, sequelize, CalendarioUsuario) {
-    const Op = sequelize.Op
-
-    Calendario.findAll({
-        where: {
-            [Op.or]: {
-                end: {
-                    [Op.between]: [req.body.start, req.body.end]
-                },
-                start: {
-                    [Op.between]: [req.body.start, req.body.end]
-                }
-            },
-            fk_id_actividad: req.body.fk_id_actividad,
-        },
-        include: [{
-            model: Actividad
-        },
-        {
-            model: Ensayo
-        },
-        {
-            model: CalendarioUsuario
-        },
-        ]
-    }).then((events) => {
-        if (events) {
-            let dataResponse = {
-                midweek: [],
-                weekend: []
-            };
-
-            events.forEach(item => {
-                if (
-                    item.end.getDay() === 6 ||
-                    item.end.getDay() === 0
-                ) {
-                    dataResponse.weekend.push(item)
-                } else {
-                    dataResponse.midweek.push(item)
-                }
-            });
-
-            res.json(new response(true, string.getAll, null, dataResponse))
-        } else {
-            res.json(new response(false, string.getErr, null, events))
+async function searchCalendar(req, res, string, sequelize, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) {
+    try {
+        const Op = sequelize.Op
+        const where = {
+            start: req.body.start,
+            end: req.body.end,
+            id_actividad: req.body.id_actividad,
+            id_usuario: req.body.id_usuario
         }
-    }).catch((err) => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
+        const eventSearch = await Calendario.findAll({
+            where: {
+                [Op.or]: {
+                    end: {
+                        [Op.between]: [where.start, where.end]
+                    },
+                    start: {
+                        [Op.between]: [where.start, where.end]
+                    }
+                },
+                fk_id_actividad: where.id_actividad,
+            },
+            include: [
+                Actividad,
+                { model: CalendarioEnsayo, include: [Ensayo] },
+                {
+                    model: CalendarioUsuario,
+                    where: { fk_id_usuario: where.id_usuario },
+                    model: CalendarioUsuario,
+                    include: [{ model: Usuario, attributes: ['id_usuario'], include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido'] }] }],
+                }
+            ]
+        })
+        res.json(new response(true, string.getAll, null, eventSearch))
+    } catch (error) {
+        console.log(error)
+        res.json(new response(false, string.errCatch, error, null))
+    }
 }
 
 async function getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) {
@@ -299,14 +277,15 @@ async function getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo,
             where: {
                 fk_id_usuario: req.body.fk_id_usuario,
                 statusAccept: true,
-                cierre_calendario: true
+                cierre_calendario: true,
             },
             include: [{
                 model: Calendario,
                 where: {
                     [Op.or]: {
                         end: { [Op.between]: [req.body.start, req.body.end] },
-                        start: { [Op.between]: [req.body.start, req.body.end] }
+                        start: { [Op.between]: [req.body.start, req.body.end] },
+                        fk_id_actividad: req.body.fk_id_actividad
                     },
                     status: false
                 },
