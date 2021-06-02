@@ -40,6 +40,9 @@ const CalendarioEnsayoModel = require('./calendario.ensayo.model')
 const CatalogoAsuetosModel = require('./catalogo.asuetos.model')
 const PeriodosVacacionesModel = require('./periodo.vacaciones.mode')
 const DiasVacacionesModel = require('./dias.vacaciones.model')
+const MovimientoSubCuentasModel = require('./movimiento.subcuenta.model')
+const MovimientoLiquidacionModel = require('./movimiento.liquidacion.model')
+const MovimientoDepositoModel = require('./movimiento.deposito.model');
 //CONTROL DEL ENTORNO DE DESARROLLO DE LA BASE DE DATOS
 let config;
 
@@ -97,6 +100,10 @@ const CalendarioEnsayo = CalendarioEnsayoModel(Sequelize, sequelize, CatalogoEns
 const CatalogoAsuetos = CatalogoAsuetosModel(Sequelize, sequelize);
 const PeriodoVacaciones = PeriodosVacacionesModel(Sequelize, sequelize, Usuario);
 const DiasVacaciones = DiasVacacionesModel(Sequelize, sequelize, PeriodoVacaciones);
+const MovimientoSubCuenta = MovimientoSubCuentasModel(Sequelize, sequelize, Subcuenta);
+const MovimientoLiquidacion = MovimientoLiquidacionModel(Sequelize, sequelize, MovimientoSubCuenta, Liquidacion);
+const MovimientoDeposito = MovimientoDepositoModel(Sequelize, sequelize, MovimientoSubCuenta, Deposito);
+
 //EXPORTACION DE LOS MODELOS PARA SETEO EN LA APLICACION EXPRESS
 module.exports = {
     sequelize,
@@ -136,5 +143,8 @@ module.exports = {
     CalendarioEnsayo,
     CatalogoAsuetos,
     DiasVacaciones,
-    PeriodoVacaciones
+    PeriodoVacaciones,
+    MovimientoSubCuenta,
+    MovimientoLiquidacion,
+    MovimientoDeposito
 };
