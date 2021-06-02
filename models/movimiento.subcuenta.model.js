@@ -6,7 +6,7 @@ module.exports = (sequelize, type, SubCuenta) => {
             autoIncrement: true
         },
         fecha: {
-            type: type.FLOAT,
+            type: type.DATE,
             allowNull: false,
             default: new Date()
         },
@@ -24,6 +24,10 @@ module.exports = (sequelize, type, SubCuenta) => {
             type: type.FLOAT,
             allowNull: false,
             default: 0
+        },
+        comentario: {
+            type: type.TEXT,
+            allowNull: false
         }
     }, {
         freezeTableName: true,

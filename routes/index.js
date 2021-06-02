@@ -283,7 +283,8 @@ module.exports = (app, str) => {
     routes.delete('/dias/vacaciones/:periodo/:dias/:total', Middleware.verifyToken, DiasVacacionesController.delete);
 
     // routes from movimientos de cuenta
-    routes.delete('/movimiento/cuenta/:id', MovimientoSubCuentaController.getByAccount);
+    routes.get('/movimiento/cuenta/:cuenta/:id', MovimientoSubCuentaController.getByAccount);
+    routes.post('/movimiento/cuenta/:cuenta/:id', Middleware.verifyToken, MovimientoSubCuentaController.create);
 
     return routes;
 };
