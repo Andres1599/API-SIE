@@ -60,6 +60,9 @@ module.exports = (app, str) => {
     const PeriodoVacacionesController = require('../controller/periodos.vacaciones.controller')(app, str);
     const DiasVacacionesController = require('../controller/dias.vacaciones.controller')(app, str);
 
+    // Movimientos de cuenta
+    const MovimientoSubCuentaController = require('../controller/movimiento.controller')(app, str);
+
     //routes letter
     routes.post('/carta/create/', Middleware.verifyToken, CartaController.create);
     routes.get('/carta/', Middleware.verifyToken, CartaController.getAll);
@@ -278,6 +281,9 @@ module.exports = (app, str) => {
     // routes from dias de vacaciones
     routes.post('/dias/vacaciones/', Middleware.verifyToken, DiasVacacionesController.create);
     routes.delete('/dias/vacaciones/:periodo/:dias/:total', Middleware.verifyToken, DiasVacacionesController.delete);
+
+    // routes from movimientos de cuenta
+    routes.delete('/movimiento/cuenta/:id', MovimientoSubCuentaController.getByAccount);
 
     return routes;
 };

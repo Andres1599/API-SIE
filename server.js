@@ -55,6 +55,9 @@ app.set('op', db.sequelize);
 app.set('catalogo_asuetos', db.CatalogoAsuetos);
 app.set('periodos_vacaciones', db.PeriodoVacaciones);
 app.set('dias_vacaciones', db.DiasVacaciones);
+app.set('movimiento_subcuenta', db.MovimientoSubCuenta);
+app.set('movimiento_liquidacion', db.MovimientoLiquidacion);
+app.set('movimiento_deposito', db.MovimientoDeposito);
 
 
 //Set config server
