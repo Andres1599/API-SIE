@@ -46,7 +46,6 @@ async function createOrder(req, res, str, orderPerDiem) {
         res.json(new response(true, str.create, null, newOrdenViaticos))
 
     } catch (error) {
-        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
     }
 }
