@@ -3,7 +3,6 @@ module.exports = (app, str) => {
     const Deposito = app.get('deposito')
     return {
         create: (req, res, next) => { newDeposito(req, res, next, str, Deposito) },
-        delete: (req, res, next) => { deleteDeposito(req, res, str, Deposito) },
     }
 }
 
@@ -23,13 +22,5 @@ async function newDeposito(req, res, next, str, Deposito) {
     } catch (error) {
         console.log(error)
         res.json(new response(false, str.errCatch, error, null))
-    }
-}
-
-async function deleteDeposito(req, res, str, Deposito) {
-    try {
-
-    } catch (error) {
-        res.json(new response())
     }
 }

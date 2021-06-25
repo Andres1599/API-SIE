@@ -25,7 +25,7 @@ module.exports = (app, str) => {
         getByUsuario: (req, res) => { getLiquidationByUsuario(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str) },
         getAll: (req, res) => { getAllLiquidacion(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res) },
         getById: (req, res) => { getLiquidacionById(user, userData, liquidacion, liquidacionFactura, moneda, tipoCuenta, empresa, factura, subgasto, tipoDocumento, req, res, str) },
-        close: (req, res) => { closeLiquidation(req, res, liquidacion, str) },
+        close: (req, res, next) => { closeLiquidation(req, res, next, liquidacion, str) },
         unclose: (req, res) => { unCloseLiquidation(req, res, str, liquidacion) },
     }
 }
@@ -278,7 +278,7 @@ async function deleteItemLiquidationFull(req, res, str, item_liquidation) {
     }
 }
 
-async function closeLiquidation(req, res, liquidation, str) {
+async function closeLiquidation(req, res, next, liquidation, str) {
     try {
         const currentDay = new Date()
         const updated = await liquidation.update({
@@ -286,18 +286,16 @@ async function closeLiquidation(req, res, liquidation, str) {
             fecha_cierra: currentDay,
             total: req.body.total,
             ajuste_excedente: req.body.ajuste_excedente,
-            fk_id_subcuenta: req.body.fk_id_subcuenta
+            fk_id_subcuenta: req.body.fk_id_subcuenta,
+            cambio: req.body.cambio
         }, {
             where: {
                 id: req.body.id
             }
         })
-
-        if (updated) {
-            res.json(new response(true, str.update, null, updated))
-        } else {
-            res.json(new response(false, str.updateErr, null, updated))
-        }
+        const liquidacionClosed = await liquidation.findOne({ where: { id: req.body.id } })
+        req.body.liquidacion = liquidacionClosed
+        next()
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null));
     }

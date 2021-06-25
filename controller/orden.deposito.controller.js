@@ -6,12 +6,12 @@ module.exports = (app, str) => {
     const deposito = app.get('deposito')
 
     return {
-        create: (req, res) => { newOrdenDeposito(req, res, str, ordenDeposito, deposito) },
+        create: (req, res, next) => { newOrdenDeposito(req, res, next, str, ordenDeposito, deposito) },
         delete: (req, res) => { deleteOrdenDeposito(req, res, str, ordenDeposito, deposito) }
     }
 }
 
-async function newOrdenDeposito(req, res, str, ordenDeposito, deposito) {
+async function newOrdenDeposito(req, res, next, str, ordenDeposito, deposito) {
     try {
         const dataDeposito = await ordenDeposito.create({
             fk_id_orden: req.body.fk_id_orden,
@@ -31,8 +31,8 @@ async function newOrdenDeposito(req, res, str, ordenDeposito, deposito) {
             }]
         })
 
-        res.json(new response(true, str.create, null, dataDeposito))
-
+        req.body.deposito = dataDeposito.deposito
+        next()
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }

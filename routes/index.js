@@ -119,7 +119,7 @@ module.exports = (app, str) => {
     routes.delete('/liquidacion/:id', Middleware.verifyToken, LiquidationController.delete);
     routes.delete('/liquidacion/item/:id', Middleware.verifyToken, LiquidationController.deleteItem);
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
-    routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
+    routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close, MovimientoSubCuentaController.createCargo);
     routes.put('/liquidacion/unclose/', Middleware.verifyToken, LiquidationController.unclose);
     routes.put('/liquidacion/date/', Middleware.verifyToken, LiquidationController.updateFecha);
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
@@ -138,7 +138,7 @@ module.exports = (app, str) => {
 
     //routes from deposito
     routes.post('/deposito/', Middleware.verifyToken, DepositoController.create, MovimientoSubCuentaController.createAbono);
-    routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
+    // routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
 
     //routes from empresamonedas
     routes.get('/empresamonedas/', Middleware.verifyToken, EmpresaMonedaController.getAll);
@@ -185,7 +185,7 @@ module.exports = (app, str) => {
     routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
 
     //routes from orden deposito
-    routes.post('/orden/deposito', Middleware.verifyToken, OrdenDepositoController.create);
+    routes.post('/orden/deposito', Middleware.verifyToken, OrdenDepositoController.create, MovimientoSubCuentaController.createAbono);
     routes.delete('/orden/deposito/:id/:id_deposito', Middleware.verifyToken, OrdenDepositoController.delete);
 
     //routes from orden liquidation

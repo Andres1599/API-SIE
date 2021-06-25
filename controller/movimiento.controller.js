@@ -53,35 +53,30 @@ async function getMovimientoByidCount(req, res, str, MovimientoSubCuenta, SubCue
         })
         res.json(new response(true, str.getAll, null, movimientosSubCuenta))
     } catch (error) {
-        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
     }
 }
 
 async function createMovimientoCargo(req, res, str, MovimientoSubCuenta, MovimientoLiquidacion) {
     try {
-        const idSubCuenta = req.body.fk_id_subcuenta
-        const cargoCuenta = req.body.cargo
+        const LiquidacionUpdate = req.body.liquidacion
+        const idSubCuenta = LiquidacionUpdate.fk_id_subcuenta
+        const cargoCuenta = ((LiquidacionUpdate.total - LiquidacionUpdate.ajuste_excedente) * LiquidacionUpdate.cambio)
         const saldoActual = await getSaldoActual(MovimientoSubCuenta, idSubCuenta)
-        const idLiquidacion = req.body.id_liquidacion
+        const idLiquidacion = LiquidacionUpdate.id
 
         const newMovimientoCargo = await MovimientoSubCuenta.create({
             fecha: new Date(),
             cargo: cargoCuenta,
             abono: 0,
-            saldo_actual: (saldoActual - req.body.cargo),
+            saldo_actual: (saldoActual - cargoCuenta),
             comentario: str.action,
-            movimiento_liquidacion: [
-                {
-                    fk_id_liquidacion: idLiquidacion
-                }
-            ]
+            fk_id_subcuenta: idSubCuenta,
+            movimiento_liquidacions: { fk_id_liquidacion: idLiquidacion }
         }, {
-            include: [{ model: MovimientoLiquidacion, as: 'movimiento_liquidacion' }]
+            include: [{ model: MovimientoLiquidacion, as: 'movimiento_liquidacions' }]
         })
-
         res.json(new response(true, str.create, null, newMovimientoCargo))
-
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }
@@ -91,7 +86,7 @@ async function createMovimientoAbono(req, res, str, MovimientoSubCuenta, Movimie
     try {
         const deposito = req.body.deposito
         const idSubCuenta = deposito.fk_id_subcuenta
-        const abonoCuenta = deposito.monto
+        const abonoCuenta = (deposito.monto * deposito.cambio)
         const saldoActual = await getSaldoActual(MovimientoSubCuenta, idSubCuenta)
         const idDeposito = deposito.id_deposito
 
@@ -102,10 +97,7 @@ async function createMovimientoAbono(req, res, str, MovimientoSubCuenta, Movimie
             saldo_actual: (saldoActual + abonoCuenta),
             comentario: str.action,
             fk_id_subcuenta: idSubCuenta,
-            movimiento_depositos:
-            {
-                fk_id_deposito: idDeposito
-            }
+            movimiento_depositos: { fk_id_deposito: idDeposito }
         }, {
             include: [{ model: MovimientoDeposito, as: 'movimiento_depositos' }]
         })
@@ -113,7 +105,6 @@ async function createMovimientoAbono(req, res, str, MovimientoSubCuenta, Movimie
         res.json(new response(true, str.create, null, newMovimientoAbono))
 
     } catch (error) {
-        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
     }
 }
