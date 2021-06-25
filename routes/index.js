@@ -137,7 +137,7 @@ module.exports = (app, str) => {
     routes.post('/sub/cuenta/orden', Middleware.verifyToken, SubCuentaController.getByOrder);
 
     //routes from deposito
-    routes.post('/deposito', Middleware.verifyToken, DepositoController.create);
+    routes.post('/deposito/', Middleware.verifyToken, DepositoController.create, MovimientoSubCuentaController.createAbono);
     routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
 
     //routes from empresamonedas

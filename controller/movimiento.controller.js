@@ -8,8 +8,8 @@ module.exports = (app, str) => {
     return {
         getByAccount: (req, res) => { getMovimientoByidCount(req, res, str, MovimientoSubCuenta, SubCuenta) },
         create: (req, res) => { createMovimiento(req, res, str, MovimientoSubCuenta) },
-        createAbono: (req, res, next) => { createMovimientoAbono(req, res, next, str, MovimientoSubCuenta, MovimientoDeposito) },
-        createCargo: (req, res, next) => { createMovimientoCargo(req, res, next, str, MovimientoSubCuenta, MovimientoLiquidacion) }
+        createAbono: (req, res) => { createMovimientoAbono(req, res, str, MovimientoSubCuenta, MovimientoDeposito) },
+        createCargo: (req, res) => { createMovimientoCargo(req, res, str, MovimientoSubCuenta, MovimientoLiquidacion) }
     }
 }
 
@@ -62,7 +62,7 @@ async function createMovimientoCargo(req, res, str, MovimientoSubCuenta, Movimie
     try {
         const idSubCuenta = req.body.fk_id_subcuenta
         const cargoCuenta = req.body.cargo
-        const saldoActual = getSaldoActual(MovimientoSubCuenta, idSubCuenta)
+        const saldoActual = await getSaldoActual(MovimientoSubCuenta, idSubCuenta)
         const idLiquidacion = req.body.id_liquidacion
 
         const newMovimientoCargo = await MovimientoSubCuenta.create({
@@ -80,7 +80,7 @@ async function createMovimientoCargo(req, res, str, MovimientoSubCuenta, Movimie
             include: [{ model: MovimientoLiquidacion, as: 'movimiento_liquidacion' }]
         })
 
-        res.json(new response(false, str.errCatch, null, newMovimientoCargo))
+        res.json(new response(true, str.create, null, newMovimientoCargo))
 
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
@@ -89,29 +89,31 @@ async function createMovimientoCargo(req, res, str, MovimientoSubCuenta, Movimie
 
 async function createMovimientoAbono(req, res, str, MovimientoSubCuenta, MovimientoDeposito) {
     try {
-        const idSubCuenta = req.body.fk_id_subcuenta
-        const abonoCuenta = req.body.monto
-        const saldoActual = getSaldoActual(MovimientoSubCuenta, idSubCuenta)
-        const idDeposito = req.body.id_deposito
+        const deposito = req.body.deposito
+        const idSubCuenta = deposito.fk_id_subcuenta
+        const abonoCuenta = deposito.monto
+        const saldoActual = await getSaldoActual(MovimientoSubCuenta, idSubCuenta)
+        const idDeposito = deposito.id_deposito
 
         const newMovimientoAbono = await MovimientoSubCuenta.create({
             fecha: new Date(),
             cargo: 0,
             abono: abonoCuenta,
-            saldo_actual: (saldoActual + req.body.abono),
+            saldo_actual: (saldoActual + abonoCuenta),
             comentario: str.action,
-            movimiento_deposito: [
-                {
-                    fk_id_deposito: idDeposito
-                }
-            ]
+            fk_id_subcuenta: idSubCuenta,
+            movimiento_depositos:
+            {
+                fk_id_deposito: idDeposito
+            }
         }, {
-            include: [{ model: MovimientoDeposito, as: 'movimiento_deposito' }]
+            include: [{ model: MovimientoDeposito, as: 'movimiento_depositos' }]
         })
 
-        res.json(new response(false, str.errCatch, null, newMovimientoAbono))
+        res.json(new response(true, str.create, null, newMovimientoAbono))
 
     } catch (error) {
+        console.log(error)
         res.json(new response(false, str.errCatch, error, null))
     }
 }
