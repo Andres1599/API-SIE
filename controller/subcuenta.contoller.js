@@ -13,6 +13,7 @@ module.exports = (app, str) => {
         create: (req, res) => { createSubCuentas(req, res, str, subCuentas) },
         update: (req, res) => { updateSubCuentas(req, res, str, subCuentas) },
         getById: (req, res) => { getSubCuentasByIdUser(req, res, str, cuenta, subCuentas, tipoCuenta, moneda, empresa) },
+        getByPk: (req, res) => { getSubCuentaByPk(req, res, str, subCuentas, tipoCuenta, moneda, empresa) },
         getByOrder: (req, res) => { getCuentasByTecnicos(req, res, str, cuenta, subCuentas, tipoCuenta, moneda, empresa, sequelize) }
     }
 }
@@ -71,6 +72,18 @@ async function getSubCuentasByIdUser(req, res, str, cuenta, subCuentas, tipoCuen
         }
 
 
+    } catch (error) {
+        res.json(new response(false, str.errCatch, error, null))
+    }
+}
+
+async function getSubCuentaByPk(req, res, str, subCuentas, tipoCuenta, moneda, empresa) {
+    try {
+        const subCuenta = await subCuentas.findOne({
+            where: { id_cuenta_empresa: req.params.id },
+            include: [moneda, empresa, tipoCuenta]
+        })
+        res.json(new response(true, str.getAll, null, subCuenta))
     } catch (error) {
         res.json(new response(false, str.errCatch, error, null))
     }

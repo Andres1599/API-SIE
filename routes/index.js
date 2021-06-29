@@ -132,6 +132,7 @@ module.exports = (app, str) => {
 
     // routes from subcuentas
     routes.get('/sub/cuenta/:id', Middleware.verifyToken, SubCuentaController.getById);
+    routes.get('/sub/cuenta/pk/:id', Middleware.verifyToken, SubCuentaController.getByPk);
     routes.post('/sub/cuenta/', Middleware.verifyToken, SubCuentaController.create);
     routes.put('/sub/cuenta/', Middleware.verifyToken, SubCuentaController.update);
     routes.post('/sub/cuenta/orden', Middleware.verifyToken, SubCuentaController.getByOrder);
@@ -281,7 +282,7 @@ module.exports = (app, str) => {
     routes.delete('/dias/vacaciones/:periodo/:dias/:total', Middleware.verifyToken, DiasVacacionesController.delete);
 
     // routes from movimientos de cuenta
-    routes.get('/movimiento/cuenta/:cuenta/:id', MovimientoSubCuentaController.getByAccount);
+    routes.get('/movimiento/cuenta/:id', MovimientoSubCuentaController.getByAccount);
     routes.post('/movimiento/cuenta/:cuenta/:id', Middleware.verifyToken, MovimientoSubCuentaController.create);
 
     return routes;

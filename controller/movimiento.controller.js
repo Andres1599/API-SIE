@@ -5,8 +5,13 @@ module.exports = (app, str) => {
     const MovimientoLiquidacion = app.get('movimiento_liquidacion')
     const MovimientoDeposito = app.get('movimiento_deposito')
     const SubCuenta = app.get('subcuenta')
+    const Liquidacion = app.get('liquidacion')
+    const Moneda = app.get('moneda')
+    const Empresa = app.get('empresa')
+    const TipoCuenta = app.get('tipo_cuenta')
+    const Deposito = app.get('deposito')
     return {
-        getByAccount: (req, res) => { getMovimientoByidCount(req, res, str, MovimientoSubCuenta, SubCuenta) },
+        getByAccount: (req, res) => { getMovimientoByidCount(req, res, str, MovimientoSubCuenta, SubCuenta, MovimientoDeposito, MovimientoLiquidacion, Liquidacion, Moneda, Empresa, TipoCuenta, Deposito) },
         create: (req, res) => { createMovimiento(req, res, str, MovimientoSubCuenta) },
         createAbono: (req, res) => { createMovimientoAbono(req, res, str, MovimientoSubCuenta, MovimientoDeposito) },
         createCargo: (req, res) => { createMovimientoCargo(req, res, str, MovimientoSubCuenta, MovimientoLiquidacion) }
@@ -42,14 +47,17 @@ async function getSaldoActual(MovimientoSubCuenta, idSubCuenta) {
     }
 }
 
-async function getMovimientoByidCount(req, res, str, MovimientoSubCuenta, SubCuenta) {
+async function getMovimientoByidCount(req, res, str, MovimientoSubCuenta, SubCuenta, MovimientoDeposito, MovimientoLiquidacion, Liquidacion, Moneda, Empresa, TipoCuenta, Deposito) {
     try {
-        const idCuentaContable = req.params.cuenta
         const idSubCuenta = req.params.id
         const movimientosSubCuenta = await MovimientoSubCuenta.findAll({
             where: { fk_id_subcuenta: idSubCuenta },
-            include: [{ model: SubCuenta, where: { cuenta_contable: idCuentaContable } }],
-            order: [['fecha', 'ASC']],
+            include: [
+                { model: SubCuenta, include: [Moneda, Empresa, TipoCuenta] },
+                { model: MovimientoDeposito, include: [Deposito] },
+                { model: MovimientoLiquidacion, include: [Liquidacion] }
+            ],
+            order: [['fecha', 'DESC']],
         })
         res.json(new response(true, str.getAll, null, movimientosSubCuenta))
     } catch (error) {
