@@ -209,18 +209,14 @@ function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario
 async function closeCalendar(req, res, string, Calendario) {
     try {
         let events = req.body.activities;
-        let count = 0;
         if (Array.isArray(events)) {
-            await events.forEach(async (event) => {
-                const updateEvent = await Calendario.update({
-                    status: true
-                }, {
-                    where: {
-                        id: event.fk_id_calendario
-                    }
+
+            for await (item of events) {
+                const updateEvent = await Calendario.update({ status: true }, {
+                    where: { id: item.fk_id_calendario }
                 })
-                count += 1
-            })
+            }
+
             res.json(new response(true, string.update, null, true))
 
         } else {
@@ -262,6 +258,7 @@ async function searchCalendar(req, res, string, sequelize, Calendario, Actividad
                     include: [{ model: Usuario, attributes: ['id_usuario'], include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido'] }] }],
                 }
             ]
+
         })
         res.json(new response(true, string.getAll, null, eventSearch))
     } catch (error) {
@@ -282,11 +279,11 @@ async function getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo,
             include: [{
                 model: Calendario,
                 where: {
-                    [Op.or]: {
-                        end: { [Op.between]: [req.body.start, req.body.end] },
-                        start: { [Op.between]: [req.body.start, req.body.end] },
-                        fk_id_actividad: req.body.fk_id_actividad
-                    },
+                    [Op.or]: [
+                        { end: { [Op.between]: [req.body.start, req.body.end] } },
+                        { start: { [Op.between]: [req.body.start, req.body.end] } },
+                    ],
+                    fk_id_actividad: req.body.fk_id_actividad,
                     status: false
                 },
                 include: [
