@@ -11,13 +11,12 @@ module.exports = (app, string) => {
     const CalendarioEnsayo = app.get('calendario_ensayo');
 
     return {
-        getAll: (req, res) => { getAllEvent(req, res, string, Calendario) },
-        getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
-        getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         update: (req, res) => { updateEvent(req, res, string, response, Calendario) },
         delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
-        getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
+        getAll: (req, res) => { getAllEvent(req, res, string, Calendario) },
+        getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
+        getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         close: (req, res) => { closeCalendar(req, res, string, Calendario) },
         search: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         searchUser: (req, res) => { getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
@@ -126,38 +125,6 @@ function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
     })
 }
 
-/**
- * @description All the events that need to be accepted has the combination status: true, close: false. If the 
- * status is false and the close is true, that means the event is al ready refuse and do not need to be showed
- */
-function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) {
-    CalendarioUsuario.findAll({
-        where: {
-            fk_id_usuario: req.params.id,
-            statusAccept: false,
-            cierre_calendario: false
-        },
-        include: [{
-            model: Calendario
-        }]
-    }).then(events => {
-        if (events) {
-            res.json(new response(true, string.getAll, null, events))
-        } else {
-            res.json(new response(false, string.getErr, null, events))
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-/**
- * @description close all events by date range. If the status is true on the event, thats means the event has been closed
- * @param {*} req 
- * @param {*} res 
- * @param {*} string 
- * @param {*} Calendario 
- */
 async function closeCalendar(req, res, string, Calendario) {
     try {
         let events = req.body.activities;

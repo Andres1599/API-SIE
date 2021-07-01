@@ -244,7 +244,6 @@ module.exports = (app, str) => {
     routes.put('/calendario/', Middleware.verifyToken, CalendarioController.update);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
     routes.put('/calendario/close/', Middleware.verifyToken, CalendarioController.close);
-    routes.get('/calendario/accept/:id', Middleware.verifyToken, CalendarioController.getByIdToBeAccept);
     routes.post('/calendario/search', Middleware.verifyToken, CalendarioController.search);
     routes.post('/calendario/search/user', CalendarioController.searchUser);
     routes.post('/calendario/search/full', CalendarioController.full);
