@@ -240,12 +240,10 @@ module.exports = (app, str) => {
     routes.get('/calendario', Middleware.verifyToken, CalendarioController.getAll);
     routes.get('/calendario/event/:id', Middleware.verifyToken, CalendarioController.getById);
     routes.get('/calendario/:fk_id_usuario', Middleware.verifyToken, CalendarioController.getUserEventsById);
-    routes.post('/calendario', Middleware.verifyToken, CalendarioController.create);
-    routes.put('/calendario', Middleware.verifyToken, CalendarioController.update);
+    routes.post('/calendario/', Middleware.verifyToken, CalendarioController.create);
+    routes.put('/calendario/', Middleware.verifyToken, CalendarioController.update);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
-    routes.put('/calendario/accept/', Middleware.verifyToken, CalendarioController.accept);
     routes.put('/calendario/close/', Middleware.verifyToken, CalendarioController.close);
-    routes.put('/calendario/refuse/', Middleware.verifyToken, CalendarioController.refuse);
     routes.get('/calendario/accept/:id', Middleware.verifyToken, CalendarioController.getByIdToBeAccept);
     routes.post('/calendario/search', Middleware.verifyToken, CalendarioController.search);
     routes.post('/calendario/search/user', CalendarioController.searchUser);

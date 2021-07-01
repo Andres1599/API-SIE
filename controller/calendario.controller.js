@@ -17,9 +17,7 @@ module.exports = (app, string) => {
         create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         update: (req, res) => { updateEvent(req, res, string, response, Calendario) },
         delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
-        accept: (req, res) => { acceptEvent(req, res, CalendarioUsuario, string) },
         getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
-        refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
         close: (req, res) => { closeCalendar(req, res, string, Calendario) },
         search: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         searchUser: (req, res) => { getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
@@ -123,52 +121,6 @@ function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
         include: [Calendario]
     }).then(events => {
         res.json(events)
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-function acceptEvent(req, res, CalendarioUsuario, string) {
-    CalendarioUsuario.update({
-        statusAccept: true,
-        cierre_calendario: true
-    }, {
-        where: {
-            id_calendario_usuario: req.body.id_calendario_usuario
-        }
-    }).then(updated => {
-        if (updated) {
-            res.json(new response(true, string.createErr, null, updated))
-        } else {
-            res.json(new response(false, string.createErr, null, updated))
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-/**
- * @description when refuse a event the combination is status: false and close: true. Status means user refuse event
- * and close means the event has been refused and do not to be shown
- * @param {*} req 
- * @param {*} res 
- * @param {*} CalendarioUsuario 
- * @param {*} string 
- */
-function refuseEvent(req, res, CalendarioUsuario, string) {
-    CalendarioUsuario.update({
-        statusAccept: false,
-        cierre_calendario: true
-    }, {
-        where: {
-            id_calendario_usuario: req.body.id_calendario_usuario
-        }
-    }).then(updated => {
-        if (updated) {
-            res.json(new response(true, string.createErr, null, updated))
-        } else {
-            res.json(new response(false, string.createErr, null, updated))
-        }
     }).catch(err => {
         res.json(new response(false, string.errCatch, err, null));
     })
