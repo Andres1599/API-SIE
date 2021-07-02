@@ -15,7 +15,8 @@ const STR = {
     getAll: 'Query result successful',
     get: 'Specific query result successful',
     error400: 'Bad request',
-    error401: 'Unauthorized'
+    error401: 'Unauthorized',
+    action: 'Movimiento interno.'
 }
 
 module.exports = {

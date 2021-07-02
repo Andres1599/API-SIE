@@ -60,6 +60,9 @@ module.exports = (app, str) => {
     const PeriodoVacacionesController = require('../controller/periodos.vacaciones.controller')(app, str);
     const DiasVacacionesController = require('../controller/dias.vacaciones.controller')(app, str);
 
+    // Movimientos de cuenta
+    const MovimientoSubCuentaController = require('../controller/movimiento.controller')(app, str);
+
     //routes letter
     routes.post('/carta/create/', Middleware.verifyToken, CartaController.create);
     routes.get('/carta/', Middleware.verifyToken, CartaController.getAll);
@@ -116,7 +119,7 @@ module.exports = (app, str) => {
     routes.delete('/liquidacion/:id', Middleware.verifyToken, LiquidationController.delete);
     routes.delete('/liquidacion/item/:id', Middleware.verifyToken, LiquidationController.deleteItem);
     routes.delete('/liquidacion/item/full/:id', Middleware.verifyToken, LiquidationController.deleteItemFull);
-    routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close);
+    routes.put('/liquidacion/close/', Middleware.verifyToken, LiquidationController.close, MovimientoSubCuentaController.createCargo);
     routes.put('/liquidacion/unclose/', Middleware.verifyToken, LiquidationController.unclose);
     routes.put('/liquidacion/date/', Middleware.verifyToken, LiquidationController.updateFecha);
     routes.post('/liquidacion/correlativo/', Middleware.verifyToken, LiquidationController.updateId);
@@ -129,15 +132,14 @@ module.exports = (app, str) => {
 
     // routes from subcuentas
     routes.get('/sub/cuenta/:id', Middleware.verifyToken, SubCuentaController.getById);
+    routes.get('/sub/cuenta/pk/:id', Middleware.verifyToken, SubCuentaController.getByPk);
     routes.post('/sub/cuenta/', Middleware.verifyToken, SubCuentaController.create);
     routes.put('/sub/cuenta/', Middleware.verifyToken, SubCuentaController.update);
     routes.post('/sub/cuenta/orden', Middleware.verifyToken, SubCuentaController.getByOrder);
 
     //routes from deposito
-    routes.post('/deposito', Middleware.verifyToken, DepositoController.create);
-    routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
-    routes.get('/deposito/', Middleware.verifyToken, DepositoController.getAll);
-    routes.get('/deposito/:id', Middleware.verifyToken, DepositoController.getById);
+    routes.post('/deposito/', Middleware.verifyToken, DepositoController.create, MovimientoSubCuentaController.createAbono);
+    // routes.delete('/deposito/:id', Middleware.verifyToken, DepositoController.delete);
 
     //routes from empresamonedas
     routes.get('/empresamonedas/', Middleware.verifyToken, EmpresaMonedaController.getAll);
@@ -184,7 +186,7 @@ module.exports = (app, str) => {
     routes.delete('/orden/:id', Middleware.verifyToken, OrdenController.delete);
 
     //routes from orden deposito
-    routes.post('/orden/deposito', Middleware.verifyToken, OrdenDepositoController.create);
+    routes.post('/orden/deposito', Middleware.verifyToken, OrdenDepositoController.create, MovimientoSubCuentaController.createAbono);
     routes.delete('/orden/deposito/:id/:id_deposito', Middleware.verifyToken, OrdenDepositoController.delete);
 
     //routes from orden liquidation
@@ -238,13 +240,10 @@ module.exports = (app, str) => {
     routes.get('/calendario', Middleware.verifyToken, CalendarioController.getAll);
     routes.get('/calendario/event/:id', Middleware.verifyToken, CalendarioController.getById);
     routes.get('/calendario/:fk_id_usuario', Middleware.verifyToken, CalendarioController.getUserEventsById);
-    routes.post('/calendario', Middleware.verifyToken, CalendarioController.create);
-    routes.put('/calendario', Middleware.verifyToken, CalendarioController.update);
+    routes.post('/calendario/', Middleware.verifyToken, CalendarioController.create);
+    routes.put('/calendario/', Middleware.verifyToken, CalendarioController.update);
     routes.delete('/calendario/:id', Middleware.verifyToken, CalendarioController.delete);
-    routes.put('/calendario/accept/', Middleware.verifyToken, CalendarioController.accept);
     routes.put('/calendario/close/', Middleware.verifyToken, CalendarioController.close);
-    routes.put('/calendario/refuse/', Middleware.verifyToken, CalendarioController.refuse);
-    routes.get('/calendario/accept/:id', Middleware.verifyToken, CalendarioController.getByIdToBeAccept);
     routes.post('/calendario/search', Middleware.verifyToken, CalendarioController.search);
     routes.post('/calendario/search/user', CalendarioController.searchUser);
     routes.post('/calendario/search/full', CalendarioController.full);
@@ -278,6 +277,10 @@ module.exports = (app, str) => {
     // routes from dias de vacaciones
     routes.post('/dias/vacaciones/', Middleware.verifyToken, DiasVacacionesController.create);
     routes.delete('/dias/vacaciones/:periodo/:dias/:total', Middleware.verifyToken, DiasVacacionesController.delete);
+
+    // routes from movimientos de cuenta
+    routes.get('/movimiento/cuenta/:id', MovimientoSubCuentaController.getByAccount);
+    routes.post('/movimiento/cuenta/:cuenta/:id', Middleware.verifyToken, MovimientoSubCuentaController.create);
 
     return routes;
 };

@@ -11,15 +11,12 @@ module.exports = (app, string) => {
     const CalendarioEnsayo = app.get('calendario_ensayo');
 
     return {
-        getAll: (req, res) => { getAllEvent(req, res, string, Calendario) },
-        getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
-        getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         create: (req, res) => { createEvent(req, res, string, response, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         update: (req, res) => { updateEvent(req, res, string, response, Calendario) },
         delete: (req, res) => { deleteEvent(req, res, string, response, Calendario, CalendarioUsuario) },
-        accept: (req, res) => { acceptEvent(req, res, CalendarioUsuario, string) },
-        getByIdToBeAccept: (req, res) => { getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) },
-        refuse: (req, res) => { refuseEvent(req, res, CalendarioUsuario, string) },
+        getAll: (req, res) => { getAllEvent(req, res, string, Calendario) },
+        getById: (req, res) => { getEventById(req, res, string, response, Calendario, CalendarioUsuario, Usuario, DatosUsuario, Actividad, CalendarioEnsayo, Ensayo) },
+        getUserEventsById: (req, res) => { getAllEventUserById(req, res, string, Calendario, CalendarioUsuario, CalendarioEnsayo) },
         close: (req, res) => { closeCalendar(req, res, string, Calendario) },
         search: (req, res) => { searchCalendar(req, res, string, op, Calendario, Actividad, Ensayo, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
         searchUser: (req, res) => { getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo, string, op, CalendarioUsuario, Usuario, DatosUsuario, CalendarioEnsayo) },
@@ -128,99 +125,17 @@ function getAllEventUserById(req, res, string, Calendario, CalendarioUsuario) {
     })
 }
 
-function acceptEvent(req, res, CalendarioUsuario, string) {
-    CalendarioUsuario.update({
-        statusAccept: true,
-        cierre_calendario: true
-    }, {
-        where: {
-            id_calendario_usuario: req.body.id_calendario_usuario
-        }
-    }).then(updated => {
-        if (updated) {
-            res.json(new response(true, string.createErr, null, updated))
-        } else {
-            res.json(new response(false, string.createErr, null, updated))
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-/**
- * @description when refuse a event the combination is status: false and close: true. Status means user refuse event
- * and close means the event has been refused and do not to be shown
- * @param {*} req 
- * @param {*} res 
- * @param {*} CalendarioUsuario 
- * @param {*} string 
- */
-function refuseEvent(req, res, CalendarioUsuario, string) {
-    CalendarioUsuario.update({
-        statusAccept: false,
-        cierre_calendario: true
-    }, {
-        where: {
-            id_calendario_usuario: req.body.id_calendario_usuario
-        }
-    }).then(updated => {
-        if (updated) {
-            res.json(new response(true, string.createErr, null, updated))
-        } else {
-            res.json(new response(false, string.createErr, null, updated))
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-/**
- * @description All the events that need to be accepted has the combination status: true, close: false. If the 
- * status is false and the close is true, that means the event is al ready refuse and do not need to be showed
- */
-function getAllEventToAcceptById(req, res, string, Calendario, CalendarioUsuario) {
-    CalendarioUsuario.findAll({
-        where: {
-            fk_id_usuario: req.params.id,
-            statusAccept: false,
-            cierre_calendario: false
-        },
-        include: [{
-            model: Calendario
-        }]
-    }).then(events => {
-        if (events) {
-            res.json(new response(true, string.getAll, null, events))
-        } else {
-            res.json(new response(false, string.getErr, null, events))
-        }
-    }).catch(err => {
-        res.json(new response(false, string.errCatch, err, null));
-    })
-}
-
-/**
- * @description close all events by date range. If the status is true on the event, thats means the event has been closed
- * @param {*} req 
- * @param {*} res 
- * @param {*} string 
- * @param {*} Calendario 
- */
 async function closeCalendar(req, res, string, Calendario) {
     try {
         let events = req.body.activities;
-        let count = 0;
         if (Array.isArray(events)) {
-            await events.forEach(async (event) => {
-                const updateEvent = await Calendario.update({
-                    status: true
-                }, {
-                    where: {
-                        id: event.fk_id_calendario
-                    }
+
+            for await (item of events) {
+                const updateEvent = await Calendario.update({ status: true }, {
+                    where: { id: item.fk_id_calendario }
                 })
-                count += 1
-            })
+            }
+
             res.json(new response(true, string.update, null, true))
 
         } else {
@@ -262,6 +177,7 @@ async function searchCalendar(req, res, string, sequelize, Calendario, Actividad
                     include: [{ model: Usuario, attributes: ['id_usuario'], include: [{ model: DatosUsuario, attributes: ['nombre', 'apellido'] }] }],
                 }
             ]
+
         })
         res.json(new response(true, string.getAll, null, eventSearch))
     } catch (error) {
@@ -282,11 +198,11 @@ async function getEventToBeClosePerUser(req, res, Calendario, Actividad, Ensayo,
             include: [{
                 model: Calendario,
                 where: {
-                    [Op.or]: {
-                        end: { [Op.between]: [req.body.start, req.body.end] },
-                        start: { [Op.between]: [req.body.start, req.body.end] },
-                        fk_id_actividad: req.body.fk_id_actividad
-                    },
+                    [Op.or]: [
+                        { end: { [Op.between]: [req.body.start, req.body.end] } },
+                        { start: { [Op.between]: [req.body.start, req.body.end] } },
+                    ],
+                    fk_id_actividad: req.body.fk_id_actividad,
                     status: false
                 },
                 include: [

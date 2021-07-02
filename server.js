@@ -1,10 +1,11 @@
+const helmet = require('helmet')
 const config = require('./config/config');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const express = require('express');
 const db = require('./models/db');
 const str = require('./utils/strings');
+const compression = require('compression');
 
 //Set express 
 var app = express();
@@ -53,26 +54,23 @@ app.set('op', db.sequelize);
 app.set('catalogo_asuetos', db.CatalogoAsuetos);
 app.set('periodos_vacaciones', db.PeriodoVacaciones);
 app.set('dias_vacaciones', db.DiasVacaciones);
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.set('movimiento_subcuenta', db.MovimientoSubCuenta);
+app.set('movimiento_liquidacion', db.MovimientoLiquidacion);
+app.set('movimiento_deposito', db.MovimientoDeposito);
+
 
 //Set config server
-app.use(morgan('dev'));
-app.use(express.json());
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
-    next();
-});
-
-app.use(cors());
-app.use('/api/sie', require('./routes')(app, str.STR));
-
-app.listen(port, () => {
-    console.log("Servidor iniciado en el puerto: " + port);
-    console.log("Debug del server: ");
-});
+app
+    .use(express.urlencoded({ extended: true }))
+    .use(compression())
+    .use(express.json())
+    .use(morgan('dev'))
+    .use(helmet())
+    .use(cors())
+    .use('/api/sie', require('./routes')(app, str.STR))
+    .listen(port, () => {
+        console.log("Servidor iniciado en el puerto: " + port);
+        console.log("Debug del server: ");
+    });
 
 module.exports = app
